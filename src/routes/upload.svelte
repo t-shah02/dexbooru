@@ -8,7 +8,6 @@
 
 <script>
   import {fade, slide, scale} from 'svelte/transition';
-  import UploadToggle from "../components/toggleUploadCard.svelte";
   import UploadImage from "../components/UploadImage.svelte"
     let imageURL = "";
     let image;
@@ -45,7 +44,7 @@
 {#if isFileTooLongError}
 <div class="notification is-danger" in:slide out:slide>
   <button class="delete" on:click={checkImageLength}></button>
-  PLEASE LIMIT YOUR UPLOADS TO 10 IMAGES OR LESS.
+  <h1 class="upload-limit-msg">PLEASE LIMIT YOUR UPLOADS TO 10 IMAGES OR LESS.</h1>
 </div>
 {/if}
 <h1> Make a post </h1>
@@ -71,29 +70,23 @@
   <h2>IMAGE PREVIEW</h2>
   <div class="imagebar">
     {#each files as file}
-      <div class="image" in:slide out:slide>
-        <div on:click={toggleModal} class="pic" style="background-image : url({URL.createObjectURL(file)})">
-          
-        </div>
-          <div class="arrow">
-            <UploadToggle></UploadToggle>
-          </div>
-      </div>
-      {#if triggerModal}
-      <div class="modal">
-        <div on:click={toggleModal} class="modal-background"></div>
-          <div class="modal-content">
-              <img src={URL.createObjectURL(file)} alt="" height ="100%"> 
-          </div>
-        <button class="modal-close is-large" aria-label="close" on:click={toggleModal}></button>
-      </div>
-      {/if}
+      <UploadImage file={file}></UploadImage>
     {/each}
   </div>
 </div>
 
 <style>
 
+    /* width */
+  ::-webkit-scrollbar {
+      width: 1px;
+  }
+
+    .upload-limit-msg {
+      font-size : 15px;
+      color : white;
+      margin-top : 1px;
+    }
     .modal {
       display: flex;
       flex-direction:column;
@@ -198,6 +191,9 @@
       display : flex;
       overflow-x: scroll;
       margin-bottom: 50px;
+      margin-left: 2.5%;
+      margin-right: 2.5%;
+      scrollbar-width: thin;
     }
 
     @media only screen and (max-width: 600px) {
