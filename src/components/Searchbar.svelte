@@ -4,19 +4,13 @@
 
     import {homePageQuery, searchMatches} from "../stores";
 
-    let tests = [
-    "lol",
-    "bruh",
-    "apple",
-    "penis",
-    "benis" 
-  ];
+    export let tags;
 
     function getMatches() {
       let results = [];
-      for (let i = 0; i < tests.length; i++) {
-        if (tests[i].startsWith($homePageQuery)) {
-          results.push(tests[i]);
+      for (let i = 0; i < tags.length; i++) {
+        if (tags[i].startsWith($homePageQuery)) {
+          results.push(tags[i]);
         }
       }
       searchMatches.set(results);

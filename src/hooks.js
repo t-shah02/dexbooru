@@ -14,7 +14,7 @@ export async function handle({ event, resolve }) {
 
     const user = await checkSessionId(cookies.session_id);
     if (user) {
-        event.locals.user = {authenticated :true, email : user.email, username : user.username};
+        event.locals.user = {authenticated :true, email : user.email, username : user.username, pfp : user.profilePictureURL, posts : JSON.stringify(user.posts)};
     }
     else {
         event.locals.user = {authenticated :false};
@@ -31,7 +31,7 @@ export async function handle({ event, resolve }) {
 export function getSession(event) {
 
     if (event.locals.user.authenticated) {
-        return {authenticated : event.locals.user.authenticated, email : event.locals.user.email, username : event.locals.user.username};
+        return {authenticated : event.locals.user.authenticated, email : event.locals.user.email, username : event.locals.user.username, pfp : event.locals.user.pfp, posts : event.locals.user.posts};
     }
 
     return {authenticated : event.locals.user.authenticated};

@@ -1,266 +1,265 @@
 <script context="module">
-  export async function load({ params, fetch, session, stuff }) {
+	export async function load({ fetch, session }) {
+		const auth = session.authenticated;
+		const response = await fetch("/api/tags");
+		const tagsData = await response.json();
+		const tags = tagsData.map((tagData) => tagData.name);
 
-    return {}
-  }
+		if (auth) {
+			const username = session.username;
+			return { props: { username: username, tags : tags } };
+		}
+		return { status: 302, redirect: '/' };
+	}
 </script>
-
 
 <script>
-  import {fade, slide, scale} from 'svelte/transition';
-  import UploadImage from "../components/UploadImage.svelte"
-    let imageURL = "";
-    let image;
-    let placeholder;
-    let showImage = false;
-    let isFileTooLongError = false;
-    let colors = ["is-success","is-link","is-warning","is-danger","is-primary"];
-    let triggerModal = false;
-    let previewURL = "";
+	import { slide } from 'svelte/transition';
+	import UploadImage from '../components/UploadImage.svelte';
+	import { files } from "../stores";
 
-  let files = [];
-  $: file = files[0];
+	export let username;
+	export let tags;
+	
+	let isFileTooLongError = false;
+	//$: file = files[0];
 
-  function checkImageLength() {
-    if (files.length > 10) {
-    isFileTooLongError = true;
-    files = [];
-    }
-    else {
-      isFileTooLongError = false;
-    }
-  }
 
-  function toggleModal() {
-    if (!triggerModal) {
-      triggerModal = !triggerModal;
-    }
-    else {
-      triggerModal = !triggerModal;
-    }
-  }
+	const clearFilesInDOM = () => {
+		const fileInput = document.querySelector("#many");
+		fileInput.value = "";
+		files.set([]);
+	}
+
+	function checkImageLength() {
+		const fileInput = document.querySelector("#many");
+		files.set(fileInput.files);
+		console.log($files);
+		if (files.length > 10) {
+			isFileTooLongError = true;
+			files.set([]);
+			clearFilesInDOM();
+		} else {
+			isFileTooLongError = false;
+		}
+	}
+
+	function deleteImages() {
+		files.set([]);
+		clearFilesInDOM();
+	}
 
 </script>
+
+<svelte:head>
+	<title>Upload - Dexbooru</title>
+</svelte:head>
+
+
 {#if isFileTooLongError}
-<div class="notification is-danger" in:slide out:slide>
-  <button class="delete" on:click={checkImageLength}></button>
-  <h1 class="upload-limit-msg">PLEASE LIMIT YOUR UPLOADS TO 10 IMAGES OR LESS.</h1>
+	<div class="notification is-danger" in:slide out:slide>
+		<button class="delete" on:click={() => {files.set([]); isFileTooLongError = false;}} />
+		<h1 class="upload-limit-msg">Please limit uploads to 10 images.</h1>
+	</div>
+{/if}
+
+{#if $files.length == 0}
+<div class="upload-card" in:slide out:slide>
+	<label for="file is-primary">Upload images:</label>
+	<div class="file is-primary">
+		<label class="file-label">
+			<input
+				class="file-input"
+				type="file"
+				name="image"
+				accept="image/*"
+				on:change={checkImageLength}
+				id="many"
+				multiple
+			/>
+			<span class="file-cta">
+				<span class="file-icon">
+					<i class="fas fa-upload" />
+				</span>
+				<span class="file-label"> Choose up to 10 images </span>
+			</span>
+		</label>
+	</div>
 </div>
 {/if}
-<h1> Make a post </h1>
 
-<div class="upload-card" in:slide out:slide>
-  <label for="file is-primary">Upload images:</label>
-  <div class="file is-primary">
-    <label class="file-label">
-      <input class="file-input" type="file" name="image" 	accept="image/png, image/jpeg" bind:files on:change={checkImageLength} id="many"multiple>
-      <span class="file-cta">
-        <span class="file-icon">
-          <i class="fas fa-upload"></i>
-        </span>
-        <span class="file-label">
-          Choose up to 10 images
-        </span>
-      </span>
-    </label>
-  </div>
+<div in:slide out:slide class="files">
+	<h2>IMAGE PREVIEW</h2>
+	<div class="imagebar">
+		{#each Array.from($files) as file}
+			<UploadImage tags={tags} username={username} {file} />
+		{/each}
+	</div>
+	{#if $files.length > 0}
+		<div class="g">
+			<button type="submit" on:click={deleteImages} class="button is-white" id="g"
+				>DELETE ALL</button
+			>
+		</div>
+	{/if}
 </div>
 
-<div class="files">
-  <h2>IMAGE PREVIEW</h2>
-  <div class="imagebar">
-    {#each files as file}
-      <UploadImage file={file}></UploadImage>
-    {/each}
-  </div>
-</div>
 
 <style>
+	/* width */
+	::-webkit-scrollbar {
+		width: 1px;
+	}
 
-    /* width */
-  ::-webkit-scrollbar {
-      width: 1px;
-  }
+	.upload-limit-msg {
+		font-size: 15px;
+		color: white;
+		margin-top: 1px;
+	}
 
-    .upload-limit-msg {
-      font-size : 15px;
-      color : white;
-      margin-top : 1px;
-    }
-    .modal {
-      display: flex;
-      flex-direction:column;
-      justify-content: center;
-      align-items: center;
-    }
+	div {
+		display: block;
+		margin-left: auto;
+		margin-right: auto;
+	}
 
-    .modal-content {
-      display: flex;
-      flex-direction:column;
-      justify-content: center;
-      align-items: center;
-      width:max-content;
-    }
+	label {
+		font-size: 30px;
+	}
 
-    .modal-background {
-      background-color:rgba(8,8,8,0.8);
-    }
-    
-    div {
-      display : block;
-      margin-left : auto;
-      margin-right : auto;
-    }
+	.file-label {
+		padding-left: 10px;
+		padding-right: 10px;
+		padding-top: 8px;
+		padding-bottom: 8px;
+		left: 0;
+		right: 0;
+		margin-left: auto;
+		margin-right: auto;
+		margin-top: 10px;
+		margin-bottom: 10px;
+		align-self: center;
+		overflow: visible;
+		background: transparent;
+	}
 
-    .pic {
-      margin-top : 5px;
-      margin-bottom: 5px;
-      width : 99%;
-      height : 300px;
-      cursor:pointer;
-    }
+	.file-cta {
+		padding-left: 10px;
+		padding-right: 10px;
+		padding-top: 8px;
+		padding-bottom: 8px;
+		left: 0;
+		right: 0;
+		margin-left: auto;
+		margin-right: auto;
+		margin-bottom: 10px;
+		align-self: center;
+		overflow: visible;
+		background: gray;
+	}
 
-    .text{
-      border-radius : 10px;
-      text-align : center;
-    }
+	.file-label {
+		font-size: 100%;
+	}
 
-    label {
-      font-size:30px;
-    }
+	h2 {
+		left: 0;
+		right: 0;
+		padding-top: 15px;
+		margin-left: auto;
+		margin-right: auto;
+		margin-top: 20px;
+		margin-bottom: 10px;
+		text-align: center;
+	}
 
-    .file-label {
-      padding-left: 10px;
-      padding-right: 10px;
-      padding-top:8px;
-      padding-bottom:8px;
-      left:0;
-      right:0;
-      margin-left:auto;
-      margin-right:auto;
-      margin-top:10px;
-      margin-bottom: 10px;
-      align-self:center;
-      overflow:visible;
-      background:transparent;
-    }
+	.imagebar {
+		display: flex;
+		overflow-x: auto;
+		margin-bottom: 50px;
+		margin-left: 2.5%;
+		margin-right: 2.5%;
+		scrollbar-width: thin;
+	}
 
-    .file-cta {
-      padding-left: 10px;
-      padding-right: 10px;
-      padding-top:8px;
-      padding-bottom:8px;
-      left:0;
-      right:0;
-      margin-left:auto;
-      margin-right:auto;
-      margin-bottom: 10px;
-      align-self:center;
-      overflow:visible;
-      background:gray;
-    }
+	@media only screen and (max-width: 600px) {
+		.imagebar {
+			display: flex;
+			flex-direction: column;
+			align-content: center;
+		}
+	}
 
-    .file-label {
-      font-size:100%;
-    }
+	.image {
+		background-color: rgba(246, 72, 147, 0.58);
+		border-radius: 8px;
+		padding: 10px;
+		font-size: 30px;
+		text-align: center;
+		margin-top: 5px;
+		margin-bottom: 5px;
+		margin-left: 5px;
+		margin-right: 5px;
+		min-width: 300px;
+		max-width: 300px;
+		height: 500px;
+	}
 
-    img {
-      margin-top : 5px;
-      margin-bottom: 5px;
-      width : 300px;
-      height : 300px;
-    }
+	.upload-card {
+		display: block;
+		text-align: center;
+		background-color: #d0d0d0;
+		width: 400px;
+		border-radius: 10px;
+		box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+		margin-left: auto;
+		margin-right: auto;
+		margin-top: 30px;
+		transition: all 200ms ease-in-out;
+		background-color: #734ae8;
+		background-image: linear-gradient(315deg, #734ae8 0%, #89d4cf 74%);
+		margin-top: 100px;
+	}
 
-    h1 {
-        text-align : center;
-        color : blue;
-    }
+	.files {
+		margin-top: 50px;
+	}
 
-    h2 {
-      left:0;
-      right:0;
-      padding-top:15px;
-      margin-left:auto;
-      margin-right:auto;
-      margin-top:20px;
-      margin-bottom: 10px;
-      text-align:center;
-    }
+	.upload-card:hover {
+		transform: scale(1.01);
+	}
 
-    .imagebar {
-      display : flex;
-      overflow-x: scroll;
-      margin-bottom: 50px;
-      margin-left: 2.5%;
-      margin-right: 2.5%;
-      scrollbar-width: thin;
-    }
+	input {
+		background-color: transparent;
+		border: 0px;
+	}
 
-    @media only screen and (max-width: 600px) {
-    .imagebar {
-      display:grid;
-      grid-template-columns: 200px;
-      left:0;
-      right:0;
-      margin-left:auto;
-      margin-right:auto;
-      align-self:center;
-    }
-  }
+	.arrow {
+		position: relative;
+		left: 0;
+		right: 0;
+		margin-left: auto;
+		margin-right: auto;
+		align-self: center;
+	}
 
-    .image {
-    background-color: rgba(246, 72, 147, 0.58);
-    border-radius:8px;
-    padding:10px;
-    font-size: 30px;
-    text-align: center;
-    margin-top:5px;
-    margin-bottom:5px;
-    margin-left: 5px;
-    margin-right:5px;
-    min-width:300px;
-    max-width:300px;
-    height:500px;
-  }
+	.notification {
+		position: absolute;
+		top: 55px;
+		height: 40px;
+		width: 100%;
+	}
 
-  .upload-card {
-        display : block;
-        text-align : center;
-        background-color : #D0D0D0;
-        width : 400px;
-        border-radius : 10px;
-        box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
-        margin-left : auto;
-        margin-right : auto;
-        margin-top : 60px;
-        transition : all 200ms ease-in-out;
-        background-color: #734ae8;
-        background-image: linear-gradient(315deg, #734ae8 0%, #89d4cf 74%);
-    }
+	.upload-limit-msg {
+		position: absolute;
+		top: 10px;
+		font-size: 15px;
+	}
 
-    .upload-card:hover {
-        transform : scale(1.01);
-    }
-
-    input {
-      background-color:transparent;
-      border:0px;
-    }
-
-    .arrow {
-      position:relative;
-      left:0;
-      right:0;
-      margin-left:auto;
-      margin-right: auto;
-      align-self:center;
-    }
-
-    .notification {
-      position:absolute;
-      top:55px;
-      height:30px;
-      width:100%;
-    }
-
+	.g {
+		margin-bottom : 40px;
+		display: flex;
+		justify-content: center;
+		align-self: center;
+	}
 </style>

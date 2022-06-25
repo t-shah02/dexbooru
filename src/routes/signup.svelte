@@ -9,6 +9,9 @@
 
 <script>
     import { goto } from '$app/navigation';
+    import {slide} from 'svelte/transition';
+
+
     let email = "";
     let username = "";
     let password1 = "";
@@ -23,18 +26,31 @@
 
     let fileName = "";
     let previewImageURL = "";
+    let pfpImageEncoding = "";
+    
+    function getEncoding(file) {
+        return new Promise((resolve,reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            
+            reader.onloadend = () => {
+                resolve(reader.result);
+            }
 
-    function consumeFile(e) {
+            reader.onerror = reject;
+        })
+    }
+
+    async function consumeFile(e) {
         let file = e.target.files[0];
         if (file) {
             fileName = file.name;
             const blobURL = URL.createObjectURL(file);
             previewImageURL = blobURL;
+            pfpImageEncoding = await getEncoding(file);
         }
         
     }
-
-    import {fade, slide, scale} from 'svelte/transition';
 
     function checkPassword() {
         const MIN_PASSWORD_LENGTH = 12;
@@ -98,8 +114,10 @@
         
         invalidFields = false;
         emptyFields = false;
-    
-        const body = {email : email, password : password1, username : username}
+        
+        
+
+        const body = {email : email, password : password1, username : username, pfpImageEncoding : pfpImageEncoding};
         const data = {method : "POST", body : JSON.stringify(body)};
         const response = await fetch("api/auth/signup",data);
     
@@ -111,8 +129,7 @@
             await new Promise(r => setTimeout(r, 200));
             window.scrollTo(0, document.body.scrollHeight);
         }
-    
-        
+
     }
 
 </script>
@@ -147,7 +164,7 @@
           </div>
         {#if previewImageURL.length}
             <figure in:slide out:slide>
-                <img on:click={() => {previewImageURL = ""; fileName = ""}}  src={previewImageURL}>
+                <img on:click={() => {previewImageURL = ""; fileName = ""; pfpImageEncoding = "";}}  src={previewImageURL}>
                 <figcaption>Click this preview image to cancel profile picture upload</figcaption>
             </figure>
         {/if}

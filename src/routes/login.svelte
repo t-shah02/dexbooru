@@ -143,7 +143,8 @@
         position: relative;
         height: 45px;
         width: 150px;
-        margin-top : 25px;
+        margin-top : 10px;
+        margin-bottom: 10px;
         padding: 5px 5px;
         font-weight: 700;
         font-size: 15px;
@@ -214,14 +215,13 @@
         display : block;
         margin-left : auto;
         margin-right : auto;
-        margin-top : 20px;
+        margin-top : 5px;
         border-radius : 10px;
         outline : none;
         text-align : center;
         padding : 5px;
         transition : all 200ms ease-in-out;
-        
-        
+    
     }
     
     input:focus {
