@@ -3,8 +3,8 @@ import * as bcrypt from "bcrypt";
 import {v4 as uuidv4} from "uuid";
 import imgClient from "../_imagekit_config";
 
-const DB_PW = import.meta.env.VITE_DB_PW
-const DB_URI = import.meta.env.VITE_DB_URI.replace("<password>",DB_PW);
+const DB_PW = process.env.NODE_ENV !== "production" ? import.meta.env.VITE_DB_PW : process.env.DB_PW;
+const DB_URI = process.env.NODE_ENV !== "production" ? import.meta.env.VITE_DB_URI.replace("<password>",DB_PW) : process.env.DB_URI?.replace("<password>",DB_PW);
 
 
 async function makeUserDocument(email,username,password,pfpImageEncoding) {
