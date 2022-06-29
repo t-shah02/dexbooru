@@ -1,4 +1,4 @@
-import { getPagePosts } from "../_db";
+import { getPagePosts } from "../../../_postdb";
 
 export async function get({url}) {
     const page = url.searchParams.get("page");

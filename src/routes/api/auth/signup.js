@@ -1,4 +1,4 @@
-import {addUser} from "./_db";
+import {addUser} from "../../../_authdb";
 
 export async function get() {
     return {status : 401, body : {message : "HTTP Request Type: GET is not allowed on this endpoint"}}

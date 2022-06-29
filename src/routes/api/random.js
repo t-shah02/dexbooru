@@ -1,4 +1,4 @@
-import { getRandomPost } from "./_db"
+import { getRandomPost } from "../../_postdb"
 
 
 export async function get() {

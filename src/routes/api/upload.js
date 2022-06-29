@@ -1,4 +1,4 @@
-import { addPost } from "./_db";
+import { addPost } from "../../_postdb";
 
 export async function post({ request }) {
     const body = await request.json();

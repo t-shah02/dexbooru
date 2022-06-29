@@ -1,4 +1,4 @@
-import { deleteSessionID } from "./_db";
+import { deleteSessionID } from "../../../_authdb";
 import { serialize } from "cookie";
 
 export async function get() {

@@ -1,4 +1,4 @@
-import {fetchPost} from "../../_db";
+import {fetchPost} from "../../../../_postdb";
 
 export async function get({params}) {
     const postID = params.postid;

@@ -1,8 +1,8 @@
 import mongodb from "mongodb";
 import * as bcrypt from "bcrypt";
 import {v4 as uuidv4} from "uuid";
-import imgClient from "../_imagekit_config";
-import redisClient from "../_redis_config";
+import imgClient from "./_imagekit_config";
+import redisClient from "./_redis_config";
 
 // const DB_PW = import.meta.env.VITE_DB_PW;
 // const DB_URI = import.meta.env.VITE_DB_URI.replace("<password>",DB_PW);

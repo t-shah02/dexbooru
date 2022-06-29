@@ -1,4 +1,4 @@
-import { getAllTags } from "./_db";
+import { getAllTags } from "../../_postdb";
 
 
 export async function get() {

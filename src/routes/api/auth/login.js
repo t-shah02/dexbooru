@@ -1,4 +1,4 @@
-import { validateUser } from './_db';
+import { validateUser } from '../../../_authdb';
 import { serialize } from 'cookie';
 
 export async function post({request}) {

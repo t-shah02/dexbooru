@@ -1,6 +1,6 @@
 import {parse} from "cookie";
 import {checkSessionId} from "../../../_sessiondb";
-import {updateUsername} from "./_db";
+import {updateUsername} from "../../../_authdb";
 
 
 

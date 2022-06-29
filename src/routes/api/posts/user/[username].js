@@ -1,4 +1,4 @@
-import {getUploaderPosts} from "../../_db";
+import {getUploaderPosts} from "../../../../_postdb";
 
 export async function get({params, url}) {
     const username = params.username;
