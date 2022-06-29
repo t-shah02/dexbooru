@@ -11,7 +11,6 @@ import moment from "moment";
 const DB_PW = import.meta.env.VITE_DB_PW;
 const DB_URI = import.meta.env.VITE_DB_URI.replace("<password>",DB_PW)
 
-console.log(DB_PW,DB_URI);
 
 
 
