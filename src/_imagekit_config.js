@@ -4,6 +4,7 @@ const privateKey = import.meta.env.VITE_IMGKIT_PRIVATE_KEY;
 const publicKey = import.meta.env.VITE_IMGKIT_PUBLIC_KEY;
 const endpointURL = import.meta.env.VITE_URL_ENDPOINT;
 
+console.log(privateKey,publicKey,endpointURL);
 
 const imgClient = new ImageKit({
     publicKey : publicKey,

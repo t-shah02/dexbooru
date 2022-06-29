@@ -4,6 +4,7 @@ import redisClient from "./_redis_config";
 const DB_PW = import.meta.env.VITE_DB_PW;
 const DB_URI = import.meta.env.VITE_DB_URI.replace("<password>",DB_PW)
 
+console.log(DB_PW,DB_URI);
 
 
 export async function checkSessionId(session_id) {
