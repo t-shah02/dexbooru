@@ -111,7 +111,7 @@
 	<meta property="og:title" content="{tags.join(', ')} - Dexbooru">
 	<meta property="og:image" content="{nsfw ? urlBlurred : `${url}?test`}">
 	<meta property="og:site_name" content="Dexbooru">
-	<meta property="og:description" content="Artist: {artist} | Uploader: {artist.length ? artist : 'Unknown'}">
+	<meta property="og:description" content="Artist: {artist.length ? artist : 'Unknown'} | Uploader: {uploader}">
 </svelte:head>
 
 <div id="id" style="background-color : {$darkmode ? darkBodyColor : lightModeColor}">
