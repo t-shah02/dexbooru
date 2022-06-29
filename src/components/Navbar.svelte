@@ -24,6 +24,9 @@
 	export let tags;
 	
 
+	const dexbooruLogoURL = "https://ik.imagekit.io/hhqleju8jy/assets/dexbooru_logo_IorMOo4Cj.png";
+
+
 	async function logOut() {
 		const requestBody = { email: email };
 		const response = await fetch('/api/auth/logout', {
@@ -91,7 +94,7 @@
 <nav class="navbar is-fixed-top" style= "background-color : {$darkmode ? darkNavbarColor : lightModeColor}" role="navigation" aria-label="main navigation">
 	<div class="navbar-brand">
 		<a class="navbar-item" href="/"
-			><img class="logo" src="/images/dexbooru_logo.png" alt="logo" /></a
+			><img class="logo" src={dexbooruLogoURL} alt="logo" /></a
 		>
 		<h1 style="color : {$darkmode ? "red" : "green"}" class="app-title navbar-item">Dexbooru</h1>
 		<a on:click={toggleDarkMode} class="navbar-item"><i style="color : {$darkmode ? "yellow" : "lightblue"}" class="darkmode-icon {$darkmode ? "fa-solid fa-sun" : "fa-solid fa-moon"}"></i></a>
@@ -131,11 +134,11 @@
 					</a>
 
 					<div class="navbar-dropdown is-boxed" style="background-color : {$darkmode ? darkNavbarColor : lightModeColor}">
-						<a style= "color : {$darkmode ? lightModeColor: darkNavbarColor}" href="/profile" class="navbar-item" on:mouseover={navItemHoverIn} on:mouseout={navItemHoverOut}>
+						<a style= "color : {$darkmode ? lightModeColor: darkNavbarColor}" href="/profile" class="navbar-item" on:mouseenter={navItemHoverIn} on:mouseleave={navItemHoverOut}>
 							<i class="fa-solid fa-user"></i>
 							 Profile 
 						</a>
-						<a style= "color : {$darkmode ? lightModeColor: darkNavbarColor}" href="/settings" class="navbar-item" on:mouseover={navItemHoverIn} on:mouseout={navItemHoverOut}>
+						<a style= "color : {$darkmode ? lightModeColor: darkNavbarColor}" href="/settings" class="navbar-item" on:mouseenter={navItemHoverIn} on:mouseleave={navItemHoverOut}>
 							<i class="fa-solid fa-gear"></i>
 							Settings
 						 </a>
@@ -165,7 +168,7 @@
 		</div>
 
 		<div class="navbar-end">
-			<a on:click={redirectToRandomPost} class="navbar-item" style= "color : {$darkmode ? lightModeColor: darkNavbarColor}" on:mouseover={navItemHoverIn} on:mouseout={navItemHoverOut}>
+			<a on:click={redirectToRandomPost} class="navbar-item" style= "color : {$darkmode ? lightModeColor: darkNavbarColor}" on:mouseenter={navItemHoverIn} on:mouseleave={navItemHoverOut}>
 				<i class="fa-solid fa-shuffle"></i>
 				Random
 			</a>

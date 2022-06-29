@@ -1,10 +1,8 @@
 import mongodb from "mongodb";
 import redisClient from "./routes/api/_redis_config";
 
-const DB_PW = process.env.NODE_ENV !== "production" ? import.meta.env.VITE_DB_PW : process.env.DB_PW;
-const DB_URI = process.env.NODE_ENV !== "production" ? import.meta.env.VITE_DB_URI.replace("<password>",DB_PW) : process.env.DB_URI?.replace("<password>",DB_PW);
-
-
+const DB_PW = import.meta.env.VITE_DB_PW;
+const DB_URI = import.meta.env.VITE_DB_URI.replace("<password>",DB_PW)
 
 
 
