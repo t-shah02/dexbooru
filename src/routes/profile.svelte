@@ -77,7 +77,7 @@
 	<title>Profile - {username}</title>
 </svelte:head>
 
-<div id="profile" style="background-color : {$darkmode ? darkBodyColor : lightModeColor}" in:slide out:slide>
+<div id="profile" style="background-color : {$darkmode ? darkBodyColor : lightModeColor}" out:slide>
 	<h1 style="color : {$darkmode ? lightModeColor : darkBodyColor}" class="profile-title">Profile</h1>
 	<div class="card" style="background-color : {$darkmode ? darkCardColor : lightModeColor}" >
 		<div class="image">

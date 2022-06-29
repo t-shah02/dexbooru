@@ -4,7 +4,11 @@ import adapter from '@sveltejs/adapter-auto';
 
 const kit = {
 	adapter: adapter(),
-	
+	vite : {
+		define : {
+			"process.env" : process.env
+		}
+	}
 }	
 
 const config = {
