@@ -1,9 +1,5 @@
 import { parse } from 'cookie';
 import {checkSessionId} from "./_sessiondb";
-import redisClient from "./_redis_config";
-import imgClient from "./_imagekit_config";
-import {addPost} from "./_postdb";
-import {addUser} from "./_authdb";
 
 
 /** @type {import('@sveltejs/kit').Handle} */
