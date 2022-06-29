@@ -11,6 +11,8 @@
 <script>
     
     import { slide} from 'svelte/transition';
+    import {darkmode} from "../stores";
+    import { darkCardColor, darkBodyColor, lightModeColor} from "../colors.js";
 
     let email = "";
     let password = "";
@@ -64,21 +66,37 @@
 </script>
 
 
-
-<div class="login-card" in:slide out:slide="{{duration:650}}">
-    <h1>Log in</h1>
-    <hr>
-    <input bind:value={email} placeholder="Email ✉" type="email" on:input={checkEmail}>
-    {#if !isEmailValid && email.length}
-        <h1 in:slide out:slide="{{duration:650}}" class="invalid-email"> Please enter a valid email format! </h1>
-    {/if}
-    <input bind:value={password} placeholder="Password 🔒" type="password">
-    <button type="submit" on:click={sendLoginData}>Log in</button>
-    {#if emptyFields}
-        <h1 in:slide out:slide="{{duration:650}}" class="invalid-email"> Please fill out both fields! </h1>
-    {/if}
-    <h1 class="signup-heading"><a href="/signup">Need an account? Sign up here</a></h1>
-    
+<div id="login" style="background-color : {$darkmode ? darkBodyColor : lightModeColor}">
+<div class="login-card" in:slide out:slide="{{duration:650}}" style="background-color : {$darkmode ? darkCardColor : lightModeColor}">
+    <h1 style="color: {$darkmode ? "white" : "black"}">Log in</h1>
+    <div class="field">
+        <label class="label" style="color: {$darkmode ? "white" : "black"}">Email</label>
+        <div class="control has-icons-left">
+          <input class="input" type="email" placeholder="example@hotmail.com" bind:value={email} on:input={checkEmail}>
+          <span class="icon is-small is-left">
+            <i class="fas fa-envelope"></i>
+          </span>
+        </div>
+        {#if !isEmailValid && email.length}
+            <p in:slide out:slide="{{duration:650}}" class="help is-danger"> Please enter a valid email format! </p>
+        {/if}
+      </div>
+      
+      <div class="field">
+        <label class="label" style="color: {$darkmode ? "white" : "black"}">Password</label>
+        <div class="control has-icons-left">
+          <input class="input" type="password" bind:value={password}>
+          <span class="icon is-small is-left">
+            <i class="fa-solid fa-lock"></i>
+        </span>
+        </div>
+        {#if emptyFields}
+            <p in:slide out:slide="{{duration:650}}" class="help is-danger"> Please fill out both fields! </p>
+        {/if}
+      </div>
+      <button type="submit" class="button is-success" on:click={sendLoginData}>Log in</button>
+    <h1 class="signup-heading"><a href="/signup" class="button is-danger">Need an account? Sign up here</a></h1>
+</div>    
 </div>
 
 {#if loginErrrorMsg.length}
@@ -92,7 +110,22 @@
 {/if}
 
 <style>
-    
+    #login {
+        min-height : 100vh;
+        padding-bottom: 16px;
+        padding-top: 8px;
+    }
+
+    .field {
+        width: 90%;
+        left: 0;
+        right: 0;
+        margin-left:auto;
+        margin-right: auto;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        align-self:center;
+    }
     .error-card {
         display : block;
         margin-left: auto;
@@ -169,26 +202,12 @@
         color: whitesmoke;
         }
 
-    button:before {
-        content: "";
-        position: absolute;
-        background: #383736;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        top: 100%;
-        z-index: -1;
-        -webkit-transition: top 0.09s ease-in;
-    }
-
-    button:hover:before {
-        top: 0;
-    }
+    
 
     .login-card {
         display : block;
         text-align : center;
-        background-color : #D0D0D0;
+        background-color : white;
         width : 400px;
         border-radius : 10px;
         box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
@@ -196,12 +215,15 @@
         margin-right : auto;
         margin-top : 100px;
         transition : all 200ms ease-in-out;
-        background-color: #734ae8;
-        background-image: linear-gradient(315deg, #734ae8 0%, #89d4cf 74%);
     }
 
     .login-card:hover {
         transform : scale(1.01);
+    }
+
+    label {
+        border : none;
+        font-size: 15px;
     }
 
     h1 {

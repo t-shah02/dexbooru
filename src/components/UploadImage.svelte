@@ -1,6 +1,10 @@
 <script>
 	import { fade, slide } from 'svelte/transition';
 	import { files } from "../stores";
+	import {onDestroy} from 'svelte';
+
+
+	
 
 	// exports
 	export let file;
@@ -55,7 +59,7 @@
 
 	function removeUploadedImage() {
 		const fileArray = Array.from($files);
-		const filtered = fileArray.filter((f) => f.name !== file.name);
+		const filtered = fileArray.filter((f) => f !== file);
 		files.set(filtered);
 	}
 
@@ -196,7 +200,8 @@
 				encoding: encoding,
 				tags: Array.from(addedTags),
 				artist: addedArtist.toLowerCase(),
-				uploader: username
+				uploader: username,
+				nsfw : isNSFW || false
 			};
 
 			const headers = {

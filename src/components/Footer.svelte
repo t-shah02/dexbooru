@@ -10,8 +10,9 @@
         color : white;
     }
 
+  
+
     footer {
-        
         position : fixed;
         bottom : 0;
         left:0;
@@ -20,7 +21,6 @@
         margin-right : auto;
         text-align : center;
         background-color : blue;
-        
-        
+        z-index: 100;
     }
 </style>

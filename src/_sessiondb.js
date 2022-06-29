@@ -27,7 +27,7 @@ export async function checkSessionId(session_id) {
     const document = await allUsers.findOne({session_id: session_id});
     await client.close();
 
-    await redisClient.setex(session_id,360,JSON.stringify(document));
+    await redisClient.setex(session_id,120,JSON.stringify(document));
 
     return document;
 }

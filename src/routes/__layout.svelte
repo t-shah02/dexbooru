@@ -20,7 +20,15 @@
 <script>
 
     import Navbar from "../components/Navbar.svelte";
-    import Footer from "../components/Footer.svelte"
+    import Footer from "../components/Footer.svelte";
+    import {onMount} from "svelte";
+    import {darkmode} from "../stores.js";
+
+
+    onMount(() => {
+		const darkModeState = JSON.parse(localStorage.getItem("darkmode")) || false;
+		darkmode.set(darkModeState);
+	});
 
     export let auth;
     export let username;
@@ -34,8 +42,10 @@
 
     <Navbar tags={tags} auth={auth} username={username} email={email}></Navbar>
 
+    
     <slot>
     </slot>
 
+    
     <Footer></Footer>
 

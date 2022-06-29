@@ -17,6 +17,8 @@
 	import { slide } from 'svelte/transition';
 	import UploadImage from '../components/UploadImage.svelte';
 	import { files } from "../stores";
+	import { darkmode } from "../stores";
+	import { darkNavbarColor, darkBodyColor, lightModeColor} from "../colors.js";
 
 	export let username;
 	export let tags;
@@ -35,7 +37,7 @@
 		const fileInput = document.querySelector("#many");
 		files.set(fileInput.files);
 		console.log($files);
-		if (files.length > 10) {
+		if ($files.length > 10) {
 			isFileTooLongError = true;
 			files.set([]);
 			clearFilesInDOM();
@@ -54,58 +56,64 @@
 <svelte:head>
 	<title>Upload - Dexbooru</title>
 </svelte:head>
-
-
-{#if isFileTooLongError}
-	<div class="notification is-danger" in:slide out:slide>
-		<button class="delete" on:click={() => {files.set([]); isFileTooLongError = false;}} />
-		<h1 class="upload-limit-msg">Please limit uploads to 10 images.</h1>
-	</div>
-{/if}
-
-{#if $files.length == 0}
-<div class="upload-card" in:slide out:slide>
-	<label for="file is-primary">Upload images:</label>
-	<div class="file is-primary">
-		<label class="file-label">
-			<input
-				class="file-input"
-				type="file"
-				name="image"
-				accept="image/*"
-				on:change={checkImageLength}
-				id="many"
-				multiple
-			/>
-			<span class="file-cta">
-				<span class="file-icon">
-					<i class="fas fa-upload" />
-				</span>
-				<span class="file-label"> Choose up to 10 images </span>
-			</span>
-		</label>
-	</div>
-</div>
-{/if}
-
-<div in:slide out:slide class="files">
-	<h2>IMAGE PREVIEW</h2>
-	<div class="imagebar">
-		{#each Array.from($files) as file}
-			<UploadImage tags={tags} username={username} {file} />
-		{/each}
-	</div>
-	{#if $files.length > 0}
-		<div class="g">
-			<button type="submit" on:click={deleteImages} class="button is-white" id="g"
-				>DELETE ALL</button
-			>
+<div id="upload" style="background-color : {$darkmode ? darkBodyColor : lightModeColor}">
+<div in:slide out:slide>
+	{#if isFileTooLongError}
+		<div class="notification is-danger">
+			<button class="delete" on:click={() => {files.set([]); isFileTooLongError = false;}} />
+			<h1 class="upload-limit-msg">Please limit uploads to 10 images.</h1>
 		</div>
 	{/if}
+
+	{#if $files.length == 0}
+	<div class="upload-card">
+		<label for="file is-primary">Upload images:</label>
+		<div class="file is-primary">
+			<label class="file-label">
+				<input
+					class="file-input"
+					type="file"
+					name="image"
+					accept="image/*"
+					on:change={checkImageLength}
+					id="many"
+					multiple
+				/>
+				<span class="file-cta">
+					<span class="file-icon">
+						<i class="fas fa-upload" />
+					</span>
+					<span class="file-label"> Choose up to 10 images </span>
+				</span>
+			</label>
+		</div>
+	</div>
+	{/if}
+
+	<div class="files">
+		<h2>IMAGE PREVIEW</h2>
+		<div class="imagebar">
+			{#each Array.from($files) as file}
+				<UploadImage tags={tags} username={username} file={file} />
+			{/each}
+		</div>
+		{#if $files.length > 0}
+			<div class="g">
+				<button type="submit" on:click={deleteImages} class="button is-white" id="g"
+					>DELETE ALL</button
+				>
+			</div>
+		{/if}
+	</div>
 </div>
-
-
+</div>
 <style>
+
+	#upload {
+		min-height : 100vh;
+		padding-top: 25px;
+		padding-bottom: 8px;
+	}
 	/* width */
 	::-webkit-scrollbar {
 		width: 1px;

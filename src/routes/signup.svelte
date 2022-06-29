@@ -10,7 +10,8 @@
 <script>
     import { goto } from '$app/navigation';
     import {slide} from 'svelte/transition';
-
+    import {darkmode} from "../stores";
+    import { darkCardColor, darkBodyColor, lightModeColor} from "../colors.js";
 
     let email = "";
     let username = "";
@@ -27,6 +28,8 @@
     let fileName = "";
     let previewImageURL = "";
     let pfpImageEncoding = "";
+
+    let profileInput;
     
     function getEncoding(file) {
         return new Promise((resolve,reject) => {
@@ -96,6 +99,13 @@
             isEmailValid = false;
         }
     }
+
+    function cancelProfileUpload() {
+        previewImageURL = ""; 
+        fileName = ""; 
+        pfpImageEncoding = "";
+        profileInput.value = "";
+    }
     
     async function registerUser() {
         if (password1 != password2) {
@@ -134,59 +144,88 @@
 
 </script>
 
-
-    <div class="signup-card" in:slide out:slide="{{duration:650}}">
-        <h1>Register your account</h1>
+<div id="signup" style="background-color : {$darkmode ? darkBodyColor : lightModeColor}">
+    <div class="signup-card" in:slide out:slide="{{duration:650}}" style="background-color : {$darkmode ? darkCardColor : lightModeColor}">
+        <h1 style="color: {$darkmode ? "white" : "black"}">Register your account</h1>
         <hr>
-        <label for="email">Enter your email</label>
-        <input for="email" bind:value={email} placeholder="Email ✉" type="email" on:input={checkEmail}>
-        {#if !isEmailValid && email.length}
-            <h1 in:slide out:slide="{{duration:650}}" class="invalid-email"> Please enter a valid email format! </h1>
-        {/if}
-        <label for="username">Enter your username</label>
-        <input for="username" bind:value={username} placeholder="Username 👤" type="text">
-        <label for="profile-photo">Upload a profile photo (optional)</label>
-        <div class="file has-name is-boxed">
+        <div class="field">
+            <label class="label" style="color: {$darkmode ? "white" : "black"}">Email</label>
+            <div class="control has-icons-left">
+              <input class="input" type="email" placeholder="example@hotmail.com" bind:value={email} on:input={checkEmail}>
+              <span class="icon is-small is-left">
+                <i class="fas fa-envelope"></i>
+              </span>
+            </div>
+            {#if !isEmailValid && email.length}
+                <p in:slide out:slide="{{duration:650}}" class="help is-danger"> Please enter a valid email format! </p>
+            {/if}
+        </div>
+        <div class="field">
+            <label class="label" style="color: {$darkmode ? "white" : "black"}">Username</label>
+            <div class="control has-icons-left">
+              <input class="input" type="text" placeholder="Username" bind:value={username}>
+              <span class="icon is-small is-left">
+                <i class="fas fa-user"></i>
+              </span>
+            </div>
+            
+        </div>
+        <label for="profile-photo" style="color: {$darkmode ? "white" : "black"}">Upload a profile photo (optional)</label>
+        <div class="file has-name is-boxed" style="color: {$darkmode ? "white" : "black"}">
             <label class="file-label">
-              <input class="file-input" on:change={consumeFile} type="file" accept="image/*" name="pfp">
-              <span class="file-cta">
-                <span class="file-icon">
+              <input bind:this={profileInput} class="file-input" on:change={consumeFile} type="file" accept="image/*" name="pfp">
+              <span class="file-cta" style="background-color : {$darkmode ? darkCardColor : lightModeColor}">
+                <span class="file-icon" style="color: {$darkmode ? "white" : "black"}">
                   <i class="fas fa-upload"></i>
                 </span>
-                <span class="file-label">
+                <span class="file-label" style="color: {$darkmode ? "white" : "black"}">
                   Select your profile photo
                 </span>
               </span>
-              <span class="file-name">
+              <span class="file-name" style="background-color : {$darkmode ? darkCardColor : lightModeColor}">
                 {fileName.length ? fileName : "No file selected"}
               </span>
             </label>
           </div>
         {#if previewImageURL.length}
             <figure in:slide out:slide>
-                <img on:click={() => {previewImageURL = ""; fileName = ""; pfpImageEncoding = "";}}  src={previewImageURL}>
+                <img on:click={cancelProfileUpload}  src={previewImageURL}>
                 <figcaption>Click this preview image to cancel profile picture upload</figcaption>
             </figure>
         {/if}
-        <label for="password1"> Enter a strong password </label>
-        <input for="password1" bind:value={password1} placeholder="Password 🔒" type="password" on:input={checkPassword}>
-        {#if !ispassword1Good}
-            <h1 in:slide out:slide="{{duration:650}}" class="invalid-email"> {passwordHint} </h1>
-        {/if}
-        <label for="password2"> Confirm your password </label>
-        <input for="password2" bind:value={password2} placeholder="Confirm Password 🔒" type="password">
-        {#if password1 != password2}
-            <h1 in:slide out:slide="{{duration:650}}" class="invalid-email"> The passwords do not match! </h1>
-        {/if}
-        <button type="submit" on:click={registerUser}> Register </button>
+        <br/>
+        <div class="field">
+            <label class="label" style="color: {$darkmode ? "white" : "black"}">Password</label>
+            <div class="control has-icons-left">
+                <input class="input" type="password" placeholder="Enter a strong password" bind:value={password1} on:input={checkPassword}>
+                <span class="icon is-small is-left">
+                    <i class="fa-solid fa-lock"></i>
+                </span>
+            </div>
+            <label class="label" id="cpw" style="color: {$darkmode ? "white" : "black"}">Confirm Password</label>
+            <div class="control has-icons-left">
+                <input class="input" type="password" placeholder="Confirm password" bind:value={password2}>
+                <span class="icon is-small is-left">
+                    <i class="fa-solid fa-lock"></i>
+                </span>
+            </div>
+
+            {#if !ispassword1Good}
+                <p in:slide out:slide="{{duration:650}}" class="help is-danger"> {passwordHint} </p>
+            {/if}
+            {#if password1 != password2}
+                <p in:slide out:slide="{{duration:650}}" class="help is-danger"> Passwords do not match </p>
+            {/if}
+          </div>
+        <button type="submit" class="button is-success" on:click={registerUser}> Register </button>
         {#if emptyFields}
-            <h1 in:slide out:slide="{{duration:650}}" class="invalid-email"> Please fill out both fields! </h1>
+            <p in:slide out:slide="{{duration:650}}" class="help is-danger"> Please fill out all fields! </p>
         {/if}
         {#if invalidFields}
-            <h1 in:slide out:slide="{{duration:650}}" class="invalid-email"> Please ensure that both fields follow guidelines </h1>
+            <p in:slide out:slide="{{duration:650}}" class="help is-danger"> Please ensure that all fields follow guidelines </p>
         {/if}
     </div>
-    
+</div>
 
 
 
@@ -201,10 +240,26 @@
 {/if}
 
 <style>
+    #signup {
+        min-height : 100vh;
+        padding-bottom: 16px;
+        padding-top: 8px;
+    }
+
+    .field {
+        width: 90%;
+        left: 0;
+        right: 0;
+        margin-left:auto;
+        margin-right: auto;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        align-self:center;
+    }
 
     .file-cta {
         margin : 10px;
-        
+        border: none;
     }
 
     figcaption {
@@ -233,6 +288,7 @@
         margin-left : auto;
         margin-right : auto;
         height : 125px;
+        padding-bottom: 10px;
         margin-bottom : 10px;
     }
 
@@ -242,6 +298,8 @@
         margin-right : auto;
         margin-top : 2px;
         background-color : white;
+        margin-bottom: 10px;
+        border: none;
     }    
 
     .error-card {
@@ -253,13 +311,9 @@
         width : 50%;
     }
 
-    .invalid-email {
-        color : red;
-        font-size : 10px;
-        margin : 0;
-    }
-
     label {
+        border:none;
+        font-size: 15px;
         margin-top : 10px;;
         display: inline-block;
         text-align: center;
@@ -314,7 +368,7 @@
     .signup-card {
         display : block;
         text-align : center;
-        background-color : #D0D0D0;
+        background-color : white;
         width : 400px;
         border-radius : 10px;
         box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
@@ -323,8 +377,6 @@
         margin-top : 75px;
         margin-bottom : 55px;
         transition : all 200ms ease-in-out;
-        background-color: #734ae8;
-        background-image: linear-gradient(315deg, #734ae8 0%, #89d4cf 74%);
     }
 
     .signup-card:hover {
@@ -354,6 +406,10 @@
     
     input:focus {
         transform : scale(1.05);
+    }
+
+    #cpw {
+        padding-top: 10px;
     }
     
 </style>

@@ -2,12 +2,27 @@
 	import Searchbar from './Searchbar.svelte';
 	import { homePageQuery, searchMatches } from '../stores';
 	import { fade } from 'svelte/transition';
-	import { goto } from "$app/navigation";
+	import { darkmode } from "../stores";
+	import {onMount} from "svelte";
+	import { darkNavbarColor, darkBodyColor, lightModeColor} from "../colors.js"
+
+	onMount(() => {
+		if ($darkmode) {
+			const navbarItems = document.querySelectorAll(".navbar-item");
+			console.log(navbarItems);
+			for (const item of navbarItems) {
+				item.style.color = lightModeColor;
+			}
+		}	
+	
+	});	
+
 
 	export let auth;
 	export let username;
 	export let email;
 	export let tags;
+	
 
 	async function logOut() {
 		const requestBody = { email: email };
@@ -32,22 +47,61 @@
 		e.target.classList.toggle('is-active');
 		const navMenu = document.querySelector('#menu');
 		navMenu.classList.toggle('is-active');
+		console.log($darkmode);
+		if ($darkmode) {
+			navMenu.style.backgroundColor = darkNavbarColor;
+		}
+		else {
+			navMenu.style.backgroundColor = lightModeColor;
+		}
 	}
+
+	function navItemHoverIn(e) {
+		if ($darkmode) {
+			if (e.target.nodeName === "I") {
+				e.target.parentNode.style.backgroundColor = "#424549";
+			}
+			else {
+				e.target.style.backgroundColor = "#424549";
+			}
+		}
+		else {
+			if (e.target.nodeName === "I") {
+				e.target.parentNode.style.backgroundColor = "#d3d3d3";
+			}
+			else {
+				e.target.style.backgroundColor = "#d3d3d3";	
+			}
+		}
+	}
+	
+	function navItemHoverOut(e) {
+		e.target.style.backgroundColor = "inherit";
+	}
+
+	function toggleDarkMode() {
+		localStorage.setItem("darkmode",JSON.stringify(!$darkmode));
+		darkmode.set(!$darkmode);
+	}
+	
+	
+
 </script>
 
-<nav class="navbar is-fixed-top" role="navigation" aria-label="main navigation">
+<nav class="navbar is-fixed-top" style= "background-color : {$darkmode ? darkNavbarColor : lightModeColor}" role="navigation" aria-label="main navigation">
 	<div class="navbar-brand">
 		<a class="navbar-item" href="/"
 			><img class="logo" src="/images/dexbooru_logo.png" alt="logo" /></a
 		>
-		<h1 class="app-title navbar-item">Dexbooru</h1>
+		<h1 style="color : {$darkmode ? "red" : "green"}" class="app-title navbar-item">Dexbooru</h1>
+		<a on:click={toggleDarkMode} class="navbar-item"><i style="color : {$darkmode ? "yellow" : "lightblue"}" class="darkmode-icon {$darkmode ? "fa-solid fa-sun" : "fa-solid fa-moon"}"></i></a>
 		<a
 			role="button"
 			on:click={toggleHamburgerMenu}
 			class="navbar-burger"
 			aria-label="menu"
 			aria-expanded="false"
-			data-target="navbarBasicExample"
+			data-target="navbarBasicExample" 
 		>
 			<span aria-hidden="true" />
 			<span aria-hidden="true" />
@@ -57,13 +111,13 @@
 
 	<div id="menu" class="navbar-menu">
 		<div class="navbar-start">
-			<a href="/" class="navbar-item">
+			<a href="/" class="navbar-item" style= "color : {$darkmode ? lightModeColor: darkNavbarColor}" on:mouseenter={navItemHoverIn} on:mouseleave={navItemHoverOut}>
 				<i class="fa-solid fa-house" />
 				Home
 			</a>
 
 			{#if auth}
-				<a href="/upload" class="navbar-item"> 
+				<a href="/upload" class="navbar-item" style= "color : {$darkmode ? lightModeColor: darkNavbarColor}" on:mouseenter={navItemHoverIn} on:mouseleave={navItemHoverOut}> 
 					<i class="fa-solid fa-upload"></i>
 					Upload 
 				</a>
@@ -71,17 +125,17 @@
 
 			{#if auth}
 				<div class="navbar-item has-dropdown is-hoverable">
-					<a class="navbar-link">
+					<a class="navbar-link" style= "color : {$darkmode ? lightModeColor: darkNavbarColor}" on:mouseenter={navItemHoverIn} on:mouseleave={navItemHoverOut}>
 						<i class="fa-solid fa-id-badge"></i>
 						Welcome back, {username}
 					</a>
 
-					<div class="navbar-dropdown is-boxed">
-						<a href="/profile" class="navbar-item">
+					<div class="navbar-dropdown is-boxed" style="background-color : {$darkmode ? darkNavbarColor : lightModeColor}">
+						<a style= "color : {$darkmode ? lightModeColor: darkNavbarColor}" href="/profile" class="navbar-item" on:mouseover={navItemHoverIn} on:mouseout={navItemHoverOut}>
 							<i class="fa-solid fa-user"></i>
 							 Profile 
 						</a>
-						<a href="/settings" class="navbar-item"> 
+						<a style= "color : {$darkmode ? lightModeColor: darkNavbarColor}" href="/settings" class="navbar-item" on:mouseover={navItemHoverIn} on:mouseout={navItemHoverOut}>
 							<i class="fa-solid fa-gear"></i>
 							Settings
 						 </a>
@@ -93,28 +147,28 @@
 					</div>
 				</div>
 			{/if}
-			
-		</div>
-
-		<div class="navbar-end">
-			<a on:click={redirectToRandomPost} class="navbar-item">
-				<i class="fa-solid fa-shuffle"></i>
-				Random
-			</a>
 			{#if !auth}
 				<div class="navbar-item">
 					<div class="buttons">
-						<a href="/signup" class="button is-danger">
+						<a href="/signup" class="button is-danger" style= "color : {$darkmode ? lightModeColor: darkNavbarColor}">
 							<i class="fa-solid fa-user-plus" />
 							Sign up
 						</a>
-						<a href="/login" class="button is-primary">
+						<a href="/login" class="button is-primary" style= "color : {$darkmode ? lightModeColor: darkNavbarColor}">
 							<i class="fa-solid fa-right-to-bracket" />
 							Log in
 						</a>
+						
 					</div>
 				</div>
 			{/if}
+		</div>
+
+		<div class="navbar-end">
+			<a on:click={redirectToRandomPost} class="navbar-item" style= "color : {$darkmode ? lightModeColor: darkNavbarColor}" on:mouseover={navItemHoverIn} on:mouseout={navItemHoverOut}>
+				<i class="fa-solid fa-shuffle"></i>
+				Random
+			</a>
 			<div class="search-area navbar-item">
 				<Searchbar {tags} />
 				{#if $homePageQuery.length}
@@ -133,6 +187,10 @@
 	.app-title {
 		font-size: 20px;
 		color: rgb(0, 162, 0);
+	}
+
+	.darkmode-icon {
+		transform : scale(1.5);
 	}
 
 	@media only screen and (min-width: 1024px) {
@@ -179,8 +237,10 @@
 			padding-right: 8px;
 		}
 
+		
+
 		.navbar {
-			font-size: 20px;
+			font-size: 16px;
 		
 		}
 
@@ -200,6 +260,8 @@
 			display: block;
 			margin-left: auto;
 			margin-right: auto;
+			margin-top: 5px;
+			margin-bottom: 5px;
 		}
 
 		.navbar.is-fixed-top {
@@ -243,12 +305,16 @@
 
 		a {
 			text-decoration: none;
+			display:table;
+			width:25%l
 		}
 
 		.button {
-			display: block;
-			margin-left: 0;
-			margin-right: auto;
+			margin-left:0;
+			margin-right:auto;
+			margin-top: 2px;
+			margin-bottom: 5px;
+			
 		}
 
 		.navbar.is-fixed-top {
@@ -261,25 +327,15 @@
 			margin-top: -0.375em;
 			right: 1.125em;
 		}
+
+		.navbar-end {
+			margin-left:30px;
+		}
+
+		.buttons {
+			display : block;
+		}
+
 	}
 
-	/* ul {
-        display : flex;
-        flex-wrap : wrap;
-        justify-content: center;
-        list-style-type: none;
-    }
-
-    li {
-        border : 1px solid;
-        border-radius : 7px;
-        padding : 10px;
-        margin : 10px;
-        transition : all 300ms;
-    }
-
-    li:hover {
-        background-color : lightblue;
-        color : white;
-    } */
 </style>

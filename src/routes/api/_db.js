@@ -14,7 +14,7 @@ const DB_URI = process.env.NODE_ENV !== "production" ? import.meta.env.VITE_DB_U
 
 
 
-async function makePostDocument(uploader, tags, artist, encoding, postID) {
+async function makePostDocument(uploader, tags, artist, encoding, postID, nsfw) {
         
     const _id = postID;
     const imageResp = await imgClient.upload(
@@ -32,13 +32,13 @@ async function makePostDocument(uploader, tags, artist, encoding, postID) {
     const height = imageResp.height;
     
     const uploadDate = moment().format('MMMM Do YYYY, h:mm:ss a');
-    return {uploader,tags,artist,imageURL,postID,uploadDate,_id,width,height};
+    return {uploader,tags,artist,imageURL,postID,uploadDate,_id,width,height,nsfw};
 }
 
 
 
 
-export async function addPost(uploader, tags, artist, encoding) {
+export async function addPost(uploader, tags, artist, encoding, nsfw) {
 
     const client = new mongodb.MongoClient(DB_URI);
     await client.connect();
@@ -54,7 +54,7 @@ export async function addPost(uploader, tags, artist, encoding) {
     const {globalPostTotal} = await counterCollection.findOne({});
     await counterCollection.updateOne({},{$inc : {globalPostTotal : 1}})
 
-    const postDoc = await makePostDocument(uploader, tags, artist, encoding,globalPostTotal+1);
+    const postDoc = await makePostDocument(uploader, tags, artist, encoding,globalPostTotal+1,nsfw);
 
     for (const tag of tags) {
         const tagDoc = await tag_collection.findOne({name : tag});
@@ -81,7 +81,7 @@ export async function addPost(uploader, tags, artist, encoding) {
         await redisClient.connect();
     }
 
-    await redisClient.set("totalPosts",String(globalPostTotal));
+    await redisClient.set("totalPosts",String(globalPostTotal+1));
 
     return postDoc.postID;
 }
@@ -183,4 +183,29 @@ export async function getRandomPost() {
     const randomPostID = Math.floor(Math.random() * cachedTotalInt) + 1;
 
     return randomPostID;
+}
+
+export async function getUploaderPosts(uploader, pageNumber, postsPerPage) {
+
+    if (redisClient.status !== "ready" && redisClient.status !== "connecting") {
+        await redisClient.connect();
+    }
+
+    const cachePosts = await redisClient.get(`posts-${pageNumber}-${uploader}`);  
+
+    if (cachePosts) {
+        return JSON.parse(cachePosts);
+    }
+
+    const client = new mongodb.MongoClient(DB_URI);
+    await client.connect();
+    const postdb = await client.db("post-db");
+    const postCollection = await postdb.collection("posts");
+    
+    const userPosts = await postCollection.find({uploader}).skip(pageNumber * postsPerPage).limit(postsPerPage).toArray();
+
+
+    await redisClient.setex(`posts-${pageNumber}-${uploader}`,500,JSON.stringify(userPosts));
+
+    return userPosts;
 }

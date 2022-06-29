@@ -2,9 +2,11 @@ import mongodb from "mongodb";
 import * as bcrypt from "bcrypt";
 import {v4 as uuidv4} from "uuid";
 import imgClient from "../_imagekit_config";
+import redisClient from "../_redis_config";
 
 const DB_PW = process.env.NODE_ENV !== "production" ? import.meta.env.VITE_DB_PW : process.env.DB_PW;
 const DB_URI = process.env.NODE_ENV !== "production" ? import.meta.env.VITE_DB_URI.replace("<password>",DB_PW) : process.env.DB_URI?.replace("<password>",DB_PW);
+
 
 
 async function makeUserDocument(email,username,password,pfpImageEncoding) {
@@ -86,4 +88,41 @@ export async function deleteSessionID(email) {
     const allUsers = await db.collection("users");
     const user = await allUsers.updateOne({email : email},{$unset : {session_id : ""}});
     await client.close();
+}
+
+export async function updateUsername(oldUsername, newUsername,newDoc,session_id) {
+    const client = new mongodb.MongoClient(DB_URI);
+    await client.connect();
+    const db = await client.db("user-db");
+    const dbposts = await client.db("post-db");
+
+    const allUsers = await db.collection("users");
+    const allPosts = await dbposts.collection("posts");
+
+    const check = await allUsers.findOne({username : newUsername});
+    
+    
+    if (check) {
+        return 0;
+    }
+
+    allUsers.updateOne({username : oldUsername},{$set : {username : newUsername}});
+    
+    const {posts} = newDoc;
+    
+    for (const postID of posts) {
+        await allPosts.updateOne({postID},{$set : {uploader : newUsername}});
+    }
+
+    if (redisClient.status !== "ready" && redisClient.status !== "connecting") {
+        await redisClient.connect();
+    }
+
+    newDoc["username"] = newUsername;
+    await redisClient.setex(session_id,120,JSON.stringify(newDoc));
+
+
+    await client.close();
+    
+    return 1;
 }
