@@ -62,6 +62,7 @@ export async function addUser(email,username,password,pfpImageEncoding) {
 }
 
 export async function validateUser(email,password) {
+    console.log(DB_URI);
     const client = new mongodb.MongoClient(DB_URI);
     await client.connect();
     const db = await client.db("user-db");
