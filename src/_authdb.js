@@ -127,3 +127,55 @@ export async function updateUsername(oldUsername, newUsername,newDoc,session_id)
     
     return 1;
 }
+
+export async function updatePassword(newPassword, email,newDoc,session_id) { 
+    const client = new mongodb.MongoClient(DB_URI);
+    await client.connect();
+    const db = await client.db("user-db");
+    const allUsers = await db.collection("users");
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    await allUsers.updateOne({email},{$set : {password : hashedPassword}});    
+    
+    newDoc["password"] = newPassword;
+    
+    if (redisClient.status !== "ready" && redisClient.status !== "connecting") {
+        await redisClient.connect();
+    }
+
+    await redisClient.setex(session_id,120,JSON.stringify(newDoc));
+
+    await client.close();
+
+    return 1;
+}
+
+export async function updateEmail(oldEmail,newEmail, newDoc, session_id) {
+    
+    const client = new mongodb.MongoClient(DB_URI);
+    await client.connect();
+    const db = await client.db("user-db");
+    const allUsers = await db.collection("users");
+
+    const check = await allUsers.findOne({email : newEmail});
+
+    if (check) {
+        return 0;
+    }
+    
+    await allUsers.updateOne({email : oldEmail},{$set : {email : newEmail}});
+
+    newDoc["email"] = newEmail;
+    
+    if (redisClient.status !== "ready" && redisClient.status !== "connecting") {
+        await redisClient.connect();
+    }
+
+    await redisClient.setex(session_id,120,JSON.stringify(newDoc));
+
+    await client.close();
+
+    return 1;
+}

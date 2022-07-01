@@ -46,7 +46,7 @@
 	let emptyUserNameFields = false;
 	let invalidPasswordFields = false;
 	let emptyPasswordFields = false;
-	let isDarkModeOn = false;
+	let loading = false;
 
 	let fileName = '';
 
@@ -183,6 +183,15 @@
 		invalidPasswordFields = false;
 		emptyPasswordFields = false;
 		emptyUserNameFields = false;
+
+		const body = { newEmail, oldEmail : email, operation : "email" };
+		loading = true;
+		const response = await fetch('/api/auth/update', {
+			method: 'PUT',
+			body: JSON.stringify(body)
+		});
+		loading = false;
+
 	}
 
 	async function registerUserName() {
@@ -197,11 +206,14 @@
 		emptyPasswordFields = false;
 		emptyUserNameFields = false;
 
-		const body = { oldUserName: username, newUsername: newUsername };
+		const body = { oldUserName: username, newUsername: newUsername, operation : "username" };
+		loading = true;
 		const response = await fetch('/api/auth/update', {
 			method: 'PUT',
 			body: JSON.stringify(body)
 		});
+		loading = false;
+	
 	}
 
 	async function registerUserPassword() {
@@ -219,7 +231,18 @@
 		invalidPasswordFields = false;
 		emptyPasswordFields = false;
 		emptyUserNameFields = false;
+		
+		const body = { newPassword: newPassword1, email, operation : "password" };
+		loading = true;
+		const response = await fetch('/api/auth/update', {
+			method: 'PUT',
+			body: JSON.stringify(body)
+		});
+		loading = false;
+
 	}
+
+
 
 	//darkmode related functions
 
@@ -253,7 +276,6 @@
 		for (let i = 0; i < menuItems.length; i++) {
 			const menuItem = menuItems[i];
             const convertedHex = menuItem.style.backgroundColor.startsWith("rgb") ? rgb2hex(menuItem.style.backgroundColor) : menuItem.style.backgroundColor;
-            console.log(convertedHex,menuSelectedColor);
 			if (convertedHex !== menuSelectedColor) {
 				menuItem.style.backgroundColor = 'inherit';
 			}
@@ -349,9 +371,9 @@
 									style="background-color : {$darkmode ? darkCardColor : lightModeColor}"
 								>
 									<span class="file-icon">
-										<i class="fas fa-upload" />
+										<i style="color : {$darkmode ? 'white' : 'black'}" class="fas fa-upload" />
 									</span>
-									<span class="file-label"> Select your profile photo </span>
+									<span style="color : {$darkmode ? 'white' : 'black'}" class="file-label"> Select your profile photo </span>
 								</span>
 								<span
 									class="file-name"
@@ -382,7 +404,7 @@
 					<hr />
 					<div class="field">
 						<h3 style="color: {$darkmode ? 'white' : 'black'}">
-							Change Username (current username: {username})
+							Change Username (Current username: {username})
 						</h3>
 						<div class="control has-icons-left has-icons-right">
 							<input
@@ -395,9 +417,11 @@
 								<i class="fas fa-user" />
 							</span>
 						</div>
-						<div class="control">
-							<button class="button is-success" on:click={registerUserName}>Change Username</button>
-						</div>
+						{#if !loading}
+							<div class="control">
+								<button class="button is-success" on:click={registerUserName}>Change Username</button>
+							</div>
+						{/if}
                         {#if emptyUserNameFields}
 					        <p in:slide out:slide={{ duration: 650 }} class="help is-danger">
 						        Please fill out the Username field!
@@ -407,7 +431,7 @@
 
 					<div class="field">
 						<h3 style="color: {$darkmode ? 'white' : 'black'}">
-							Change Email (current Email: {email})
+							Change Email (Current email: {email})
 						</h3>
 						<div class="control has-icons-left has-icons-right">
 							<input
@@ -426,9 +450,11 @@
 								Please enter a valid email format!
 							</p>
 						{/if}
-						<div class="control">
-							<button class="button is-success" on:click={registerUserEmail}>Change email</button>
-						</div>
+						{#if !loading}
+							<div class="control">
+								<button class="button is-success" on:click={registerUserEmail}>Change email</button>
+							</div>
+						{/if}
                         {#if emptyEmailFields}
 					        <p in:slide out:slide={{ duration: 650 }} class="help is-danger">
 						        Email cannot be empty!
@@ -475,11 +501,13 @@
 								Passwords do not match
 							</p>
 						{/if}
-						<div class="control">
-							<button class="button is-success" on:click={registerUserPassword}
-								>Change Password</button
-							>
-						</div>
+						{#if !loading}
+							<div class="control">
+								<button class="button is-success" on:click={registerUserPassword}
+									>Change Password</button
+								>
+							</div>
+						{/if}
                         {#if emptyPasswordFields}
 					        <p in:slide out:slide={{ duration: 650 }} class="help is-danger">
 						        Please fill out both the password fields!
@@ -501,6 +529,7 @@
 	#settings {
 		min-height: 100vh;
 		padding-bottom: 16px;
+		transition : background-color 200ms ease-in-out;
 	}
 
 	.field {

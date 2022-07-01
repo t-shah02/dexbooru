@@ -44,13 +44,13 @@
 	}
 
 	function likePost(e) {
-		isLiked = !isLiked;
 		if (isLiked) {
 			heartItem.classList.remove("liked");
 		}
 		else {
 			heartItem.classList.add("liked");
 		}
+		isLiked = !isLiked;
 		
 	}
 

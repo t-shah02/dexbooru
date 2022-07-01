@@ -91,7 +91,9 @@
 
 <style>
 
-	
+	body {
+		transition : background-color 200ms ease-in-out;
+	}
 
 	article {
 			display: block;

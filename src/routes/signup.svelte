@@ -244,6 +244,7 @@
         min-height : 100vh;
         padding-bottom: 16px;
         padding-top: 8px;
+        transition: background-color 200ms ease-in-out;
     }
 
     .field {
@@ -369,7 +370,7 @@
         display : block;
         text-align : center;
         background-color : white;
-        width : 400px;
+        width: 70%;
         border-radius : 10px;
         box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
         margin-left : auto;

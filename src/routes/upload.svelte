@@ -91,7 +91,7 @@
 	{/if}
 
 	<div class="files">
-		<h2>IMAGE PREVIEW</h2>
+		<h2 style="color : {$darkmode ? "white" : "black"}">IMAGE PREVIEW</h2>
 		<div class="imagebar">
 			{#each Array.from($files) as file}
 				<UploadImage tags={tags} username={username} file={file} />
@@ -217,7 +217,9 @@
 		display: block;
 		text-align: center;
 		background-color: #d0d0d0;
-		width: 400px;
+		width: 70%;
+		min-width: 300px;
+		max-width: 500px;
 		border-radius: 10px;
 		box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
 		margin-left: auto;

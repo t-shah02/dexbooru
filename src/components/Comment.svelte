@@ -1,71 +1,72 @@
 <script>
     export let user;
     export let username;
-    export let pfpURL;
-    let text = "yo";
+    export let pfpURL = "https://ik.imagekit.io/hhqleju8jy/posts/3";
+    export let text;
     let date = "bruh";
-    
+    import {lightCommentColor, darkCommentColor} from "../colors.js";
+	import {darkmode} from "../stores.js";
 </script>
 
-<div class="comment">
-    <div class="userInfo">
-        <h3>{username}</h3>
-        <div class="image">
-			<img src={pfpURL} alt="pfp of {username}" width="10%" />
-		</div>
-    </div>
-    <div class="content">
-        <p class="commentText">{text}</p>
-        <p class="date">{date}</p>
+<div class="card" style="background-color : {$darkmode ? darkCommentColor : lightCommentColor}">
+    <div class="card-content">
+        <div class="media">
+            <div class="media-left">
+                <figure class="image">
+                    <img src={pfpURL} alt="Placeholder image">
+                </figure>
+            </div>
+        </div>
+        <div class="content" style="color: {$darkmode ? 'white' : 'black'}">
+            <div class="media-content">
+                <p class="title is-4" style="color: {$darkmode ? 'white' : 'black'}">John Smith</p>
+                <p>{text}</p>
+            </div>
+            <time datetime="2016-1-1">11:09 PM - 1 Jan 2016</time>
+        </div>
     </div>
 </div>
 
 <style>
 
-    .comment {
-        margin: 10px;
-        display:flex;
-        justify-content: space-between;
+    .card{
+	    height: max-content;
+        margin : 10px;
+    }
+
+    .image img {
+        height : 100%;
+        width : 150px;
+            
+        border-radius : 75px;
+    }
+
+    .media {
+        width: 25%;
+        margin-right: 5%;
     }
 
     .content {
-        margin-right: 2.5%;
-        width: 70%;
-    }
-    .image {
-		width: 90%;
-		margin-left: 5%;
-		margin-right: 5%;
-		position: relative;
-	}
-
-    .userInfo {
-        margin-left: 2.5%;
-        width: 25%;
-        margin-top: 5px;
-        margin-bottom: 5px;
+        margin-left: 5%;
+        width: 65%;
     }
 
-	img {
-		max-height: 75%;
-		max-width: 75%;
-		width: auto;
-		height: auto;
-		position: absolute;
-		top: 0;
-		bottom: 0;
-		left: 0;
-		right: 0;
-		margin: auto;
-		border-radius : 10px;
-	}
-
-    .commentText {
-        font-size: 18px;
+    .media-content p {
+        text-align: left;
     }
 
-    .date {
-        font-size: 12px;
+    .card-content {
+        display: flex;
+        justify-content: space-evently;
+    }
+
+    .content {
+        display: flex;
+        flex-direction: column;
+    }
+
+    p {
+        overflow-wrap: break-word;
     }
     
 </style>

@@ -6,10 +6,12 @@
 	import {onMount} from "svelte";
 	import { darkNavbarColor, darkBodyColor, lightModeColor} from "../colors.js"
 
+
 	onMount(() => {
+		
+		
 		if ($darkmode) {
 			const navbarItems = document.querySelectorAll(".navbar-item");
-			console.log(navbarItems);
 			for (const item of navbarItems) {
 				item.style.color = lightModeColor;
 			}
@@ -50,7 +52,6 @@
 		e.target.classList.toggle('is-active');
 		const navMenu = document.querySelector('#menu');
 		navMenu.classList.toggle('is-active');
-		console.log($darkmode);
 		if ($darkmode) {
 			navMenu.style.backgroundColor = darkNavbarColor;
 		}
@@ -93,11 +94,13 @@
 
 <nav class="navbar is-fixed-top" style= "background-color : {$darkmode ? darkNavbarColor : lightModeColor}" role="navigation" aria-label="main navigation">
 	<div class="navbar-brand">
-		<a class="navbar-item" href="/"
-			><img class="logo" src={dexbooruLogoURL} alt="logo" /></a
-		>
-		<h1 style="color : {$darkmode ? "red" : "green"}" class="app-title navbar-item">Dexbooru</h1>
-		<a on:click={toggleDarkMode} class="navbar-item"><i style="color : {$darkmode ? "yellow" : "lightblue"}" class="darkmode-icon {$darkmode ? "fa-solid fa-sun" : "fa-solid fa-moon"}"></i></a>
+		<div style="display: flex">
+			<a class="navbar-item" href="/"
+				><img class="logo" src={dexbooruLogoURL} alt="logo" /></a
+			>
+			<h1 style="color : {$darkmode ? "red" : "green"}" class="app-title navbar-item">Dexbooru</h1>
+			<a on:click={toggleDarkMode} class="navbar-item"><i style="color : {$darkmode ? "yellow" : "lightblue"}" class="darkmode-icon {$darkmode ? "fa-solid fa-sun" : "fa-solid fa-moon"}"></i></a>
+		</div>
 		<a
 			role="button"
 			on:click={toggleHamburgerMenu}
@@ -105,6 +108,7 @@
 			aria-label="menu"
 			aria-expanded="false"
 			data-target="navbarBasicExample" 
+			style="color : {$darkmode ? "white" : "black"}"
 		>
 			<span aria-hidden="true" />
 			<span aria-hidden="true" />
@@ -112,7 +116,7 @@
 		</a>
 	</div>
 
-	<div id="menu" class="navbar-menu">
+	<div id="menu" class="navbar-menu" style="background-color : {$darkmode ? darkNavbarColor : lightModeColor}">
 		<div class="navbar-start">
 			<a href="/" class="navbar-item" style= "color : {$darkmode ? lightModeColor: darkNavbarColor}" on:mouseenter={navItemHoverIn} on:mouseleave={navItemHoverOut}>
 				<i class="fa-solid fa-house" />
@@ -127,7 +131,7 @@
 			{/if}
 
 			{#if auth}
-				<div class="navbar-item has-dropdown is-hoverable">
+				<div id="nav-dropdown" class="navbar-item has-dropdown is-hoverable">
 					<a class="navbar-link" style= "color : {$darkmode ? lightModeColor: darkNavbarColor}" on:mouseenter={navItemHoverIn} on:mouseleave={navItemHoverOut}>
 						<i class="fa-solid fa-id-badge"></i>
 						Welcome back, {username}
@@ -204,16 +208,6 @@
 			border-bottom-right-radius: 5px;
 		}
 
-		.logo {
-			transform: scale(2);
-			transition: transform 200ms ease-in-out;
-		}
-
-		.logo:hover {
-			cursor: pointer;
-			transform: scale(2.1);
-		}
-
 		.results h1 {
 			margin: auto;
 			text-align: center;
@@ -244,6 +238,7 @@
 
 		.navbar {
 			font-size: 16px;
+			transition : background-color 200ms ease-in-out;
 		
 		}
 
@@ -272,7 +267,9 @@
 		}
 	}
 
-	@media only screen and (max-width: 1024px) {
+	@media only screen and (max-width: 1023px) {
+		
+
 		.results {
 			background-color: blue;
 			width: 100%;
@@ -295,7 +292,8 @@
 		}
 
 		.navbar {
-			font-size: 20px;
+			font-size: 16px;
+			transition : background-color 200ms ease-in-out;	
 		}
 
 		.navbar-brand {
@@ -306,10 +304,14 @@
 			margin-left: 30px;
 		}
 
+		.navbar-burger {
+			width: 50px;
+		}
+
 		a {
 			text-decoration: none;
 			display:table;
-			width:25%l
+			width:25%;
 		}
 
 		.button {
@@ -339,6 +341,16 @@
 			display : block;
 		}
 
+	}
+
+	.logo {
+		transform: scale(2);
+		transition: transform 200ms ease-in-out;
+	}
+
+	.logo:hover {
+		cursor: pointer;
+		transform: scale(2.1);
 	}
 
 </style>

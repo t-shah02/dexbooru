@@ -81,7 +81,9 @@
 	<h1 style="color : {$darkmode ? lightModeColor : darkBodyColor}" class="profile-title">Profile</h1>
 	<div class="card" style="background-color : {$darkmode ? darkCardColor : lightModeColor}" >
 		<div class="image">
-			<img src={pfp} alt="profile picture of {username}" width="10%" />
+			<a target="_blank" href={pfp}>
+				<img src={pfp} alt="profile picture of {username}" width="10%" />
+			</a>
 		</div>
 		<div class="card-content">
 			<div class="media">
@@ -127,6 +129,7 @@
 		min-height : 100vh;
 		padding-top: 25px;
 		padding-bottom: 50px;
+		transition : background-color 200ms ease-in-out;
 	}
 
 	section {
@@ -208,6 +211,12 @@
 		right: 0;
 		margin: auto;
 		border-radius : 10px;
+		transition : transform 100ms ease-in-out;
+	}
+
+
+	img:hover {
+		transform : scale(1.01);
 	}
 
 	.card {
@@ -222,6 +231,30 @@
 		transition: transform 200ms ease-in-out;
 	}
 
+	@media only screen and (max-width: 1024px) {
+		.card {
+		text-align: center;
+		display: flex;
+		flex-direction: column;
+		margin-left: auto;
+		margin-right: auto;
+		width: 60%;
+		margin-top: 5px;
+		margin-bottom: 100px;
+		transition: transform 200ms ease-in-out;
+		}
+		.image {
+		width: 75%;
+		min-height: 150px;
+		margin-left: auto;
+		margin-right: auto;
+		left: 0;
+		right: 0;
+		align-self: center;
+		}
+
+	}
+	
 	.card:hover {
 		transform: scale(1.02);
 	}

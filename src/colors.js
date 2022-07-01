@@ -8,3 +8,5 @@ export const darkMenuHoverActiveColor = "#424549";
 export const lightMenuHoverActiveColor = "#d3d3d3";	
 export const postCardLightColor = "#F8AEDE";
 export const postCardDarkColor = "#4EAED8";
+export const lightCommentColor = "#fbfffd";
+export const darkCommentColor = "#2c2f33"

@@ -1,9 +1,14 @@
 <script context="module">
-	export async function load({ fetch, params }) {
+	
+	
+
+	export async function load({ fetch, params, session }) {
 		const postID = params.id;
 		const response = await fetch(`/api/posts/search/${postID}`);
 		const post = await response.json();
-		
+	
+	
+
 		if (post) {
 			let url = post.imageURL;
 			let tags = post.tags;
@@ -14,24 +19,36 @@
 			let height = post.height;
 			let nsfw = post.nsfw || false;
 			let imageAlt = tags.join(", ");
+
+			const auth = session.authenticated;
+			let username = "";
+			let pfp = "";
+			
+			if (auth) {
+				username = session.username;
+				pfp = session.pfp;
+			}
 			
 			if (nsfw) {
 				let urlBlurred = `${url}?tr=bl-25`;
-				return { props: {url, tags, uploader, id, artist,width,height,imageAlt,nsfw, urlBlurred}};
+				return { props: {url, tags, uploader, id, artist,width,height,imageAlt,nsfw, urlBlurred,username,pfp}};
 			}
-
-			return { props: {url, tags, uploader, id, artist,width,height,imageAlt,nsfw}};
+			
+			return { props: {url, tags, uploader, id, artist,width,height,imageAlt,nsfw,username,pfp}};
 		}
 		return { props: { post: false, postID: postID } };
 	}
 </script>
 
 <script>
-	import { onMount, onDestroy } from 'svelte';
-	import { slide, fade } from 'svelte/transition';
+
+	import { browser } from '$app/env';
+	import { onMount } from 'svelte';
+	import { slide } from 'svelte/transition';
 	import { darkCardColor, darkBodyColor, lightModeColor} from "../../colors.js";
 	import {darkmode} from "../../stores.js";
 	import Comment from "../../components/Comment.svelte";
+import { dataset_dev } from 'svelte/internal';
 
 	
 	export let post;
@@ -46,53 +63,61 @@
 	export let height;
 	export let imageAlt;
 	export let nsfw;
-	
+	export let username;
+	export let pfp;
+
+
+	const maxCommentCharLength = 500;
+
+	let commentText = "";
+	let commentTooLong = false;
+	let comments = [];
+
 	let postNotFound = false;
 	if (post === false) {
 		postNotFound = true;
 	}
 	
-
+	
 	let clientWidth;
+	let postImage;
+	
+
 
 	onMount(() => {
+		postImage = document.querySelector("#post-img");
 		clientWidth = document.documentElement.clientWidth;
+		if (width / clientWidth >= 0.85) {
+			postImage.style.width = "75%";
+		}
+		postImage.style.display = "block";
+		
+		window.addEventListener("resize",() => {
+			clientWidth = document.documentElement.clientWidth;
+				if (clientWidth < 1024) {
+					postImage.style.width = "75%";
+				}
+				else {
+					postImage.style.width = "50%";
+				}
+		});
 	});
 	
-	let clientHeight;
-	let scrollHeight;
-	let paddingBottomContainer;
-	let viewportHeight;
+	
+	
+	function submitComment() {
+		commentTooLong = commentText.length >= maxCommentCharLength ? true : false;
+		if (!commentTooLong) {
+			comments = [commentText,...comments];
+		}
+	}
 
-	// onMount(() => {
-	// 	clientWidth = document.documentElement.clientWidth;
-	// 	viewportHeight = window.innerHeight;
-	// 	scrollHeight = document.body.scrollHeight;
-	// 	clientHeight = document.getElementById('postContent').clientHeight;
-	// 	//	paddingBottomContainer = scrollHeight - clientHeight;
-
-	// 	if (clientHeight <= viewportHeight) {
-	// 		console.log("straight");
-	// 		paddingBottomContainer = viewportHeight - clientHeight;
-	// 		console.log(viewportHeight);
-	// 		console.log(clientHeight);
-	// 	}
-	// 	else {
-	// 		console.log("gay");
-	// 		console.log(viewportHeight);
-	// 		console.log(clientHeight);	
-	// 		paddingBottomContainer = 25;
-	// 	}
-	// 		// window.addEventListener("resize",() => {
-	// 		// 	scrollHeight = document.body.scrollHeight;
-	// 		// 	clientHeight = document.getElementById('postContent').clientHeight;
-	// 		// 	paddingBottomContainer = Math.abs(scrollHeight - clientHeight);
-	// 		// });
-
+	function onCommentType() {
+		commentTooLong = commentText.length >= maxCommentCharLength ? true : false;
+	}
+	
 
 	let colors = ['is-success', 'is-link', 'is-warning', 'is-danger', 'is-primary'];
-
-	let postImage;
 
 	let isBlurred = nsfw || false;
 	urlBlurred = urlBlurred || `${url}?test`;
@@ -162,63 +187,31 @@
 			</div>
 
 			<a target="_blank" class="preview-link" href={url}>Preview the full image</a>
-
-			{#if width / clientWidth >= 0.85}
-				{#if isBlurred}
-					<img
-						bind:this={postImage}
-						src={urlBlurred}
-						style="transform : scale(0.8);"
-						alt={imageAlt}
-						on:click={invertBlur}
-					/>
-				{:else}
-					<img
-						
-						bind:this={postImage}
-						src={`${url}?test`}
-						style="transform : scale(0.8);"
-						alt={imageAlt}
-						on:click={invertBlur}
-					/>
-				{/if}
-			{:else}
-				{#if isBlurred}
-					<img on:click={invertBlur} bind:this={postImage} src={urlBlurred} alt={imageAlt} />
-				{:else}
-					<img on:click={invertBlur} bind:this={postImage} src={`${url}?test`} alt={imageAlt} />
-				{/if}
-			{/if}
+			<img id="post-img" on:click={invertBlur} src={isBlurred ? urlBlurred : url} alt={imageAlt} />		
 		</div>
 	{/if}
 	</div>
+	{#if username.length}
+		<div class="comment-make-container">
+			<h1 style="color : {$darkmode ? "white" : "black"}">Make a comment under {username}:</h1>
+			{#if clientWidth < 500}
+				<textarea maxlength="{maxCommentCharLength}" bind:value={commentText} class="textarea {commentTooLong ? "is-danger" : "is-primary"}" rows="8" on:input={onCommentType} placeholder="Leave a comment here!"></textarea>
+			{:else}
+				<textarea maxlength="{maxCommentCharLength}" bind:value={commentText} class="textarea {commentTooLong ? "is-danger" : "is-primary"}" rows="5" on:input={onCommentType} placeholder="Leave a comment here!"></textarea>
+			{/if}
+			<h3><strong style="color : {commentText.length === maxCommentCharLength ? "red" : "lightgreen"}">{commentText.length}/{maxCommentCharLength}</strong></h3>
+			<button on:click={submitComment} class="button is-info">Comment</button>
+		</div>
+		
+	{/if}
+
 	<div class="commentCard" style="background-color : {$darkmode ? darkCardColor : lightModeColor}">
 		<div class="comments" style="color: {$darkmode ? "white" : "black"}">
 			<h2>COMMENTS</h2>
 			<hr>
-			<Comment></Comment>
-			<Comment></Comment>
-			<Comment></Comment>
-			<Comment></Comment>
-			<Comment></Comment>
-			<Comment></Comment>
-			<Comment></Comment>
-			<Comment></Comment>
-			<Comment></Comment>
-			<Comment></Comment>
-			<Comment></Comment>
-			<Comment></Comment>
-			<Comment></Comment>
-			<Comment></Comment>
-			<Comment></Comment>
-			<Comment></Comment>
-			<Comment></Comment>
-			<Comment></Comment>
-			<Comment></Comment>
-			<Comment></Comment>
-			<Comment></Comment>
-			<Comment></Comment>
-			<Comment></Comment>
+			{#each comments as comment}
+				<Comment text={comment}></Comment>
+			{/each}
 		</div>
 	</div>
 </div>
@@ -228,6 +221,7 @@
 		min-height : 100vh;
 		padding-top: 25px;
 		padding-bottom: 50px;
+		transition: background-color 200ms ease-in-out;
 	}
 
 	#postContent {
@@ -249,6 +243,39 @@
 		margin-left: auto;
 		margin-right: auto;
 		overflow:hidden;
+	}
+
+	.comment-make-container {
+		display : block;
+		margin-left : auto;
+		margin-right : auto;
+		margin-bottom : 50px;
+		width : 65%;
+	}
+
+	.comment-make-container h3 {
+		text-align : right;
+	}
+
+	.commentCard {
+		display : block;
+		box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+		border-radius : 10px;
+		overflow : hidden;
+		margin-bottom : 20px;
+	}
+
+	.comments {
+		height : 200px;
+		overflow-y : scroll;
+	}
+
+	.button {
+		margin-top : 1px;
+	}
+
+	.textarea {
+		resize : none;
 	}
 
 	.message {
@@ -294,7 +321,7 @@
 	}
 
 	.commentCard {
-		margin-top: 50px;
+		margin-top: 10px;
 		width: 80%;
 		display: block;
 		margin-left: auto;
@@ -309,12 +336,13 @@
 	}
 
 	img {
-		display : block;
+		display : none;
 		margin-left: auto;
 		margin-right: auto;
-		margin-bottom: 50px;
+		margin-bottom: 20px;
 		margin-top : 0px;
 		box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+		box-sizing : border-box;
 	}
 
 	img:hover {
@@ -323,6 +351,10 @@
 
 	div {
 		text-align: center;
+	}
+
+	h1 {
+		font-size: clamp (18px, 6vw, 30px);
 	}
 
 	h2 {
