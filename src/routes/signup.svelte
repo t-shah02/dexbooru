@@ -261,6 +261,7 @@
     .file-cta {
         margin : 10px;
         border: none;
+        width: 100%;
     }
 
     figcaption {
@@ -365,7 +366,6 @@
         top: 0;
     }
 
-  
     .signup-card {
         display : block;
         text-align : center;
@@ -378,6 +378,22 @@
         margin-top : 75px;
         margin-bottom : 55px;
         transition : all 200ms ease-in-out;
+    }
+
+    @media only screen and (max-width: 780px) {
+        .signup-card {
+        display : block;
+        text-align : center;
+        background-color : white;
+        width: 90%;
+        border-radius : 10px;
+        box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+        margin-left : auto;
+        margin-right : auto;
+        margin-top : 75px;
+        margin-bottom : 55px;
+        transition : all 200ms ease-in-out;
+    }
     }
 
     .signup-card:hover {
