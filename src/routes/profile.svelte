@@ -254,6 +254,20 @@
 		}
 
 	}
+
+	@media (min-width: 781px) and (max-width: 1023px) {
+		.card {
+		text-align: center;
+		display: flex;
+		flex-direction: column;
+		margin-left: auto;
+		margin-right: auto;
+		width: 60%;
+		margin-top: 5px;
+		margin-bottom: 100px;
+		transition: transform 200ms ease-in-out;
+		}
+	}
 	
 	.card:hover {
 		transform: scale(1.02);
