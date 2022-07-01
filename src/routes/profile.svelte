@@ -267,6 +267,15 @@
 		margin-bottom: 100px;
 		transition: transform 200ms ease-in-out;
 		}
+		.image {
+		width: 75%;
+		min-height: 150px;
+		margin-left: auto;
+		margin-right: auto;
+		left: 0;
+		right: 0;
+		align-self: center;
+		}
 	}
 	
 	.card:hover {

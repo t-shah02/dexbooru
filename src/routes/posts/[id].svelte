@@ -250,7 +250,7 @@ import { dataset_dev } from 'svelte/internal';
 		margin-left : auto;
 		margin-right : auto;
 		margin-bottom : 50px;
-		width : 65%;
+		width : 85%;
 	}
 
 	.comment-make-container h3 {
@@ -318,6 +318,17 @@ import { dataset_dev } from 'svelte/internal';
 		margin-left: auto;
 		margin-right: auto;
 		text-align: center;
+	}
+
+	@media only screen and (max-width: 1023px) {
+		.card {
+			margin-top: 100px;
+			width: 80%;
+			display: block;
+			margin-left: auto;
+			margin-right: auto;
+			text-align: center;
+		}
 	}
 
 	.commentCard {
