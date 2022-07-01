@@ -210,7 +210,7 @@
         transition : all 200ms ease-in-out;
     }
 
-    @media only screen and (max-size: 780px) {
+    @media only screen and (max-width: 780px) {
         .login-card {
         display : block;
         text-align : center;
