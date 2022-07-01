@@ -140,12 +140,6 @@
         cursor : pointer;
     }
 
-    .invalid-email {
-        color : red;
-        font-size : 12px;
-        margin : 0;
-    }
-
     .signup-heading {
         padding-top : 10px;
         padding-bottom : 20px;
@@ -203,8 +197,6 @@
         color: whitesmoke;
         }
 
-    
-
     .login-card {
         display : block;
         text-align : center;
@@ -216,6 +208,21 @@
         margin-right : auto;
         margin-top : 100px;
         transition : all 200ms ease-in-out;
+    }
+
+    @media only screen and (max-size: 780px) {
+        .login-card {
+        display : block;
+        text-align : center;
+        background-color : white;
+        width : 90%;
+        border-radius : 10px;
+        box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+        margin-left : auto;
+        margin-right : auto;
+        margin-top : 100px;
+        transition : all 200ms ease-in-out;
+    }
     }
 
     .login-card:hover {
