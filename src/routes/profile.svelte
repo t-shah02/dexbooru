@@ -231,14 +231,14 @@
 		transition: transform 200ms ease-in-out;
 	}
 
-	@media only screen and (max-width: 1024px) {
+	@media only screen and (max-width: 780px) {
 		.card {
 		text-align: center;
 		display: flex;
 		flex-direction: column;
 		margin-left: auto;
 		margin-right: auto;
-		width: 60%;
+		width: 80%;
 		margin-top: 5px;
 		margin-bottom: 100px;
 		transition: transform 200ms ease-in-out;
