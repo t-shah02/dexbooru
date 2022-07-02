@@ -205,8 +205,8 @@
 			width: 100%;
 			border-bottom-left-radius: 5px;
 			border-bottom-right-radius: 5px;
-			border-style:solid;
-			border: 1px;
+			border: 1px solid;
+			box-shadow: 3px 3px;
 		}
 
 		.results h1 {
@@ -274,6 +274,10 @@
 		.results {
 			width: 100%;
 			max-width: 254px;
+			border-bottom-left-radius: 5px;
+			border-bottom-right-radius: 5px;
+			border: 1px solid;
+			box-shadow: 3px 3px;
 		}
 
 		.results h1 {
