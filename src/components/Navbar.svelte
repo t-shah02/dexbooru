@@ -206,23 +206,20 @@
 			border-bottom-left-radius: 5px;
 			border-bottom-right-radius: 5px;
 			border: 1px solid;
-			box-shadow: 3px 1px #888888;
+			box-shadow: 1px 3px #888888;
 		}
 
-		.results h1 {
+		.results h4 {
 			margin: auto;
 			text-align: center;
-			color: white;
 			cursor: pointer;
 			width: 100%;
-			font-size: 20px;
-			border-bottom-left-radius: 5px;
-			border-bottom-right-radius: 5px;
+			font-size: 16px;
 			transition: all 150ms ease-in-out;
 		}
 
-		.results h1:hover {
-			background-color: red;
+		.results h4:hover {
+			background-color: #888888;
 		}
 
 		.search-area.navbar-item {
@@ -277,11 +274,20 @@
 			border-bottom-left-radius: 5px;
 			border-bottom-right-radius: 5px;
 			border: 1px solid;
-			box-shadow: 3px 1px #888888;
+			box-shadow: 1px 3px #888888;
 		}
 
-		.results h1 {
+		.results h4 {
+			margin: auto;
 			text-align: center;
+			cursor: pointer;
+			width: 100%;
+			font-size: 16px;
+			transition: all 150ms ease-in-out;
+		}
+
+		.results h4:hover {
+			background-color: #888888;
 		}
 
 		.search-area.navbar-item {
