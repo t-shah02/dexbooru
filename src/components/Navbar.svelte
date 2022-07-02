@@ -4,7 +4,7 @@
 	import { fade } from 'svelte/transition';
 	import { darkmode } from "../stores";
 	import {onMount} from "svelte";
-	import { darkNavbarColor, darkBodyColor, lightModeColor} from "../colors.js"
+	import { darkNavbarColor, darkBodyColor, darkCardColor, lightModeColor} from "../colors.js"
 
 
 	onMount(() => {
@@ -179,9 +179,9 @@
 			<div class="search-area navbar-item">
 				<Searchbar {tags} />
 				{#if $homePageQuery.length}
-					<div in:fade out:fade class="results">
+					<div in:fade out:fade class="results" style="background-color : {$darkmode ? darkCardColor : lightModeColor}">
 						{#each $searchMatches as match}
-							<h1>{match}</h1>
+							<h4>{match}</h4>
 						{/each}
 					</div>
 				{/if}
@@ -202,7 +202,6 @@
 
 	@media only screen and (min-width: 1024px) {
 		.results {
-			background-color: black;
 			width: 100%;
 			border-bottom-left-radius: 5px;
 			border-bottom-right-radius: 5px;
@@ -271,7 +270,6 @@
 		
 
 		.results {
-			background-color: blue;
 			width: 100%;
 			max-width: 254px;
 		}
