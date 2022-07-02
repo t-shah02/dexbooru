@@ -274,6 +274,7 @@
 			border-bottom-right-radius: 5px;
 			border: 1px solid;
 			box-shadow: 1px 3px #888888;
+			margin-bottom: 20px;
 		}
 
 		.results h4 {
