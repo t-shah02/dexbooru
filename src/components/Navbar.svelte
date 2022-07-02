@@ -211,7 +211,6 @@
 
 		.results h4 {
 			margin: auto;
-			text-align: center;
 			cursor: pointer;
 			width: 100%;
 			font-size: 16px;
@@ -279,7 +278,6 @@
 
 		.results h4 {
 			margin: auto;
-			text-align: center;
 			cursor: pointer;
 			width: 100%;
 			font-size: 16px;
