@@ -303,7 +303,6 @@
 			font-size: 16px;
 			transition : background-color 200ms ease-in-out;
 			z-index: 1000;
-			overflow-y: scroll;	
 		}
 
 		.navbar-brand {
