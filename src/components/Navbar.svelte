@@ -206,7 +206,7 @@
 			border-bottom-left-radius: 5px;
 			border-bottom-right-radius: 5px;
 			border: 1px solid;
-			box-shadow: 3px 3px;
+			box-shadow: 3px 1px #888888;
 		}
 
 		.results h1 {
@@ -240,7 +240,7 @@
 		.navbar {
 			font-size: 16px;
 			transition : background-color 200ms ease-in-out;
-		
+			z-index: 1000;
 		}
 
 		.navbar-brand {
@@ -277,7 +277,7 @@
 			border-bottom-left-radius: 5px;
 			border-bottom-right-radius: 5px;
 			border: 1px solid;
-			box-shadow: 3px 3px;
+			box-shadow: 3px 1px #888888;
 		}
 
 		.results h1 {
@@ -297,7 +297,8 @@
 
 		.navbar {
 			font-size: 16px;
-			transition : background-color 200ms ease-in-out;	
+			transition : background-color 200ms ease-in-out;
+			z-index: 1000;	
 		}
 
 		.navbar-brand {
