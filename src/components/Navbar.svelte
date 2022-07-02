@@ -178,8 +178,8 @@
 			</a>
 			<div class="search-area navbar-item">
 				<Searchbar {tags} />
-				{#if $homePageQuery.length}
-					<div in:fade out:fade class="results" style="background-color : {$darkmode ? darkCardColor : lightModeColor} display: {$searchMatches.length ? "none" : "block"}">
+				{#if $homePageQuery.length && $searchMatches.length}
+					<div in:fade out:fade class="results" style="background-color : {$darkmode ? darkCardColor : lightModeColor}">
 						{#each $searchMatches as match}
 							<h4 style= "color : {$darkmode ? lightModeColor: darkNavbarColor}">{match}</h4>
 						{/each}
