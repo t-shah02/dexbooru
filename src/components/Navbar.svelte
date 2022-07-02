@@ -181,7 +181,7 @@
 				{#if $homePageQuery.length}
 					<div in:fade out:fade class="results" style="background-color : {$darkmode ? darkCardColor : lightModeColor}">
 						{#each $searchMatches as match}
-							<h4>{match}</h4>
+							<h4 style= "color : {$darkmode ? lightModeColor: darkNavbarColor}">{match}</h4>
 						{/each}
 					</div>
 				{/if}
@@ -205,6 +205,8 @@
 			width: 100%;
 			border-bottom-left-radius: 5px;
 			border-bottom-right-radius: 5px;
+			border-style:solid;
+			border: 1px;
 		}
 
 		.results h1 {
@@ -349,6 +351,10 @@
 	.logo:hover {
 		cursor: pointer;
 		transform: scale(2.1);
+	}
+
+	h4 {
+		padding-left: 2.5%;
 	}
 
 </style>
