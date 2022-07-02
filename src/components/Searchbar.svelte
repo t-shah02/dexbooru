@@ -9,6 +9,9 @@
     function getMatches() {
       let results = [];
       for (let i = 0; i < tags.length; i++) {
+        if (results.length > 10) {
+          break;
+        }
         if (tags[i].startsWith($homePageQuery)) {
           results.push(tags[i]);
         }
