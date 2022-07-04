@@ -1,13 +1,13 @@
 <script context="module">
 	export async function load({ fetch, session }) {
 		const auth = session.authenticated;
-		const response = await fetch("/api/tags");
+		const response = await fetch('/api/tags');
 		const tagsData = await response.json();
 		const tags = tagsData.map((tagData) => tagData.name);
 
 		if (auth) {
 			const username = session.username;
-			return { props: { username: username, tags : tags } };
+			return { props: { username: username, tags: tags } };
 		}
 		return { status: 302, redirect: '/' };
 	}
@@ -15,40 +15,87 @@
 
 <script>
 	import { slide } from 'svelte/transition';
-	import UploadImage from '../components/UploadImage.svelte';
-	import { files } from "../stores";
-	import { darkmode } from "../stores";
-	import { darkNavbarColor, darkBodyColor, lightModeColor} from "../colors.js";
+	import { files } from '../stores';
+	import { darkmode } from '../stores';
+	import { darkBodyColor, darkCardColor, lightModeColor } from '../colors.js';
+	import { getImageEncoding } from '../util/files';
+	import { onMount } from 'svelte';
+	import {v4 as uuid } from "uuid";
+
 
 	export let username;
 	export let tags;
-	
-	let isFileTooLongError = false;
-	//$: file = files[0];
 
+	let isFileTooLongError = false;
+	let filesData = [];
+	let modalActive = false;
+	let activeFileName = "";
+	let activeFileEncoding = "";
+
+	const loadUploadedImages = async () => {
+		for (const file of $files) {
+			const fileInfo = {
+				name : file.name,
+				encoding : await getImageEncoding(file),
+				imageID : uuid(),
+				file
+			}
+			filesData = filesData.concat([fileInfo]);
+		}
+	};
+
+	onMount(loadUploadedImages);
 
 	const clearFilesInDOM = () => {
-		const fileInput = document.querySelector("#many");
-		fileInput.value = "";
+		const fileInput = document.querySelector('#many');
+		fileInput.value = '';
 		files.set([]);
-	}
+		filesData = [];
+	};
 
-	function checkImageLength() {
-		const fileInput = document.querySelector("#many");
-		files.set(fileInput.files);
-		console.log($files);
-		if ($files.length > 10) {
+	async function processFiles() {
+		const fileInput = document.querySelector('#many');
+		files.set(Array.from(fileInput.files));
+		await loadUploadedImages();
+		if (filesData.length > 10) {
 			isFileTooLongError = true;
-			files.set([]);
 			clearFilesInDOM();
+			
 		} else {
 			isFileTooLongError = false;
 		}
+
+		fileInput.value = "";
 	}
 
-	function deleteImages() {
+	function displayModal(e) {
+		let target = e.target.nodeName === "I" ? e.target.parentNode : e.target;
+
+		activeFileEncoding = target.dataset.encoding;
+		activeFileName = target.dataset.fileName;
+		modalActive = true;
+	}
+
+	function closeModal() {
+		activeFileEncoding = "";
+		activeFileName = "";
+		modalActive = false;
+	}
+
+	function removeAllImages() {
+		const fileInput = document.querySelector('#many');
+		fileInput.value = "";
 		files.set([]);
-		clearFilesInDOM();
+		filesData = [];
+	}
+
+	function removeImage(e) {
+		let target = e.target.nodeName === "I" ? e.target.parentNode : e.target;
+		let imageID = target.dataset.imageId;
+		
+		let filteredFilesData = filesData.filter((fileObj) => fileObj.imageID !== imageID);
+		files.set(filteredFilesData.map((fileObj) => fileObj.file));
+		filesData = filteredFilesData;
 	}
 
 </script>
@@ -56,68 +103,174 @@
 <svelte:head>
 	<title>Upload - Dexbooru</title>
 </svelte:head>
+
 <div id="upload" style="background-color : {$darkmode ? darkBodyColor : lightModeColor}">
-<div in:slide out:slide>
-	{#if isFileTooLongError}
-		<div class="notification is-danger">
-			<button class="delete" on:click={() => {files.set([]); isFileTooLongError = false;}} />
-			<h1 class="upload-limit-msg">Please limit uploads to 10 images.</h1>
-		</div>
-	{/if}
-
-	{#if $files.length == 0}
-	<div class="upload-card">
-		<label for="file is-primary">Upload images:</label>
-		<div class="file is-primary">
-			<label class="file-label">
-				<input
-					class="file-input"
-					type="file"
-					name="image"
-					accept="image/*"
-					on:change={checkImageLength}
-					id="many"
-					multiple
+	<div in:slide out:slide>
+		{#if isFileTooLongError}
+			<div class="notification is-danger">
+				<button
+					class="delete"
+					on:click={() => {
+						files.set([]);
+						isFileTooLongError = false;
+					}}
 				/>
-				<span class="file-cta">
-					<span class="file-icon">
-						<i class="fas fa-upload" />
-					</span>
-					<span class="file-label"> Choose up to 10 images </span>
-				</span>
-			</label>
-		</div>
-	</div>
-	{/if}
-
-	<div class="files">
-		<h2 style="color : {$darkmode ? "white" : "black"}">IMAGE PREVIEW</h2>
-		<div class="imagebar">
-			{#each Array.from($files) as file}
-				<UploadImage tags={tags} username={username} file={file} />
-			{/each}
-		</div>
-		{#if $files.length > 0}
-			<div class="g">
-				<button type="submit" on:click={deleteImages} class="button is-white" id="g"
-					>DELETE ALL</button
-				>
+				<h1 class="upload-limit-msg">Please limit uploads to 10 images.</h1>
 			</div>
 		{/if}
+
+		<div
+			style="background-color : {$darkmode ? darkCardColor : lightModeColor}"
+			class="upload-card"
+		>
+			<label style="color : {$darkmode ? 'white' : 'black'}" for="file is-primary"
+				>Upload images:</label
+			>
+			<div class="file is-primary">
+				<label class="file-label">
+					<input
+						class="file-input"
+						type="file"
+						name="image"
+						accept="image/*"
+						on:change={processFiles}
+						id="many"
+						multiple
+					/>
+					<span class="file-cta">
+						<span class="file-icon">
+							<i class="fas fa-upload" />
+						</span>
+						<span class="file-label"> Choose up to 10 images </span>
+					</span>
+				</label>
+			</div>
+		</div>
+	
+		<div class="upload-info">
+			<h1 style="color : {$darkmode ? 'white' : 'black'}; text-align : center">Images selected ({filesData.length})</h1>
+			<button on:click={removeAllImages} class="button is-normal is-danger is-responsive"><span>CLEAR ALL</span></button>
+		</div>
+		<div in:slide out:slide class="image-collage">
+			{#each filesData as fileData}
+				<div data-file-name={fileData.name} class="collage-img" style="background-image : url('{fileData.encoding}')">
+					<h1 class="file-name" style="font-size : 12px;">{fileData.name}</h1>
+					<div class="image-controls">
+						<button on:click={removeImage} data-image-id={fileData.imageID} data-tooltip="Remove image" class="button is-danger has-tooltip-right">
+							<i class="control-item fa-solid fa-trash"></i>
+						</button>
+						<br>
+						<button data-file-name={fileData.name} data-encoding={fileData.encoding} on:click={displayModal} data-tooltip="Preview image" class="button is-primary has-tooltip-right">
+							<i class="control-item fa-solid fa-eye"></i>
+						</button>
+					</div>
+				</div>
+			{/each}
+		</div>
+
+		{#if modalActive}
+			<div in:slide out:slide class="modal">
+				<div class="modal-background">
+					<img src={activeFileEncoding} alt="modal preview image for {activeFileName}">
+				</div>
+				<button on:click={closeModal} class="modal-close is-large" aria-label="close"></button>
+			</div>
+		{/if}
+
 	</div>
 </div>
-</div>
-<style>
 
+<style>
 	#upload {
-		min-height : 100vh;
+		min-height: 100vh;
 		padding-top: 25px;
 		padding-bottom: 8px;
+		transition: background-color 200ms ease-in-out;
 	}
+
+	.upload-info .button {
+		display : block;
+		margin-left: auto;
+		margin-right : auto;
+		
+	}
+	
+	
 	/* width */
 	::-webkit-scrollbar {
 		width: 1px;
 	}
+
+	.modal {
+		display : grid;
+		place-items : center;
+		overflow-y : scroll;
+	}
+
+	.modal-background img {
+		width : 100%;
+		
+	}
+
+	
+	.modal-close {
+		background-color : black;
+	}
+	
+
+
+	.image-collage {
+		display: flex;
+		flex-wrap : wrap;
+		justify-content : center;
+		margin-top: 55px;
+		margin-bottom: 35px;
+	}
+
+
+
+	.collage-img {
+		width: 300px;
+		height: 300px;
+		position : relative;
+		background-repeat: no-repeat;
+		background-position: top;
+		background-size: cover;
+		margin: 10px;
+		border-radius : 10px;
+	}
+	
+	.collage-img:hover .file-name {
+		display : block;
+		border : none;
+		border-radius: 0px;
+		border-top-left-radius: 5px;
+		border-bottom-left-radius: 5px;
+		color : white;
+		background-color : rgba(0, 0, 0, 0.35);
+		text-align: center;
+	}
+
+	.collage-img:hover .image-controls {
+		display : block;
+		position : absolute;
+		top : 50%;
+		left : 55%;
+		transform: translate(-50%, -50%);
+	}
+
+	.button {
+		margin : 5px;
+		width : 10%;
+	}
+	
+
+	.image-controls {
+		display : none;
+	}
+
+	
+	
 
 	.upload-limit-msg {
 		font-size: 15px;
@@ -130,6 +283,15 @@
 		margin-left: auto;
 		margin-right: auto;
 	}
+
+	.file-name {
+		display : none;
+		position : absolute;
+		bottom : 0;
+		right : 0;
+		
+	}
+	
 
 	label {
 		font-size: 30px;
@@ -170,53 +332,9 @@
 		font-size: 100%;
 	}
 
-	h2 {
-		left: 0;
-		right: 0;
-		padding-top: 15px;
-		margin-left: auto;
-		margin-right: auto;
-		margin-top: 20px;
-		margin-bottom: 10px;
-		text-align: center;
-	}
-
-	.imagebar {
-		display: flex;
-		overflow-x: auto;
-		margin-bottom: 50px;
-		margin-left: 2.5%;
-		margin-right: 2.5%;
-		scrollbar-width: thin;
-	}
-
-	@media only screen and (max-width: 600px) {
-		.imagebar {
-			display: flex;
-			flex-direction: column;
-			align-content: center;
-		}
-	}
-
-	.image {
-		background-color: rgba(246, 72, 147, 0.58);
-		border-radius: 8px;
-		padding: 10px;
-		font-size: 30px;
-		text-align: center;
-		margin-top: 5px;
-		margin-bottom: 5px;
-		margin-left: 5px;
-		margin-right: 5px;
-		min-width: 300px;
-		max-width: 300px;
-		height: 500px;
-	}
-
 	.upload-card {
 		display: block;
 		text-align: center;
-		background-color: #d0d0d0;
 		width: 70%;
 		min-width: 300px;
 		max-width: 500px;
@@ -226,13 +344,7 @@
 		margin-right: auto;
 		margin-top: 30px;
 		transition: all 200ms ease-in-out;
-		background-color: #734ae8;
-		background-image: linear-gradient(315deg, #734ae8 0%, #89d4cf 74%);
 		margin-top: 100px;
-	}
-
-	.files {
-		margin-top: 50px;
 	}
 
 	.upload-card:hover {
@@ -242,15 +354,6 @@
 	input {
 		background-color: transparent;
 		border: 0px;
-	}
-
-	.arrow {
-		position: relative;
-		left: 0;
-		right: 0;
-		margin-left: auto;
-		margin-right: auto;
-		align-self: center;
 	}
 
 	.notification {
@@ -264,12 +367,5 @@
 		position: absolute;
 		top: 10px;
 		font-size: 15px;
-	}
-
-	.g {
-		margin-bottom : 40px;
-		display: flex;
-		justify-content: center;
-		align-self: center;
 	}
 </style>

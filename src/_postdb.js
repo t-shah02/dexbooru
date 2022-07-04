@@ -210,3 +210,20 @@ export async function getUploaderPosts(uploader, pageNumber, postsPerPage) {
 
     return userPosts;
 }
+
+export async function addCommentOnPost(id, uploader, commentText) {
+    const client = new mongodb.MongoClient(DB_URI);
+    await client.connect();
+    const postdb = await client.db("post-db");
+    const postCollection = await postdb.collection("posts");
+
+    await postCollection.updateOne({
+        postID : id
+    },
+    {
+        $set : {
+
+        }
+    });
+    
+}

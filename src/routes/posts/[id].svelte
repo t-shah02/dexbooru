@@ -105,10 +105,18 @@ import { dataset_dev } from 'svelte/internal';
 	
 	
 	
-	function submitComment() {
+	async function submitComment() {
 		commentTooLong = commentText.length >= maxCommentCharLength ? true : false;
 		if (!commentTooLong) {
 			comments = [commentText,...comments];
+			
+			const body = {id, commentText, author : username};
+			const response = await fetch("/api/comment",{
+				method : "POST",
+				body : JSON.stringify(body)
+			});
+			
+				
 		}
 	}
 

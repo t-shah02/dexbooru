@@ -217,7 +217,7 @@
 			font-size: 20px;
 			border-bottom-left-radius: 5px;
 			border-bottom-right-radius: 5px;
-			transition: all 150ms ease-in-out;
+			/* transition: all 150ms ease-in-out; */
 		}
 
 		.results h1:hover {

@@ -188,10 +188,10 @@
             </label>
           </div>
         {#if previewImageURL.length}
-            <figure in:slide out:slide>
-                <img on:click={cancelProfileUpload}  src={previewImageURL}>
-                <figcaption>Click this preview image to cancel profile picture upload</figcaption>
-            </figure>
+            <div class="preview-box" in:slide out:slide>
+                <div class="pfp-preview" on:click={cancelProfileUpload} style="background-image : url('{previewImageURL}')"></div>
+                <h2 style="color : {$darkmode ? "white" : "black"}"> Click this preview image to cancel profile picture upload</h2>
+            </div>
         {/if}
         <br/>
         <div class="field">
@@ -247,6 +247,10 @@
         transition: background-color 200ms ease-in-out;
     }
 
+    .preview-box {
+        margin-top : 25px;
+    }
+
     .field {
         width: 90%;
         left: 0;
@@ -268,7 +272,7 @@
         margin-top : 5px;
     }
 
-    img {
+    .pfp-preview {
         width : 250px;
         height : 250px;
         display : block;
@@ -277,9 +281,12 @@
         margin-top : 15px;
         border-radius: 50%;
         transition : all 200ms ease-in-out;
+        background-size : cover;
+        background-position : center;
+
     }
 
-    img:hover {
+    .pfp-preview:hover {
         cursor : pointer;
         transform : scale(1.03);
     }
