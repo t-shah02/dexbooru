@@ -4,7 +4,7 @@
 	import { fade } from 'svelte/transition';
 	import { darkmode } from "../stores";
 	import {onMount} from "svelte";
-	import { darkNavbarColor, darkBodyColor, lightModeColor} from "../colors.js"
+	import { darkNavbarColor, darkBodyColor, darkCardColor, lightModeColor} from "../colors.js"
 
 
 	onMount(() => {
@@ -178,10 +178,10 @@
 			</a>
 			<div class="search-area navbar-item">
 				<Searchbar {tags} />
-				{#if $homePageQuery.length}
-					<div in:fade out:fade class="results">
+				{#if $homePageQuery.length && $searchMatches.length}
+					<div in:fade out:fade class="results" style="background-color : {$darkmode ? darkCardColor : lightModeColor}">
 						{#each $searchMatches as match}
-							<h1>{match}</h1>
+							<h4 style= "color : {$darkmode ? lightModeColor: darkNavbarColor}">{match}</h4>
 						{/each}
 					</div>
 				{/if}
@@ -202,16 +202,15 @@
 
 	@media only screen and (min-width: 1024px) {
 		.results {
-			background-color: black;
 			width: 100%;
 			border-bottom-left-radius: 5px;
 			border-bottom-right-radius: 5px;
+			border: 1px solid;
+			box-shadow: 1px 3px #888888;
 		}
 
-		.results h1 {
+		.results h4 {
 			margin: auto;
-			text-align: center;
-			color: white;
 			cursor: pointer;
 			width: 100%;
 			font-size: 20px;
@@ -220,8 +219,8 @@
 			/* transition: all 150ms ease-in-out; */
 		}
 
-		.results h1:hover {
-			background-color: red;
+		.results h4:hover {
+			background-color: #888888;
 		}
 
 		.search-area.navbar-item {
@@ -239,7 +238,7 @@
 		.navbar {
 			font-size: 16px;
 			transition : background-color 200ms ease-in-out;
-		
+			z-index: 1000;
 		}
 
 		.navbar-brand {
@@ -271,13 +270,25 @@
 		
 
 		.results {
-			background-color: blue;
 			width: 100%;
 			max-width: 254px;
+			border-bottom-left-radius: 5px;
+			border-bottom-right-radius: 5px;
+			border: 1px solid;
+			box-shadow: 1px 3px #888888;
+			margin-bottom: 20px;
 		}
 
-		.results h1 {
-			text-align: center;
+		.results h4 {
+			margin: auto;
+			cursor: pointer;
+			width: 100%;
+			font-size: 16px;
+			transition: all 150ms ease-in-out;
+		}
+
+		.results h4:hover {
+			background-color: #888888;
 		}
 
 		.search-area.navbar-item {
@@ -293,7 +304,8 @@
 
 		.navbar {
 			font-size: 16px;
-			transition : background-color 200ms ease-in-out;	
+			transition : background-color 200ms ease-in-out;
+			z-index: 1000;
 		}
 
 		.navbar-brand {
@@ -351,6 +363,10 @@
 	.logo:hover {
 		cursor: pointer;
 		transform: scale(2.1);
+	}
+
+	h4 {
+		padding-left: 2.5%;
 	}
 
 </style>

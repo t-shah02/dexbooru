@@ -22,9 +22,13 @@
                 <p class="title is-4" style="color: {$darkmode ? 'white' : 'black'}">John Smith</p>
                 <p>{text}</p>
             </div>
-            <time datetime="2016-1-1">11:09 PM - 1 Jan 2016</time>
+            <div class="date-reply">
+                <time datetime="2016-1-1">11:09 PM - 1 Jan 2016</time>
+                <!-- add reply button here -->
+            </div>
         </div>
     </div>
+    <!-- add view replies toggle here -->
 </div>
 
 <style>
@@ -67,6 +71,11 @@
 
     p {
         overflow-wrap: break-word;
+    }
+
+    .date-reply {
+        display: flex;
+        align-items: center;
     }
     
 </style>
