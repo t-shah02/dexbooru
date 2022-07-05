@@ -283,6 +283,10 @@
 	}
 </script>
 
+<svelte:head>
+	<title>Settings - {username}</title>
+</svelte:head>
+
 <div id="settings" style="background-color : {$darkmode ? darkBodyColor : lightModeColor}">
 	<div class="gay">
 		<div class="menus">

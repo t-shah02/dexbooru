@@ -3,6 +3,7 @@ import imgClient from "./_imagekit_config";
 import redisClient from "./_redis_config";
 import {v4 as uuidv4} from "uuid";
 import moment from "moment";
+import { afterNavigate } from "$app/navigation";
 
 
 
@@ -225,5 +226,19 @@ export async function addCommentOnPost(id, uploader, commentText) {
 
         }
     });
+    
+}
+
+export async function getAllArtists() {
+    const client = new mongodb.MongoClient(DB_URI);
+    await client.connect();
+    const postdb = await client.db("post-db");
+    const artistCollection = await postdb.collection("artists");
+
+    const artistsDocs = await artistCollection.find({}).toArray();
+    const artists = artistsDocs.map(artistDoc => artistDoc.name);
+    
+
+    return Array.from(new Set(artists));
     
 }

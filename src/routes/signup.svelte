@@ -144,6 +144,11 @@
 
 </script>
 
+<svelte:head>
+    <title>Sign up - Dexbooru</title>
+</svelte:head>
+
+
 <div id="signup" style="background-color : {$darkmode ? darkBodyColor : lightModeColor}">
     <div class="signup-card" in:slide out:slide="{{duration:650}}" style="background-color : {$darkmode ? darkCardColor : lightModeColor}">
         <h1 style="color: {$darkmode ? "white" : "black"}">Register your account</h1>

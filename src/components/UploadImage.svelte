@@ -234,7 +234,7 @@
 	<div
 		on:click={toggleModal}
 		class="pic"
-		style="background-image : url({URL.createObjectURL(file)})"
+		style="background-image : url({URL.createObjectURL(file)}) width: 90%"
 	>
 		</div>
 		<p class="control">
@@ -368,7 +368,7 @@
 	<div in:fade out:fade class="modal">
 		<div on:click={toggleModal} class="modal-background" />
 		<div class="modal-content">
-			<img src={URL.createObjectURL(file)} alt="" />
+			<img src={URL.createObjectURL(file)} alt=""/>
 		</div>
 		<button class="modal-close is-large" aria-label="close" on:click={toggleModal} />
 	</div>

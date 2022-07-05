@@ -5,19 +5,24 @@
 		const tagsData = await response.json();
 		const tags = tagsData.map((tagData) => tagData.name);
 
+		const responseTwo = await fetch("/api/artists");
+		const artistsData = await responseTwo.json();
+		const artists = artistsData.artists;
+
 		if (auth) {
 			const username = session.username;
-			return { props: { username: username, tags: tags } };
+			return { props: { username: username, tags: tags, artists: artists} };
 		}
 		return { status: 302, redirect: '/' };
 	}
 </script>
 
 <script>
-	import { slide } from 'svelte/transition';
+	import { slide,fade } from 'svelte/transition';
 	import { files } from '../stores';
 	import { darkmode } from '../stores';
 	import { darkBodyColor, darkCardColor, lightModeColor } from '../colors.js';
+	import TagsArtistSearchbar from "../components/TagsArtistSearchbar.svelte";
 	import { getImageEncoding } from '../util/files';
 	import { onMount } from 'svelte';
 	import {v4 as uuid } from "uuid";
@@ -25,12 +30,24 @@
 
 	export let username;
 	export let tags;
+	export let artists;
+	export let showTags2;
 
 	let isFileTooLongError = false;
 	let filesData = [];
 	let modalActive = false;
 	let activeFileName = "";
+	let activeFileWidth;
+	let activeFileHeight;
 	let activeFileEncoding = "";
+
+	//tags variables
+	let isQueryEmpty = false;
+	let isQueryTooLong = false;
+	let isTagsTooLong = false;
+	let doesTagExist = false;
+	let isArtistEmpty = false;
+	let isArtistTooLong = false;
 
 	const loadUploadedImages = async () => {
 		for (const file of $files) {
@@ -54,15 +71,18 @@
 	};
 
 	async function processFiles() {
+		
 		const fileInput = document.querySelector('#many');
 		files.set(Array.from(fileInput.files));
-		await loadUploadedImages();
-		if (filesData.length > 10) {
+
+		if ($files.length > 10) {
 			isFileTooLongError = true;
 			clearFilesInDOM();
 			
 		} else {
 			isFileTooLongError = false;
+			filesData = [];	
+			await loadUploadedImages();
 		}
 
 		fileInput.value = "";
@@ -73,6 +93,16 @@
 
 		activeFileEncoding = target.dataset.encoding;
 		activeFileName = target.dataset.fileName;
+		
+		let img = new Image();
+		img.src = activeFileEncoding;
+
+		img.onload = () => {
+			activeFileWidth = img.width;
+			activeFileHeight = img.height;
+		}
+		
+
 		modalActive = true;
 	}
 
@@ -96,6 +126,16 @@
 		let filteredFilesData = filesData.filter((fileObj) => fileObj.imageID !== imageID);
 		files.set(filteredFilesData.map((fileObj) => fileObj.file));
 		filesData = filteredFilesData;
+	}
+
+	//errors
+	function clearErrors() {
+		isQueryEmpty = false;
+		isQueryTooLong = false;
+		isTagsTooLong = false;
+		isArtistEmpty = false;
+		isArtistTooLong = false;
+		doesTagExist = false;
 	}
 
 </script>
@@ -169,16 +209,41 @@
 		</div>
 
 		{#if modalActive}
-			<div in:slide out:slide class="modal">
-				<div class="modal-background">
-					<img src={activeFileEncoding} alt="modal preview image for {activeFileName}">
-				</div>
-				<button on:click={closeModal} class="modal-close is-large" aria-label="close"></button>
+			<div class="modal">
+				<div on:click={closeModal} class="modal-background" />
+					<div style="background-image : url('{activeFileEncoding}'); width : {activeFileWidth}px; height : {activeFileHeight}px" class="modal-content">
+					</div>
+				<button class="modal-close is-large" aria-label="close" on:click={closeModal} />
 			</div>
 		{/if}
 
+		<TagsArtistSearchbar tags={tags} artists={artists}/>
+		<!-- {#if showTags2}
+			<div in:slide out:slide class="block">
+				{#if addedArtist != ''}
+					<span in:slide out:fade class="tag is-black"
+						>Artist: {addedArtist}<button class="delete" on:click={clearArtist} /></span>
+						{/if}
+							{#each Array.from(addedTags) as tag}
+								<span
+								in:slide
+								out:fade
+								class="tag {colors[Math.floor(Math.random() * colors.length)]}"
+								>{tag}<button class="delete" on:click={() => deleteTag(tag)} /></span
+								>
+							{/each}
+						</div>
+					{/if} -->
+
+		{#if filesData.length}
+			<div class="upload-btn-container">
+				<button class="upload-btn button is-primary">UPLOAD</button>
+			</div>
+		{/if}
 	</div>
-</div>
+</div>	
+
+
 
 <style>
 	#upload {
@@ -187,6 +252,14 @@
 		padding-bottom: 8px;
 		transition: background-color 200ms ease-in-out;
 	}
+	
+
+	.upload-btn-container .upload-btn {
+		display : block;
+		margin-left : auto;
+		margin-right : auto;
+		margin-bottom : 45px;
+	}	
 
 	.upload-info .button {
 		display : block;
@@ -202,22 +275,32 @@
 	}
 
 	.modal {
-		display : grid;
-		place-items : center;
-		overflow-y : scroll;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
 	}
 
-	.modal-background img {
-		width : 100%;
-		
+	.modal-content {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		background-position : top center;
+		background-size : cover;
+		background-repeat : no-repeat;
 	}
 
-	
-	.modal-close {
-		background-color : black;
+	.modal-background {
+		background-color: rgba(8, 8, 8, 0.8);
 	}
-	
+/* 
+	.modal img {
+		margin-top: 5px;
+		margin-bottom: 5px;
 
+	} */
 
 	.image-collage {
 		display: flex;
@@ -227,7 +310,11 @@
 		margin-bottom: 35px;
 	}
 
-
+	.modal-close {
+		position: absolute;
+		right: 0;
+		top: 60px;
+	}
 
 	.collage-img {
 		width: 300px;
@@ -244,8 +331,7 @@
 		display : block;
 		border : none;
 		border-radius: 0px;
-		border-top-left-radius: 5px;
-		border-bottom-left-radius: 5px;
+		border-bottom-right-radius: 10px;
 		color : white;
 		background-color : rgba(0, 0, 0, 0.35);
 		text-align: center;
@@ -289,6 +375,7 @@
 		position : absolute;
 		bottom : 0;
 		right : 0;
+		
 		
 	}
 	

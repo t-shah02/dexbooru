@@ -65,6 +65,9 @@
     
 </script>
 
+<svelte:head>
+    <title>Log in - Dexbooru</title>
+</svelte:head>
 
 <div id="login" style="background-color : {$darkmode ? darkBodyColor : lightModeColor}">
 <div class="login-card" in:slide out:slide="{{duration:650}}" style="background-color : {$darkmode ? darkCardColor : lightModeColor}">
