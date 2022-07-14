@@ -1,3 +1,4 @@
+
 <script>
 	import Searchbar from './Searchbar.svelte';
 	import { homePageQuery, searchMatches } from '../stores';
@@ -7,17 +8,17 @@
 	import { darkNavbarColor, darkBodyColor, darkCardColor, lightModeColor} from "../colors.js"
 
 
-	onMount(() => {
+	// onMount(() => {
 		
 		
-		if ($darkmode) {
-			const navbarItems = document.querySelectorAll(".navbar-item");
-			for (const item of navbarItems) {
-				item.style.color = lightModeColor;
-			}
-		}	
+	// 	if ($darkmode) {
+	// 		const navbarItems = document.querySelectorAll(".navbar-item");
+	// 		for (const item of navbarItems) {
+	// 			item.style.color = lightModeColor;
+	// 		}
+	// 	}	
 	
-	});	
+	// });	
 
 
 	export let auth;
@@ -87,6 +88,16 @@
 		localStorage.setItem("darkmode",JSON.stringify(!$darkmode));
 		darkmode.set(!$darkmode);
 	}
+
+	function appendToResult(e) {
+		const name = e.target.innerHTML.split(" ").length > 1 ? `"${e.target.innerHTML}"` : e.target.innerHTML;
+		const parts = $homePageQuery.split(" ");
+		parts[parts.length - 1] = name;
+		homePageQuery.set(parts.join(" ") + " ");
+		const searchbar = document.querySelector("#homepage-searchbar");
+		searchbar.value = $homePageQuery;
+		searchbar.focus();
+	}
 	
 	
 
@@ -95,11 +106,11 @@
 <nav class="navbar is-fixed-top" style= "background-color : {$darkmode ? darkNavbarColor : lightModeColor}" role="navigation" aria-label="main navigation">
 	<div class="navbar-brand">
 		<div style="display: flex">
-			<a class="navbar-item" href="/"
+			<a class="navbar-item" id="logo" href="/"
 				><img class="logo" src={dexbooruLogoURL} alt="logo" /></a
 			>
 			<h1 style="color : {$darkmode ? "red" : "green"}" class="app-title navbar-item">Dexbooru</h1>
-			<a on:click={toggleDarkMode} class="navbar-item"><i style="color : {$darkmode ? "yellow" : "lightblue"}" class="darkmode-icon {$darkmode ? "fa-solid fa-sun" : "fa-solid fa-moon"}"></i></a>
+			<a on:click={toggleDarkMode} class="navbar-item" id="logo"><i style="color : {$darkmode ? "yellow" : "lightblue"}" class="darkmode-icon {$darkmode ? "fa-solid fa-sun" : "fa-solid fa-moon"}"></i></a>
 		</div>
 		<a
 			role="button"
@@ -181,7 +192,7 @@
 				{#if $homePageQuery.length && $searchMatches.length}
 					<div in:fade out:fade class="results" style="background-color : {$darkmode ? darkCardColor : lightModeColor}">
 						{#each $searchMatches as match}
-							<h4 style= "color : {$darkmode ? lightModeColor: darkNavbarColor}">{match}</h4>
+							<h4 on:click={appendToResult} style= "color : {$darkmode ? lightModeColor: darkNavbarColor}">{match}</h4>
 						{/each}
 					</div>
 				{/if}
@@ -200,6 +211,10 @@
 		transform : scale(1.5);
 	}
 
+	#menu {
+		transition : background-color 200ms ease-in-out;
+	}
+
 	@media only screen and (min-width: 1024px) {
 		.results {
 			width: 100%;
@@ -214,9 +229,11 @@
 			cursor: pointer;
 			width: 100%;
 			font-size: 20px;
-			border-bottom-left-radius: 5px;
-			border-bottom-right-radius: 5px;
-			/* transition: all 150ms ease-in-out; */
+			transition: all 200ms ease-in-out;
+		}
+		
+		#menu {
+			transition : background-color 200ms ease-in-out;
 		}
 
 		.results h4:hover {
@@ -268,6 +285,9 @@
 
 	@media only screen and (max-width: 1023px) {
 		
+		#menu {
+			transition : background-color 200ms ease-in-out;
+		}
 
 		.results {
 			width: 100%;
@@ -279,12 +299,16 @@
 			margin-bottom: 20px;
 		}
 
+		#logo {
+			width: 25%;
+		}
+
 		.results h4 {
 			margin: auto;
 			cursor: pointer;
 			width: 100%;
 			font-size: 16px;
-			transition: all 150ms ease-in-out;
+			transition: all 200ms ease-in-out;
 		}
 
 		.results h4:hover {
@@ -323,7 +347,7 @@
 		a {
 			text-decoration: none;
 			display:table;
-			width:25%;
+			width:100%;
 		}
 
 		.button {

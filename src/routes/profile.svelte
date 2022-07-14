@@ -12,6 +12,8 @@
 			const data = await response.json();
 			const allPosts = data.posts;
 
+
+
 			return {
 				props: {
 					email: email,
@@ -32,6 +34,8 @@
 	import PostCard from '../components/PostCard.svelte';
 	import {darkBodyColor, lightModeColor, darkCardColor} from "../colors.js";
 	import {darkmode} from "../stores.js";
+import { post } from './api/comment';
+import { isPostfixUnaryExpression } from 'typescript';
 	
 
 
@@ -105,7 +109,7 @@
 					tags={post.tags}
 					uploadDate={post.uploadDate.split(',')[0]}
 					uploader={post.uploader}
-					imageSourceURL={post.nsfw ? `${post.imageURL}?tr=bl-25` : `${post.imageURL}?test`}
+					postImages={post.postImages}
 					artist={post.artist}
 				/>
 			{/each}

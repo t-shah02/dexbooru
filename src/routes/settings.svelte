@@ -47,6 +47,7 @@
 	let invalidPasswordFields = false;
 	let emptyPasswordFields = false;
 	let loading = false;
+	let successfullyChangedUserName = false;
 
 	let fileName = '';
 
@@ -195,6 +196,7 @@
 	}
 
 	async function registerUserName() {
+		successfullyChangedUserName = false;
 		if (newUsername.length == 0) {
 			emptyUserNameFields = true;
 			return;
@@ -213,7 +215,7 @@
 			body: JSON.stringify(body)
 		});
 		loading = false;
-	
+		successfullyChangedUserName = true;
 	}
 
 	async function registerUserPassword() {
@@ -431,6 +433,11 @@
 						        Please fill out the Username field!
 					        </p>
 				        {/if}
+						{#if successfullyChangedUserName}
+							<p in:slide out:slide={{ duration: 650 }} class="help is-primary">
+								Successfully changed username!
+						</p>
+						{/if}
 					</div>
 
 					<div class="field">

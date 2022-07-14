@@ -51,7 +51,7 @@
 					tags={post.tags}
 					uploadDate={post.uploadDate.split(',')[0]}
 					uploader={post.uploader}
-					imageSourceURL={post.nsfw ? `${post.imageURL}?tr=bl-25` : `${post.imageURL}?test`}
+					postImages={post.postImages}
 					artist={post.artist}
 				/>
 			{/each}

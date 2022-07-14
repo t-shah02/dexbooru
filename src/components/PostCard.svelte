@@ -3,7 +3,7 @@
 	import { darkmode } from '../stores';
 	import { postCardLightColor, postCardDarkColor } from '../colors.js';
 
-	export let imageSourceURL;
+	export let postImages;
 	export let uploadDate;
 	export let uploader;
 	export let tags;
@@ -17,6 +17,9 @@
 	let isLiked = false;
 
 	let heartItem;
+
+	let postImageIndex = 0;
+	let numImages = postImages.length;
 
 	let colors = ['is-success', 'is-link', 'is-warning', 'is-danger', 'is-primary'];
 
@@ -45,25 +48,54 @@
 
 	function likePost(e) {
 		if (isLiked) {
-			heartItem.classList.remove("liked");
-		}
-		else {
-			heartItem.classList.add("liked");
+			heartItem.classList.remove('liked');
+		} else {
+			heartItem.classList.add('liked');
 		}
 		isLiked = !isLiked;
-		
 	}
 
+	function shiftPost(e) {
+		const target = e.target.nodeName === "I" ? e.target.parentNode : e.target;
+		const direction = target.dataset.direction;
+		
+
+		if (direction === 'left') {
+			postImageIndex = postImageIndex - 1 < 0 ? postImages.length - 1 : postImageIndex - 1;
+		} else if (direction === 'right') {
+			postImageIndex = postImageIndex + 1 >= postImages.length ? 0 : postImageIndex + 1;
+		}
+	}
 </script>
 
 <div class="card" style="background-color : {$darkmode ? postCardDarkColor : postCardLightColor}">
-	<a href={postUrlPath}>
-		<div class="card-img" style="background-image : url({imageSourceURL})" />
-	</a>
+	<div class="card-img" style="background-image : url({postImages[postImageIndex].imageURL})">
+		{#if postImages.length > 1}
+			<button
+				on:click={shiftPost}
+				class="is-primary left-btn button has-tooltip-top"
+				data-tooltip="Previous"
+				data-direction="left"
+			>
+				<i class="fa-solid fa-arrow-left"></i>
+			</button>
+			<button
+				on:click={shiftPost}
+				class="is-primary right-btn button has-tooltip-top"
+				data-tooltip="Next"
+				data-direction="right"
+			>
+				<i class="fa-solid fa-arrow-right"></i>
+			</button>
+		{/if}
+	</div>
+
 	<div class="post-info-container">
+		<a href={postUrlPath} target="_blank">View this post</a>
 		<h1 class="uploader-title">Uploader: {uploader}</h1>
 		<h1 class="artist-title">Artist: {artist.length ? artist : 'Unknown'}</h1>
 		<h1 class="date-title">Date uploaded: {uploadDate}</h1>
+		<h1 class="num-posts-title">Total images in this post: {numImages}</h1>
 	</div>
 	<div class="actionrow">
 		<div id="container">
@@ -89,6 +121,7 @@
 <style>
 	.post-info-container {
 		margin-top: 25px;
+		text-align: center;
 	}
 
 	.tag-show-box {
@@ -153,6 +186,7 @@
 		box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
 	}
 
+	
 	.card:hover {
 		transform: scale(1.02);
 	}
@@ -170,9 +204,67 @@
 		background-repeat: no-repeat;
 		border-top-left-radius: 10px;
 		border-top-right-radius: 10px;
+		position: relative;
+	}
+
+	.card-img:hover .left-btn {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		width: 50px;
+		height: 60px; 
+		position: absolute;
+		top: 50%;
+		left: 10%;
+		animation-play-state: running;
+			
+	}
+
+	.card-img:hover .right-btn {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		width: 50px;
+		height: 60px; 
+		position: absolute;
+		top: 50%;
+		right: 10%;
+		animation-play-state: running;
+	}
+
+	i {
+		vertical-align: middle;
+	}
+
+	@keyframes fade-in {
+		from {
+			opacity: 0;
+		}
+
+		to {
+			opacity: 1;
+		}
+	}
+
+	.left-btn {
+		display: none;
+		animation: fade-in 200ms ease-in-out;
+		animation-play-state: paused;
+	}
+
+	.right-btn {
+		display: none;
+		animation: fade-in 200ms ease-in-out;
+		animation-play-state: paused;
 	}
 
 	.uploader-title {
+		text-align: center;
+		font-size: 15px;
+		margin-top: 10px;
+	}
+
+	.num-posts-title {
 		text-align: center;
 		font-size: 15px;
 		margin-top: 10px;
@@ -205,7 +297,7 @@
 		position: relative;
 		width: 160px;
 		height: 130px;
-		transform:scale(25%);
+		transform: scale(25%);
 		border-color: red;
 	}
 	.heart-like-button:before {
@@ -217,7 +309,7 @@
 		width: 80px;
 		height: 125px;
 		border-radius: 40px 40px 0 0;
-		border-color : red;
+		border-color: red;
 		background-color: black;
 		content: '';
 		cursor: pointer;
@@ -232,7 +324,7 @@
 		width: 80px;
 		height: 125px;
 		border-radius: 40px 40px 0 0;
-		border-color : red;
+		border-color: red;
 		background-color: black;
 		content: '';
 		cursor: pointer;
@@ -241,21 +333,25 @@
 
 	.heart-like-button.liked::before,
 	.heart-like-button.liked::after {
-  		background-color: #d65076;
+		background-color: #d65076;
 	}
 	.heart-like-button.liked {
-  		animation: liked .4s ease;
+		animation: liked 0.4s ease;
 	}
 
+
 	@keyframes liked {
-  	0% {
-    	transform: scale(.15);
-  	}
-  	50% {
-    	transform: scale(.3);
-  	}
-  	100% {
-    	transform: scale(.25);
-  	}	
-}
+		0% {
+			transform: scale(0.15);
+		}
+		50% {
+			transform: scale(0.3);
+		}
+		100% {
+			transform: scale(0.25);
+		}
+	}
+
+	
+	
 </style>

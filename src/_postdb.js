@@ -4,6 +4,7 @@ import redisClient from "./_redis_config";
 import {v4 as uuidv4} from "uuid";
 import moment from "moment";
 import { afterNavigate } from "$app/navigation";
+import { addEmitHelpers } from "typescript";
 
 
 
@@ -16,31 +17,45 @@ const DB_URI = import.meta.env.VITE_DB_URI.replace("<password>",DB_PW)
 
 
 
-async function makePostDocument(uploader, tags, artist, encoding, postID, nsfw) {
+async function makePostDocument(uploader, tags, artist,postID, files) {
         
     const _id = postID;
-    const imageResp = await imgClient.upload(
-        {
-            file: encoding,
-            fileName: postID,
-            folder : "posts",
-            useUniqueFileName: false,
+    const postImages = [];
 
+    for (const [index, file] of Array.from(Object.entries(files))) {
+        const {encoding, nsfw} = file;
+        const fileName = `post${postID}-${index}`;
+        const imageResp = await imgClient.upload(
+            {
+                file: encoding,
+                fileName: fileName,
+                folder : "posts",
+                useUniqueFileName: false,
+    
+            }
+        );
+        const imageURL = imageResp.url;
+        const width = imageResp.width;
+        const height = imageResp.height;
+
+        const data = {
+            imageURL,
+            width,
+            height,
+            nsfw
         }
-    )
-  
-    const imageURL = imageResp.url;
-    const width = imageResp.width;
-    const height = imageResp.height;
+        postImages.push(data);
+    }
+
     
     const uploadDate = moment().format('MMMM Do YYYY, h:mm:ss a');
-    return {uploader,tags,artist,imageURL,postID,uploadDate,_id,width,height,nsfw};
+    return {uploader,tags,artist,postID,uploadDate,_id, postImages};
 }
 
 
 
 
-export async function addPost(uploader, tags, artist, encoding, nsfw) {
+export async function addPost(uploader, tags, artist, files) {
 
     const client = new mongodb.MongoClient(DB_URI);
     await client.connect();
@@ -56,7 +71,7 @@ export async function addPost(uploader, tags, artist, encoding, nsfw) {
     const {globalPostTotal} = await counterCollection.findOne({});
     await counterCollection.updateOne({},{$inc : {globalPostTotal : 1}})
 
-    const postDoc = await makePostDocument(uploader, tags, artist, encoding,globalPostTotal+1,nsfw);
+    const postDoc = await makePostDocument(uploader, tags, artist,globalPostTotal+1,files);
 
     for (const tag of tags) {
         const tagDoc = await tag_collection.findOne({name : tag});
@@ -230,6 +245,18 @@ export async function addCommentOnPost(id, uploader, commentText) {
 }
 
 export async function getAllArtists() {
+
+    if (redisClient.status !== "ready" && redisClient.status !== "connecting") {
+        await redisClient.connect();
+    }
+
+    const cachedArtists = await redisClient.get("artists");
+    
+    if (cachedArtists) { 
+        return JSON.parse(cachedArtists);
+    }
+    
+
     const client = new mongodb.MongoClient(DB_URI);
     await client.connect();
     const postdb = await client.db("post-db");
@@ -238,7 +265,10 @@ export async function getAllArtists() {
     const artistsDocs = await artistCollection.find({}).toArray();
     const artists = artistsDocs.map(artistDoc => artistDoc.name);
     
+    const finalData = Array.from(new Set(artists));
 
-    return Array.from(new Set(artists));
+    await redisClient.setex("artists",300,JSON.stringify(finalData));
+
+    return finalData;
     
 }

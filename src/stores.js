@@ -16,3 +16,6 @@ export const homePageQuery = writable("");
 export const searchMatches = writable([]);
 export const files = writable([]);
 export const darkmode = writable(initialValue);
+
+export const addedTags = writable(new Set());
+export const addedArtist = writable("");
