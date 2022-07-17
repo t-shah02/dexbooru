@@ -269,6 +269,33 @@ export async function getAllArtists() {
 
     await redisClient.setex("artists",300,JSON.stringify(finalData));
 
+    await client.close();
     return finalData;
+    
+}
+
+export async function searchPosts(tags) {
+
+    if (redisClient.status !== "ready" && redisClient.status !== "connecting") {
+        await redisClient.connect();
+    }
+
+    const cachedQuery = await redisClient.get(tags.join(" "));
+    
+    if (cachedQuery) { 
+        return JSON.parse(cachedQuery);
+    }
+
+    const client = new mongodb.MongoClient(DB_URI);
+    await client.connect();
+    const postdb = await client.db("post-db");
+    const postCollection = await postdb.collection("posts");
+    
+    const results = await postCollection.find({tags : {$all : tags}}).toArray();
+    
+    await redisClient.setex(tags.join(" "), 200, JSON.stringify(results));
+
+    await client.close();
+    return results;
     
 }

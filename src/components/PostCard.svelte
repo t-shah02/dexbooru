@@ -69,7 +69,7 @@
 </script>
 
 <div class="card" style="background-color : {$darkmode ? postCardDarkColor : postCardLightColor}">
-	<div class="card-img" style="background-image : url({postImages[postImageIndex].imageURL})">
+	<div class="card-img" style="background-image : url({`${postImages[postImageIndex].imageURL}?test`})">
 		{#if postImages.length > 1}
 			<button
 				on:click={shiftPost}
@@ -110,7 +110,7 @@
 	{#if showTags}
 		<div in:slide out:slide class="block">
 			{#each tags as tag}
-				<a href="https://google.ca"
+				<a href={`/search?query=${tag.split(" ").length > 1 ? `"${tag}"` : tag}`}
 					><span class="tag {colors[Math.floor(Math.random() * colors.length)]}">{tag}</span></a
 				>
 			{/each}
@@ -160,7 +160,16 @@
 	}
 
 	a {
+		color : black;
 		text-decoration: none;
+	}
+	
+	a:visited {
+		color : black;
+	}
+
+	a:hover {
+		color : black;
 	}
 
 	.tag {
@@ -205,6 +214,7 @@
 		border-top-left-radius: 10px;
 		border-top-right-radius: 10px;
 		position: relative;
+		transition : background-image 500ms ease-in-out;
 	}
 
 	.card-img:hover .left-btn {

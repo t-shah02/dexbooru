@@ -36,31 +36,37 @@
 
 	export let post;
 	export let postID;
-	export let url;
-	export let tags;
-	export let uploader;
+	export let url = '';
+	export let tags = [];
+	export let uploader = '';
 	export let id;
-	export let artist;
-	export let imageAlt;
-	export let username;
-	export let pfp;
-	export let images;
+	export let artist = '';
+	export let imageAlt = '';
+	export let username = '';
+	export let images = [];
 
+	let postNotFound = false;
+	if (post === false) {
+		postNotFound = true;
+	}
 
 	const maxCommentCharLength = 500;
-	const postParts = images.length;
+	const postParts = images ? images.length : 0;
 
 	let commentText = '';
 	let commentTooLong = false;
 	let comments = [];
 
-	let { width, height, nsfw, imageURL } = images[0];
-	
-	
+	let width,
+		height,
+		nsfw,
+		imageURL = 0;
 
-	let postNotFound = false;
-	if (post === false) {
-		postNotFound = true;
+	if (images.length) {
+		width = images[0].width;
+		height = images[0].height;
+		nsfw = images[0].nsfw;
+		imageURL = images[0].imageURL;
 	}
 
 	let clientWidth;
@@ -107,10 +113,7 @@
 		nsfw = images[index].nsfw;
 		width = images[index].width;
 		height = images[index].height;
-		
 	}
-
-	
 
 	let colors = ['is-success', 'is-link', 'is-warning', 'is-danger', 'is-primary'];
 </script>
@@ -118,16 +121,17 @@
 <svelte:head>
 	{#if !postNotFound}
 		<title>{tags.join(', ')} - Dexbooru</title>
+		<meta property="og:image" content={`${url}?test`} />
+		<meta property="og:title" content="{tags.join(', ')} - Dexbooru" />
+		<meta
+			property="og:description"
+			content="Artist: {artist.length ? artist : 'Unknown'} | Uploader: {uploader}"
+		/>
 	{:else}
 		<title>Not found - Dexbooru</title>
+		<meta property="og:description" content="Invalid post ID" />
 	{/if}
-	<meta property="og:title" content="{tags.join(', ')} - Dexbooru" />
-	<meta property="og:image" content={`${url}?test`} />
 	<meta property="og:site_name" content="Dexbooru" />
-	<meta
-		property="og:description"
-		content="Artist: {artist.length ? artist : 'Unknown'} | Uploader: {uploader}"
-	/>
 </svelte:head>
 
 <div id="id" style="background-color : {$darkmode ? darkBodyColor : lightModeColor}">
@@ -167,72 +171,82 @@
 							{/if}
 						</div>
 					</div>
-					
 				</div>
 
 				{#if postParts}
-						<div class="post-parts-container">
-							<h1 class="post-count" style="color : {$darkmode ? "white" : "black"}">This post has {postParts} images</h1>
-							<div class="small-img-container">
-								{#each Object.entries(images) as [index,image]}
-									<div data-index={index} on:click={swapImages} class="small-post-img" style="background-image : url('{image.imageURL}')"></div>
-								{/each}
-							</div>
+					<div class="post-parts-container">
+						<h1 class="post-count" style="color : {$darkmode ? 'white' : 'black'}">
+							This post has {postParts} images
+						</h1>
+						<div class="small-img-container">
+							{#each Object.entries(images) as [index, image]}
+								<div
+									data-index={index}
+									on:click={swapImages}
+									class="small-post-img"
+									style="background-image : url('{image.imageURL}?test')"
+								/>
+							{/each}
 						</div>
+					</div>
 				{/if}
 
 				<div class="tag-container">
 					{#each tags as tag}
-						<a class="tag-link" href="https://google.ca"
+						<a class="tag-link" href={`/search?query=${tag.split(" ").length > 1 ? `"${tag}"` : tag}`}
 							><span class="tag {colors[Math.floor(Math.random() * colors.length)]}">{tag}</span></a
 						>
 					{/each}
 				</div>
 
 				<a target="_blank" class="preview-link" href={url}>Preview the full image</a>
-				<img id="post-img" src={imageURL} alt={imageAlt} />
+				<img id="post-img" src={`${imageURL}?test`} alt={imageAlt} />
+			</div>
+			{#if username.length}
+				<div class="comment-make-container">
+					<h1 style="color : {$darkmode ? 'white' : 'black'}">Make a comment under {username}:</h1>
+					{#if clientWidth < 500}
+						<textarea
+							maxlength={maxCommentCharLength}
+							bind:value={commentText}
+							class="textarea {commentTooLong ? 'is-danger' : 'is-primary'}"
+							rows="8"
+							on:input={onCommentType}
+							placeholder="Leave a comment here!"
+						/>
+					{:else}
+						<textarea
+							maxlength={maxCommentCharLength}
+							bind:value={commentText}
+							class="textarea {commentTooLong ? 'is-danger' : 'is-primary'}"
+							rows="5"
+							on:input={onCommentType}
+							placeholder="Leave a comment here!"
+						/>
+					{/if}
+					<h3>
+						<strong
+							style="color : {commentText.length === maxCommentCharLength ? 'red' : 'lightgreen'}"
+							>{commentText.length}/{maxCommentCharLength}</strong
+						>
+					</h3>
+					<button on:click={submitComment} class="button is-info">Comment</button>
+				</div>
+			{/if}
+
+			<div
+				class="commentCard"
+				style="background-color : {$darkmode ? darkCardColor : lightModeColor}"
+			>
+				<div class="comments" style="color: {$darkmode ? 'white' : 'black'}">
+					<h2>COMMENTS</h2>
+					<hr />
+					{#each comments as comment}
+						<Comment text={comment} />
+					{/each}
+				</div>
 			</div>
 		{/if}
-	</div>
-	{#if username.length}
-		<div class="comment-make-container">
-			<h1 style="color : {$darkmode ? 'white' : 'black'}">Make a comment under {username}:</h1>
-			{#if clientWidth < 500}
-				<textarea
-					maxlength={maxCommentCharLength}
-					bind:value={commentText}
-					class="textarea {commentTooLong ? 'is-danger' : 'is-primary'}"
-					rows="8"
-					on:input={onCommentType}
-					placeholder="Leave a comment here!"
-				/>
-			{:else}
-				<textarea
-					maxlength={maxCommentCharLength}
-					bind:value={commentText}
-					class="textarea {commentTooLong ? 'is-danger' : 'is-primary'}"
-					rows="5"
-					on:input={onCommentType}
-					placeholder="Leave a comment here!"
-				/>
-			{/if}
-			<h3>
-				<strong style="color : {commentText.length === maxCommentCharLength ? 'red' : 'lightgreen'}"
-					>{commentText.length}/{maxCommentCharLength}</strong
-				>
-			</h3>
-			<button on:click={submitComment} class="button is-info">Comment</button>
-		</div>
-	{/if}
-
-	<div class="commentCard" style="background-color : {$darkmode ? darkCardColor : lightModeColor}">
-		<div class="comments" style="color: {$darkmode ? 'white' : 'black'}">
-			<h2>COMMENTS</h2>
-			<hr />
-			{#each comments as comment}
-				<Comment text={comment} />
-			{/each}
-		</div>
 	</div>
 </div>
 
@@ -249,37 +263,35 @@
 	}
 
 	.post-count {
-		font-size : 15px;
-		margin-top : 10px;
+		font-size: 15px;
+		margin-top: 10px;
 	}
 
-	
-
 	.small-img-container {
-		display : flex;
-		width : 50%;
-		margin-left : auto;
-		margin-right : auto;
-		margin-top : 10px;
-		justify-content : center;
-		flex-wrap : wrap;
-		border : 1px solid green;
-		border-radius : 5px;
+		display: flex;
+		width: 50%;
+		margin-left: auto;
+		margin-right: auto;
+		margin-top: 10px;
+		justify-content: center;
+		flex-wrap: wrap;
+		border: 1px solid green;
+		border-radius: 5px;
 	}
 
 	.small-post-img {
-		width : 150px;
-		height : 150px;
-		background-repeat : no-repeat;
-		background-position : center;
-		background-size : cover;
-		margin : 20px;
-		transition : transform 200ms ease-in-out;
+		width: 150px;
+		height: 150px;
+		background-repeat: no-repeat;
+		background-position: center;
+		background-size: cover;
+		margin: 20px;
+		transition: transform 200ms ease-in-out;
 	}
 
 	.small-post-img:hover {
-		cursor : pointer;
-		transform : scale(1.04);
+		cursor: pointer;
+		transform: scale(1.04);
 	}
 
 	article {
