@@ -69,6 +69,7 @@
 </script>
 
 <div class="card" style="background-color : {$darkmode ? postCardDarkColor : postCardLightColor}">
+	{#if numImages > 1}
 	<div class="glide">
 		<div class="glide__track" data-glide-el="track">
 			<ul class="glide__slides">
@@ -85,6 +86,10 @@
 		</div>
 	
 	</div>
+	{:else}
+	<div class="card-img" style="background-image : url({`${postImages[postImageIndex].imageURL}?test`})">
+	</div>
+	{/if}
 
 	<div class="post-info-container">
 		<a href={postUrlPath} target="_blank">View this post</a>
@@ -168,6 +173,7 @@
 		left: 0;
 		animation-play-state: running;
 		border : none;
+		border-radius: 10px 0 0 0;
 		background-color : rgba(8,8,8,0.5);
 		color: white;
 			
@@ -184,6 +190,7 @@
 		right: 0;
 		background-color : rgba(8,8,8,0.5);
 		border : none;
+		border-radius: 0 10px 0 0;
 		animation-play-state: running;
 		color: white;
 	}
@@ -227,11 +234,22 @@
 
 	.card {
 		position: relative;
-		margin: 35px;
+		margin: 35px 50px;
 		border-radius: 10px;
 		width: 350px;
 		transition: all 350ms;
 		box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+	}
+
+	@media only screen and (max-width: 780px) {
+		.card {
+		position: relative;
+		margin: 35px 75px;
+		border-radius: 10px;
+		width: 300px;
+		transition: all 350ms;
+		box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+		}
 	}
 
 	.card:hover {

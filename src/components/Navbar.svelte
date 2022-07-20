@@ -334,10 +334,12 @@
 
 		.navbar-brand {
 			margin-left: 20px;
+			margin-right: 20px;
 		}
 
 		.navbar-start {
 			margin-left: 30px;
+			margin-right: 30px;
 		}
 
 		.navbar-burger {
@@ -371,6 +373,7 @@
 
 		.navbar-end {
 			margin-left:30px;
+			margin-right:30px;
 		}
 
 		.buttons {

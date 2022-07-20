@@ -36,8 +36,10 @@
 		for (let i = 0; i < sliders.length; i++) {
   			const glide = new Glide(sliders[i], {
 				type: 'carousel',
- 				startAt: 0,
-  				perView: 1
+ 				startAt: 1,
+  				perView: 1,
+				swipeThreshold: 20,
+				dragThreshold: 10,
 			});
 			glide.mount();
 		}
