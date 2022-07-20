@@ -21,8 +21,7 @@
 	import {darkmode} from "../stores.js";
 	import {onMount} from "svelte";
 	import { darkBodyColor, lightModeColor} from "../colors.js"
-
-	
+	import Glide from '@glidejs/glide';
 	
 
 	export let posts;
@@ -30,6 +29,20 @@
     export let page; 
 	export let invalidPage;
 
+
+	onMount(() => {
+		const sliders = document.querySelectorAll('.glide');
+
+		for (let i = 0; i < sliders.length; i++) {
+  			const glide = new Glide(sliders[i], {
+				type: 'carousel',
+ 				startAt: 0,
+  				perView: 1
+			});
+			glide.mount();
+		}
+	}
+	);
 
 	const redirectToPage = (page) => window.location.replace(`/?page=${page}`);
 

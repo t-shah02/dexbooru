@@ -25,8 +25,11 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@beyonk/svelte-carousel": "^2.9.0",
+		"@glidejs/glide": "^3.5.2",
 		"aws-sdk": "^2.1162.0",
 		"bcryptjs": "^2.4.3",
+		"bulma-carousel": "^4.0.24",
 		"cloudinary": "^1.30.0",
 		"cookie": "^0.5.0",
 		"dotenv": "^16.0.1",

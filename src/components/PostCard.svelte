@@ -46,48 +46,45 @@
 		showTags = !showTags;
 	}
 
-	function likePost(e) {
+	async function likePost() {
+		const body = { postID };
+		body['action'] = isLiked ? 'dislike' : 'like';
+
 		if (isLiked) {
 			heartItem.classList.remove('liked');
+			const response = await fetch('/api/like', {
+				method: 'PATCH',
+				body: JSON.stringify(body)
+			});
 		} else {
 			heartItem.classList.add('liked');
+			postsInPastMinute++;
+
+			const response = await fetch('/api/like', {
+				method: 'PATCH',
+				body: JSON.stringify(body)
+			});
 		}
 		isLiked = !isLiked;
-	}
-
-	function shiftPost(e) {
-		const target = e.target.nodeName === "I" ? e.target.parentNode : e.target;
-		const direction = target.dataset.direction;
-		
-
-		if (direction === 'left') {
-			postImageIndex = postImageIndex - 1 < 0 ? postImages.length - 1 : postImageIndex - 1;
-		} else if (direction === 'right') {
-			postImageIndex = postImageIndex + 1 >= postImages.length ? 0 : postImageIndex + 1;
-		}
 	}
 </script>
 
 <div class="card" style="background-color : {$darkmode ? postCardDarkColor : postCardLightColor}">
-	<div class="card-img" style="background-image : url({`${postImages[postImageIndex].imageURL}?test`})">
-		{#if postImages.length > 1}
-			<button
-				on:click={shiftPost}
-				class="is-primary left-btn button has-tooltip-top"
-				data-tooltip="Previous"
-				data-direction="left"
-			>
-				<i class="fa-solid fa-arrow-left"></i>
-			</button>
-			<button
-				on:click={shiftPost}
-				class="is-primary right-btn button has-tooltip-top"
-				data-tooltip="Next"
-				data-direction="right"
-			>
-				<i class="fa-solid fa-arrow-right"></i>
-			</button>
-		{/if}
+	<div class="glide">
+		<div class="glide__track" data-glide-el="track">
+			<ul class="glide__slides">
+				{#each postImages as image}
+					<div class="card-img" style="background-image : url({`${image.imageURL}?test`})">
+						<div class="glide__arrows" data-glide-el="controls">
+							<button class="glide__arrow glide__arrow--left" data-glide-dir="<">&#8592</button>
+							<button class="glide__arrow glide__arrow--right" data-glide-dir=">">&#8594</button>
+						</div>
+					</div>
+				{/each}
+			</ul>
+			
+		</div>
+	
 	</div>
 
 	<div class="post-info-container">
@@ -110,7 +107,7 @@
 	{#if showTags}
 		<div in:slide out:slide class="block">
 			{#each tags as tag}
-				<a href={`/search?query=${tag.split(" ").length > 1 ? `"${tag}"` : tag}`}
+				<a href={`/search?query=${tag.split(' ').length > 1 ? `"${tag}"` : tag}`}
 					><span class="tag {colors[Math.floor(Math.random() * colors.length)]}">{tag}</span></a
 				>
 			{/each}
@@ -153,6 +150,49 @@
 		}
 	}
 
+	.glide__arrow--left {
+		display : none;
+	}
+
+	.glide__arrow--right {
+		display : none;
+	}
+	
+	.card-img:hover .glide__arrow--left {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		width: 50px;
+		height: 100%; 
+		position: absolute;
+		top: 0;
+		left: 0;
+		animation-play-state: running;
+		border : none;
+		background-color : rgba(8,8,8,0.5);
+		color: white;
+			
+	}
+
+	.card-img:hover .glide__arrow--right {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		width: 50px;
+		height: 100%; 
+		position: absolute;
+		top: 0;
+		right: 0;
+		background-color : rgba(8,8,8,0.5);
+		border : none;
+		animation-play-state: running;
+		color: white;
+	}
+
+	.glide__arrows > button {
+		font-size : 30px;
+	}
+
 	.block {
 		display: flex;
 		flex-wrap: wrap;
@@ -160,16 +200,16 @@
 	}
 
 	a {
-		color : black;
+		color: black;
 		text-decoration: none;
 	}
-	
+
 	a:visited {
-		color : black;
+		color: black;
 	}
 
 	a:hover {
-		color : black;
+		color: black;
 	}
 
 	.tag {
@@ -195,7 +235,6 @@
 		box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
 	}
 
-	
 	.card:hover {
 		transform: scale(1.02);
 	}
@@ -214,33 +253,11 @@
 		border-top-left-radius: 10px;
 		border-top-right-radius: 10px;
 		position: relative;
-		transition : background-image 500ms ease-in-out;
+		transition: background-image 500ms ease-in-out;
+		color: rgba(8, 8, 8, 0.5);
 	}
 
-	.card-img:hover .left-btn {
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		width: 50px;
-		height: 60px; 
-		position: absolute;
-		top: 50%;
-		left: 10%;
-		animation-play-state: running;
-			
-	}
-
-	.card-img:hover .right-btn {
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		width: 50px;
-		height: 60px; 
-		position: absolute;
-		top: 50%;
-		right: 10%;
-		animation-play-state: running;
-	}
+	
 
 	i {
 		vertical-align: middle;
@@ -256,16 +273,38 @@
 		}
 	}
 
+	@keyframes left {
+		from {
+			left: 0;
+		}
+		to {
+			left: -100%;
+		}
+	}
+
+	@keyframes right {
+		from {
+			left: 100%;
+		}
+		to {
+			left: 0;
+		}
+	}
+
 	.left-btn {
 		display: none;
 		animation: fade-in 200ms ease-in-out;
 		animation-play-state: paused;
+		border: none;
+		border-radius: 10px 0px 0px 0px;
 	}
 
 	.right-btn {
 		display: none;
 		animation: fade-in 200ms ease-in-out;
 		animation-play-state: paused;
+		border: none;
+		border-radius: 0px 10px 0px 0px;
 	}
 
 	.uploader-title {
@@ -349,7 +388,6 @@
 		animation: liked 0.4s ease;
 	}
 
-
 	@keyframes liked {
 		0% {
 			transform: scale(0.15);
@@ -361,7 +399,4 @@
 			transform: scale(0.25);
 		}
 	}
-
-	
-	
 </style>

@@ -178,8 +178,9 @@
 
 <div id="upload" style="background-color : {$darkmode ? darkBodyColor : lightModeColor}">
 	{#if isBeingUploaded}
-		<div class="progressBar" in:fade={"duration:3000"} out:fade>
+		<div class="progressBar" in:fade={"duration:1000"} out:fade>
 			<h1>UPLOADING</h1>
+			<progress class="progress is-small is-primary" max="100">15%</progress>
 		</div>
 	{:else}
 		{#if isFileTooLongError}
@@ -284,9 +285,18 @@
 
 <style>
 	.progressBar {
+		width: 300px;
+		height: 100px;
 		position:absolute;
-		top:50%;
-		left:50%;
+		margin-left: auto;
+		margin-right: auto;
+		left: 0;
+		right: 0;
+		margin-top: auto;
+		margin-bottom: auto;
+		top: 0;
+		bottom: 0;
+		text-align: center;
 	}
 
 	#upload {
