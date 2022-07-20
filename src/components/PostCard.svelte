@@ -58,8 +58,7 @@
 			});
 		} else {
 			heartItem.classList.add('liked');
-			postsInPastMinute++;
-
+			
 			const response = await fetch('/api/like', {
 				method: 'PATCH',
 				body: JSON.stringify(body)
@@ -127,7 +126,7 @@
 		padding-bottom: 15px;
 	}
 
-	.tag-show-box:hover {
+	.tag-show-box:hover { 
 		cursor: pointer;
 	}
 
