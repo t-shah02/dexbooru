@@ -5,9 +5,12 @@ declare namespace App {
 	// interface Error {}
 	interface Locals {
 		user: {
+			id: string
 			username: string
 			email: string
-			createdAt: Date
+			profilePictureUrl: string
+			createdAt: Date,
+
 		}
 	}
 

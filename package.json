@@ -36,6 +36,7 @@
 		"@smui/card": "^7.0.0-beta.0",
 		"@smui/chips": "^7.0.0-beta.0",
 		"@smui/textfield": "^7.0.0-beta.0",
+		"@smui/tooltip": "^7.0.0-beta.0",
 		"@types/bcrypt": "^5.0.0",
 		"bcryptjs": "^2.4.3",
 		"dotenv": "^16.0.3",

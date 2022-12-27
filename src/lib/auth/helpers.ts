@@ -13,7 +13,7 @@ const SALT_ROUNDS = 10;
 
 
 const PASSWORD_REQUIREMENTS = [
-    `Password must be at least ${MINIMUM_PASSWORD_LENGTH} characters long`,
+    `The password must be at least ${MINIMUM_PASSWORD_LENGTH} characters long`,
     "The password must have at least 1 uppercase letter",
     "The password must have at least 1 lowercase letter",
     "The password must have at least 1 number",

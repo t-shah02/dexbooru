@@ -4,7 +4,9 @@ export const registrationErrors = {
     weakPassword: "Password must contain: enough character",
     invalidUsername: "Username must be between 3 and 15 characters long and ",
     userExists: "A user with some of these fields alreay exists!",
-    missingFields: "At least one of the required fields was missing!"
+    missingFields: "At least one of the required fields was missing!",
+    profileImageTooLarge: "The profile picture selected was too large!",
+    profileImageFailedToUpload: "The profile picture failed to upload to the cloud!"
 }
 
 export const loginErrors = {

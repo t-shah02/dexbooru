@@ -1,16 +1,9 @@
 <script lang="ts">
 	import { getImageEncoding, shortenFileName } from '$lib/images/parsing';
+	import { ACCEPTED_IMAGE_FORMATS } from '$lib/images/imageConstants';
 	import Button from '@smui/button';
-
-	interface UploadedImage {
-		blob: File;
-		encoding: string | ArrayBuffer | null;
-		fileName: string;
-	}
-
-	interface FormEventHandler<T> {
-		target: EventTarget | null;
-	}
+	import type { SauceSuggestion, UploadedImage } from '$lib/interfaces/uploads';
+	import type { FormEventHandler } from '$lib/interfaces/inputs';
 
 	// state variables for the context of sending posting image data to the server and loading from the user's file system
 	let failedUploads: UploadedImage[] = [];
@@ -18,10 +11,14 @@
 	let uploadingToServer = false;
 	let uploadedImages: UploadedImage[] = [];
 
+	// state variable for saucenao suggestions
+	let sauceSuggestions: SauceSuggestion[] = [];
+
 	const resetUploadingStates = () => {
 		failedUploads = [];
 		fullyUploaded = 0;
 		uploadingToServer = false;
+		sauceSuggestions = [];
 	};
 
 	const handleFileSelection = async (event: FormEventHandler<HTMLInputElement>) => {
@@ -37,6 +34,18 @@
 					return { blob: file, fileName: shortenFileName(file.name), encoding };
 				})
 			);
+
+			// for (const image of uploadedImages) {
+			// 	const { encoding, blob } = image;
+			// 	const format = blob.type;
+			// 	const sauceResponse = await fetch('/api/sauce', {
+			// 		method: 'POST',
+			// 		body: JSON.stringify({ encoding, format })
+			// 	});
+			// 	const resultsData: SauceSuggestion[] = await sauceResponse.json();
+			// 	sauceSuggestions = [...sauceSuggestions, ...resultsData];
+			// 	console.log(sauceSuggestions);
+			// }
 		}
 	};
 
@@ -69,43 +78,46 @@
 			<button data-hystclose class="hystmodal__close">Закрыть</button>
 			<h1 class="title">Upload to Dexbooru</h1>
 
-			<div class="file has-name is-boxed">
-				<label class="file-label">
-					<input
-						on:change={handleFileSelection}
-						class="file-input"
-						multiple
-						accept="image/*"
-						type="file"
-					/>
-					<span class="file-cta">
-						<span class="file-icon">
-							<i class="fas fa-upload" />
-						</span>
-						<span class="file-label">
-							{uploadedImages.length
-								? `${uploadedImages.length} file(s) selected`
-								: 'Choose your images!'}
-						</span>
-					</span>
-				</label>
-			</div>
-
-			<div class="image-grid">
-				{#each uploadedImages as { encoding, fileName }}
-					<div class="uploaded-image-ctn">
-						<img alt={fileName} class="uploaded-image" src={encoding?.toString()} />
-						<h2 class="uploaded-image-name">{fileName}</h2>
+			<div class="full-container">
+				<div class="left-container">
+					<div class="file has-name is-boxed">
+						<label class="file-label">
+							<input
+								on:change={handleFileSelection}
+								class="file-input"
+								multiple
+								accept={ACCEPTED_IMAGE_FORMATS}
+								type="file"
+							/>
+							<span class="file-cta">
+								<span class="file-icon">
+									<i class="fas fa-upload" />
+								</span>
+								<span class="file-label">
+									{uploadedImages.length
+										? `${uploadedImages.length} file(s) selected`
+										: 'Choose your images!'}
+								</span>
+							</span>
+						</label>
 					</div>
-				{/each}
+
+					<div class="image-grid">
+						{#each uploadedImages as { encoding, fileName }}
+							<img alt={fileName} class="uploaded-image" src={encoding?.toString()} />
+						{/each}
+					</div>
+				</div>
+				<div class="right-container">
+					<h1>lol</h1>
+				</div>
 			</div>
 
 			{#if uploadedImages.length}
-				
 				<Button
 					on:click={uploadImages}
 					variant="unelevated"
-					style="display : block; margin-left : auto; margin-right : auto; background-color : blue; color : white"
+					style="display : block; margin-left : auto; margin-right : auto; background-color : blue; color : white; margin-top : 100px;"
 				>
 					Share your post
 				</Button>
@@ -118,11 +130,21 @@
 
 <style>
 	.file {
-		width: 50%;
+		width: 45%;
 		display: block;
-		margin-left: auto;
-		margin-right: auto;
+		margin-left: 25px;
 		margin-bottom: 15px;
+	}
+
+	.full-container {
+		display: flex;
+		width: 100%;
+	}
+
+	.left-container {
+		width: 75%;
+		display: flex;
+		flex-direction: column;
 	}
 
 	.title {
@@ -132,26 +154,15 @@
 
 	.image-grid {
 		display: block;
-		margin-left: auto;
-		margin-right: auto;
-		width: 75%;
 		display: flex;
 		flex-wrap: wrap;
-		justify-content: center;
-	}
-
-	.uploaded-image-ctn {
-		margin: 10px;
-	}
-
-	.uploaded-image-name {
-		text-align: center;
-		color: gray;
+		margin-left: 25px;
 	}
 
 	.uploaded-image {
-		width: 200px;
-		height: 200px;
+		margin: 10px;
+		width: 100px;
+		height: 100px;
 		object-fit: cover;
 		transition: scale 200ms ease-in-out;
 	}

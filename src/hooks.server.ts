@@ -1,5 +1,6 @@
 import type { Handle } from '@sveltejs/kit';
 import db from '$lib/database/dbClient';
+import { profileUrlFormer } from '$lib/images/uploader';
 
 export const handle: Handle = async ({ event, resolve }) => {
     const sessionToken = event.cookies.get("sessionID")
@@ -10,14 +11,16 @@ export const handle: Handle = async ({ event, resolve }) => {
 
     const user = await db.user.findUnique({
         where: { sessionToken },
-        select: { username: true, email: true, createdAt: true },
+        select: { username: true, email: true, createdAt: true, id: true, profilePictureUrl: true },
     });
 
     if (user) {
-        const { email, username, createdAt } = user;
+        const { id, email, username, profilePictureUrl, createdAt } = user;
         event.locals.user = {
+            id,
             username,
             email,
+            profilePictureUrl : profileUrlFormer(profilePictureUrl),
             createdAt
         }
     }

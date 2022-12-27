@@ -12,32 +12,25 @@
 
 <div class="login-form-ctn">
 	<h1 class="form-title">Login to Dexbooru</h1>
-	<form method="POST">
-		<Textfield
-			input$name="username"
-			type="text"
-			style="margin : 10px;"
-			class="shaped-outlined"
-			variant="outlined"
-			bind:value={username}
-			label="Enter your username"
-		/>
-		<Textfield
-			input$name="password"
-			type="password"
-			style="margin : 10px"
-			class="shaped-outlined"
-			variant="outlined"
-			bind:value={password}
-			label="Enter your password"
-		/>
+	<form method="POST" autocomplete="off">
+		<div class="field label border">
+			<input bind:value={username} name="username" type="text" />
+			<label for="username">Enter your username</label>
+		</div>
 
-		<Button
-			style="width : 50%; display : block; margin-left : auto; margin-right : auto; margin-top : 5px;"
-			variant="raised"
-		>
-			<Label>Login</Label>
-		</Button>
+		<div class="field label border">
+			<input bind:value={password} name="password" type="password" />
+			<label for="password">Enter your password</label>
+		</div>
+
+		{#if form}
+			<h6 class="error-msg">{form?.error}</h6>
+		{/if}
+
+		<button class="tertiary large-elevate">
+			<i>login</i>
+			<span>Log in</span>
+		</button>
 	</form>
 </div>
 
@@ -70,4 +63,9 @@
 			width: 80%;
 		}
 	}
+
+	div {
+		margin : 10px;
+	}
+
 </style>

@@ -1,4 +1,6 @@
 
+export const ACCEPTED_IMAGE_FORMATS = "image/jpg, image/jpeg, image/png, image/gif, image/webp";
+
 // Upload limits 
 export const MAXIMUM_NUMBER_OF_IMAGES_FREE = 5;
 export const MAXIMUM_NUMBER_OF_IMAGES_PREMIUM = 10;

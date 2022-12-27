@@ -1,3 +1,5 @@
+import fs from "fs";
+
 
 const SHORTEN_LENGTH = 10;
 
@@ -26,4 +28,11 @@ export function getImageEncoding(file: File): Promise<string | ArrayBuffer | nul
         reader.onerror = reject;
 
     });
+}
+
+export function getImageEncodingServer(file : File) : string { 
+    const stream = fs.readFileSync(file);
+
+
+    return "";
 }

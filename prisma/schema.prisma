@@ -8,13 +8,14 @@ datasource db {
 }
 
 model User {
-  id           String   @id @default(uuid())
-  username     String   @unique() @db.VarChar(15)
-  email        String   @unique()
-  password     String
-  createdAt    DateTime @default(now())
-  posts        Post[]
-  sessionToken String   @unique()
+  id                String   @id @default(uuid())
+  username          String   @unique() @db.VarChar(15)
+  email             String   @unique()
+  password          String
+  createdAt         DateTime @default(now())
+  profilePictureUrl String
+  posts             Post[]
+  sessionToken      String   @unique()
 }
 
 model Tag {
