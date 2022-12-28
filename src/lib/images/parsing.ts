@@ -1,5 +1,3 @@
-import fs from "fs";
-
 
 const SHORTEN_LENGTH = 10;
 
@@ -30,9 +28,12 @@ export function getImageEncoding(file: File): Promise<string | ArrayBuffer | nul
     });
 }
 
-export function getImageEncodingServer(file : File) : string { 
-    const stream = fs.readFileSync(file);
+export function getImageDimensions(imageEncoding: string | ArrayBuffer | null): [number, number] {
+    const image = new Image();
+    image.src = imageEncoding?.toString() || "";
 
+    const width = image.width;
+    const height = image.height;
 
-    return "";
+    return [width, height];
 }

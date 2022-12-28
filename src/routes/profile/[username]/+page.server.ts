@@ -1,13 +1,32 @@
 import { error, redirect } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
+import dbClient from "$lib/database/dbClient";
+import { profileUrlFormer } from '../../../lib/images/uploader';
 
 
 export const load: PageServerLoad = async ({ locals, params }) => {
     const username = params.username;
 
-    if (username.length > 5) {
-        throw error(400, { message: "lol" });
+    if (locals.user && locals.user.username === username) {
+        return { targetUser: locals.user, sameUser: true };
     }
 
-    return { username };
+    const targetUser = await dbClient.user.findUnique({
+        where: {
+            username
+        },
+        select: {
+            id: true,
+            username: true,
+            createdAt: true,
+            profilePictureUrl: true
+        }
+    });
+
+    if (targetUser) {
+        targetUser.profilePictureUrl = profileUrlFormer(targetUser?.profilePictureUrl);
+        return { targetUser, sameUser: false };
+    }
+
+    throw error(404, { message: `A username called ${username} does not exist!` })
 }

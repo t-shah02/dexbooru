@@ -4,61 +4,73 @@
 	export let user: any = null;
 </script>
 
-<nav class="right-align">
-	<a href="/">
-		<img class="circle" src={logo} alt="dexbooru logo" />
-	</a>
-	<a href="/">
-		<button>
-			<i>home</i>
-			<span>Home</span>
+<header>
+	<nav>
+		<button data-ui="#left-menu-bar" class="circle transparent">
+			<i>menu</i>
 		</button>
-	</a>
-	<a href="/search">
-		<button>
-			<i>search</i>
-			<span>Search</span>
+		<h5 class="center-align">DEXBOORU</h5>
+		<button class="circle transparent">
+			<img class="responsive" src={logo} alt="dexbooru navbar logo" />
 		</button>
-	</a>
+	</nav>
+</header>
 
-	<div class="max" />
-
-	{#if user}
-		<a href={`/profile/${user.username}`}>
-			<button>
-				<img alt={`logo for ${user.username}`} class="circle small" src={user.profilePictureUrl} />
-				<span>Profile</span>
+<div id="left-menu-bar" class="modal left">
+	<header class="fixed">
+		<nav>
+			<button data-ui="#left-menu-bar" class="transparent circle">
+				<i>close</i>
 			</button>
+			<h5 class="max">Menu</h5>
+		</nav>
+	</header>
+	<a href="/posts" class="row round">
+		<i>description </i>
+		<span>Posts</span>
+	</a>
+	<a href="/search" class="row round">
+		<i>search</i>
+		<span>Search</span>
+	</a>
+	<a href="/tags" class="row round">
+		<i>tag </i>
+		<span>Tags</span>
+	</a>
+	{#if !user}
+		<a href="/auth/signup" class="row round">
+			<i>person_add</i>
+			<span>Sign up</span>
 		</a>
-		<a href="/auth/signout">
-			<button>
-				<i>logout</i>
-				<span>Sign out</span>
-			</button>
+		<a href="/auth/login" class="row round">
+			<i>login</i>
+			<span>Log in</span>
 		</a>
 	{:else}
-		<a href="/auth/signup">
-			<button>
-				<i>person_add</i>
-				<span>Sign up</span>
-			</button>
+		<div class="small-divider" />
+		<div class="row">Signed in as {user.username}</div>
+		<a href="/profile/{user.username}" class="row round">
+			<img
+				class="circle"
+				src={user.profilePictureUrl}
+				alt="menu bar profile picture for {user.username}"
+			/>
+			<span>Profile</span>
 		</a>
-		<a href="/auth/login">
-			<button>
-				<i>login</i>
-				<span>Log in</span>
-			</button>
+		<a href="/auth/signout" class="row round">
+			<i>logout</i>
+			<span>Sign out</span>
 		</a>
 	{/if}
-</nav>
+</div>
 
 <style>
-	nav {
-		background-color: lightyellow;
+	img {
+		object-fit: cover;
 	}
 
-	button {
-		margin-right: 1px;
-		margin-left: 1px;
+	header {
+		margin: 0;
+		padding: 0;
 	}
 </style>

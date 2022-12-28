@@ -1,6 +1,8 @@
 
 export interface UploadedImage {
-    blob: File;
+    sizeInMB: number;
+    width: number;
+    height: number;
     encoding: string | ArrayBuffer | null;
     fileName: string;
 }

@@ -1,9 +1,10 @@
 <script lang="ts">
-	import type { PageData } from './$types';
+	import { page } from '$app/stores';
 
-	export let data: PageData;
-
-	console.log(data.message);
+	const errorMessage: string | undefined = $page.error?.message;
 </script>
 
-<h1>{JSON.stringify(data)}</h1>
+<h1>{errorMessage}</h1>
+
+<style>
+</style>
