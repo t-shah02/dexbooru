@@ -8,7 +8,7 @@
 	<h5>Preview of {fileName}</h5>
 	<img src={imageEncoding?.toString()} alt="modal for {modalID}" />
 	<nav>
-		<button data-ui="#{modalID}">Close</button>
+		<button type="button" data-ui="#{modalID}">Close</button>
 	</nav>
 </div>
 

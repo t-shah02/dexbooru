@@ -1,51 +1,81 @@
 <script lang="ts">
-	import Card, {
-		Content,
-		PrimaryAction,
-		Media,
-		MediaContent,
-		Actions,
-		ActionButtons,
-		ActionIcons
-	} from '@smui/card';
-	import Button, { Label } from '@smui/button';
-	import IconButton, { Icon } from '@smui/icon-button';
+	export let postId: string;
+	export let date: Date;
+	export let likes: number;
+	export let images: string[];
+	export let authorName: string;
+	export let authorProfileUrl: string;
+	export let tags: string[];
+	export let artists: string[];
+	export let nsfw: boolean;
 
-    // component props
-	export let uploader: string = '';
-	export let tags: string[] = [];
-	export let postURL: string = '';
+	const ymdFormat = `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDay()}`;
 
+	let imageIndex = 0;
+
+	const goLeft = () => {
+		imageIndex++;
+		if (imageIndex >= images.length) {
+			imageIndex = 0;
+		}
+	};
+
+	const goRight = () => {
+		imageIndex--;
+		if (imageIndex < 0) {
+			imageIndex = images.length - 1;
+		}
+	};
 </script>
 
-<Card style="width : 300px;">
-	<PrimaryAction>
-		<Media class="card-media-16x9" aspectRatio="16x9">
-			<MediaContent>
-				<div style="color: #fff; position: absolute; bottom: 16px; left: 16px;">
-					<h2 class="mdc-typography--headline6" style="margin: 0;">A card with media.</h2>
-					<h3 class="mdc-typography--subtitle2" style="margin: 0;">And a subtitle.</h3>
-				</div>
-			</MediaContent>
-		</Media>
-		<Content class="mdc-typography--body2">
-			It's all in this card. It's a veritable smorgasbord of card features.
-		</Content>
-	</PrimaryAction>
-	<Actions>
-		<ActionButtons>
-			<Button>
-				<Label>Action</Label>
-			</Button>
-			<Button>
-				<Label>Another</Label>
-			</Button>
-		</ActionButtons>
-		<ActionIcons>
-			<IconButton toggle aria-label="Add to favorites" title="Add to favorites">
-				<Icon class="material-icons" on>favorite</Icon>
-				<Icon class="material-icons">favorite_border</Icon>
-			</IconButton>
-		</ActionIcons>
-	</Actions>
-</Card>
+<div class="post-card">
+	<div class="card-header">
+		<div class="uploader-info">
+			<img
+				class="uploader-pfp circle tiny"
+				src={authorProfileUrl}
+				alt="profile image of {authorProfileUrl}"
+			/>
+			<h6>{authorName}</h6>
+			<h6>{ymdFormat}</h6>
+		</div>
+	</div>
+	<div class="card-images-body">
+		<img
+			class="active-post-image"
+			src={images[imageIndex]}
+			alt="post id {postId} image # {imageIndex + 1}"
+		/>
+	</div>
+	<div class="card-footer" />
+</div>
+
+<style>
+	.post-card {
+		box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+		border-radius: 10px;
+		height: 350px;
+	}
+
+	h6 {
+		margin: 0;
+	}
+
+	.card-images-body {
+		height : 75%;
+	}
+
+	.uploader-info {
+		display: flex;
+		align-items: center;
+		justify-content: space-evenly;
+	}
+
+	.active-post-image {
+		display: block;
+		border-radius: 0px;
+		width : 100%;
+		object-fit: contain;
+		max-height: 100%;
+	}
+</style>

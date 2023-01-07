@@ -13,4 +13,4 @@
 	<UploadModal />
 {/if}
 <slot />
-<Footer />
+<Footer {user} />

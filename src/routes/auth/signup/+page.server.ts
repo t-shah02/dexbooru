@@ -1,14 +1,15 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, Action, PageServerLoad } from './$types';
 import { hashPassword, isStrongPassword, isValidUsername } from "$lib/auth/helpers";
-import { getFileSizeInMB } from '$lib/images/parsing';
+import { getFileSizeInMB } from '$lib/images/imageGeneral';
 import { MAXIMUM_IMAGE_SIZE_MB } from '$lib/images/imageConstants';
 import { uploadImageToCloud, DEFAULT_PROFILE_URL, PROFILE_FOLDER } from '$lib/images/uploader';
 import db from "$lib/database/dbClient";
 import { registrationErrors } from '$lib/auth/errorMessages';
+import { validateImage } from '$lib/images/imageServer';
 
 
-export const load: PageServerLoad = async ({ locals }) => {
+export const load: PageServerLoad = async ({ fetch, locals }) => {
     if (locals.user) {
         throw redirect(302, "/");
     }
@@ -21,7 +22,7 @@ const signup: Action = async ({ request }) => {
     const usernameData = data.get("username");
     const passwordData = data.get("password");
     const confirmedPasswordData = data.get("confirmedPassword");
-    const profilePictureFile = data.get("profilePicture");
+    const profilePictureFile = data.get("profilePicture") as Blob;
 
 
     if (!emailData || !usernameData || !passwordData || !confirmedPasswordData) {
@@ -61,33 +62,25 @@ const signup: Action = async ({ request }) => {
         return fail(409, { error: registrationErrors.userExists });
     }
 
-    let profileImageBuffer: Buffer | null = null;
-    let profileImageFormat = "";
+
     let finalCloudURL = "";
+    if (profilePictureFile.size > 0) {
 
-    if (profilePictureFile instanceof Blob) {
-
-        const imageSize = getFileSizeInMB(profilePictureFile);
-        if (imageSize > MAXIMUM_IMAGE_SIZE_MB) {
-            return fail(400, { error: registrationErrors.profileImageTooLarge })
-        }
-
-
+        const fileSizeMb = getFileSizeInMB(profilePictureFile);
         const profileArrayBuffer = await profilePictureFile.arrayBuffer();
-        profileImageBuffer = Buffer.from(profileArrayBuffer);
-        profileImageFormat = profilePictureFile.type.split("/")[1];
-    }
+        const profileBuffer = Buffer.from(profileArrayBuffer);
 
+        const validationTest = await validateImage(profileBuffer, fileSizeMb);
 
+        if (typeof validationTest !== "boolean") {
+            return fail(409, { error: registrationErrors.profileImageTooLarge });
+        }
 
-    if (profileImageBuffer) {
-        const profileImageFileName = `${username}_profile.${profileImageFormat}`;
-        const { uploadedImage, uploadedURL } = await uploadImageToCloud(profileImageFileName, PROFILE_FOLDER, profileImageBuffer);
-        if (uploadedImage) {
-            finalCloudURL = uploadedURL;
+        const uploadResponse = await uploadImageToCloud(crypto.randomUUID(), "profile_pictures", profileBuffer);
+        if (uploadResponse.uploadedImage) {
+            finalCloudURL = uploadResponse.uploadedURL;
         }
     }
-
 
     await db.user.create({
         data: {

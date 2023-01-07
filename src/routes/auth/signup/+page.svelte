@@ -1,10 +1,12 @@
 <script lang="ts">
 	import type { ActionData } from './$types';
 	import { isStrongPassword, isValidEmail, isValidUsername } from '$lib/auth/helpers';
-	import { getImageEncoding, getFileSizeInMB } from '$lib/images/parsing';
+	import { getFileSizeInMB } from '$lib/images/imageGeneral';
+	import { getImageEncoding } from '$lib/images/imageClient';
 	import { MAXIMUM_IMAGE_SIZE_MB } from '$lib/images/imageConstants';
 	import type { FormEventHandler } from '$lib/interfaces/inputs';
 	import { ACCEPTED_IMAGE_FORMATS } from '$lib/images/imageConstants';
+	import ImagePreviewModal from '$lib/components/ImagePreviewModal.svelte';
 
 	export let form: ActionData;
 
@@ -90,14 +92,13 @@
 		const fileSelector = document.querySelector('#file-selector') as HTMLInputElement;
 		fileSelector.value = '';
 	};
-	
 </script>
 
 <div class="signup-form-ctn">
 	<h1 class="form-title">Signup for Dexbooru</h1>
 	<form method="POST" enctype="multipart/form-data" autocomplete="off">
 		<div>
-			<div class="field label border">
+			<div style="margin-bottom : 30px;" class="field label border">
 				<input on:input={emailOnType} bind:value={email} name="email" type="text" />
 				<label for="email">Enter your email</label>
 				<span class="helper">{emailMessage}</span>
@@ -155,13 +156,11 @@
 							<i>preview</i>
 							<div class="tooltip top">Preview full image</div>
 						</a>
-						<div class="modal" id="preview-modal">
-							<h5>Preview of: {uploadedFileName}</h5>
-							<img src={profilePictureEncoding.toString()} alt="preview of {uploadedFileName}" />
-							<nav>
-								<button style="margin-top : 0" type="button" data-ui="#preview-modal">Close</button>
-							</nav>
-						</div>
+						<ImagePreviewModal
+							fileName={uploadedFileName ? uploadedFileName : ''}
+							modalID={'preview-modal'}
+							imageEncoding={profilePictureEncoding.toString()}
+						/>
 					</div>
 				</div>
 			{/if}

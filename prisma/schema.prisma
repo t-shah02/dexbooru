@@ -19,17 +19,25 @@ model User {
 }
 
 model Tag {
-  id         String @id @default(uuid())
-  name       String @unique()
-  totalPosts Int    @default(0)
-  posts      Post[]
+  id    String @id @default(uuid())
+  name  String @unique()
+  posts Post[]
+}
+
+model Artist {
+  id    String @id @default(uuid())
+  name  String @unique()
+  posts Post[]
 }
 
 model Post {
   id        String   @id @default(uuid())
+  images    String[]
   tags      Tag[]
   likes     Int      @default(0)
+  nsfw      Boolean  @default(false)
   createdAt DateTime @default(now())
   author    User     @relation(fields: [authorId], references: [id])
   authorId  String
+  artists   Artist[]
 }

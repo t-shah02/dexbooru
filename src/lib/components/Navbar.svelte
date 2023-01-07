@@ -25,9 +25,9 @@
 			<h5 class="max">Menu</h5>
 		</nav>
 	</header>
-	<a href="/posts" class="row round">
-		<i>description </i>
-		<span>Posts</span>
+	<a href="/" class="row round">
+		<i>home </i>
+		<span>Home</span>
 	</a>
 	<a href="/search" class="row round">
 		<i>search</i>

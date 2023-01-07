@@ -1,7 +1,7 @@
 import { error, redirect } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
 import dbClient from "$lib/database/dbClient";
-import { profileUrlFormer } from '../../../lib/images/uploader';
+import { urlFormer } from '../../../lib/images/uploader';
 
 
 export const load: PageServerLoad = async ({ locals, params }) => {
@@ -24,7 +24,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     });
 
     if (targetUser) {
-        targetUser.profilePictureUrl = profileUrlFormer(targetUser?.profilePictureUrl);
+        targetUser.profilePictureUrl = urlFormer(targetUser?.profilePictureUrl);
         return { targetUser, sameUser: false };
     }
 

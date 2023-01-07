@@ -15,6 +15,8 @@
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^1.0.0",
 		"@sveltejs/kit": "^1.0.0",
+		"@types/probe-image-size": "^7.2.0",
+		"@types/sharp": "^0.31.1",
 		"@typescript-eslint/eslint-plugin": "^5.45.0",
 		"@typescript-eslint/parser": "^5.45.0",
 		"eslint": "^8.28.0",
@@ -33,14 +35,12 @@
 	"type": "module",
 	"dependencies": {
 		"@prisma/client": "^4.8.0",
-		"@smui/card": "^7.0.0-beta.0",
-		"@smui/chips": "^7.0.0-beta.0",
-		"@smui/textfield": "^7.0.0-beta.0",
-		"@smui/tooltip": "^7.0.0-beta.0",
 		"@types/bcrypt": "^5.0.0",
 		"bcryptjs": "^2.4.3",
 		"dotenv": "^16.0.3",
 		"imagekit": "^4.1.2",
-		"sagiri": "^3.2.4"
+		"jimp": "^0.16.2",
+		"sagiri": "^3.2.4",
+		"sharp": "^0.31.3"
 	}
 }

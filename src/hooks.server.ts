@@ -1,6 +1,6 @@
 import type { Handle } from '@sveltejs/kit';
 import db from '$lib/database/dbClient';
-import { profileUrlFormer } from '$lib/images/uploader';
+import { urlFormer } from '$lib/images/uploader';
 
 export const handle: Handle = async ({ event, resolve }) => {
     const sessionToken = event.cookies.get("sessionID")
@@ -20,7 +20,7 @@ export const handle: Handle = async ({ event, resolve }) => {
             id,
             username,
             email,
-            profilePictureUrl : profileUrlFormer(profilePictureUrl),
+            profilePictureUrl: urlFormer(profilePictureUrl),
             createdAt
         }
     }

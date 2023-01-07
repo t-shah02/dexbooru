@@ -1,20 +1,14 @@
 <script lang="ts">
 	import ImagePreviewModal from './ImagePreviewModal.svelte';
-	import {
-		getFileSizeInMB,
-		getImageEncoding,
-		shortenFileName,
-		getImageDimensions
-	} from '$lib/images/parsing';
+	import { validateImage } from '$lib/images/imageClient';
 	import {
 		ACCEPTED_IMAGE_FORMATS,
 		MAXIMUM_NUMBER_OF_IMAGES_FREE,
 		MAXIMUM_IMAGE_HEIGHT,
 		MAXIMUM_IMAGE_WIDTH,
-		MAXIMUM_IMAGE_SIZE_MB,
-		MAXIMUM_IMAGE_AREA
+		MAXIMUM_IMAGE_SIZE_MB
 	} from '$lib/images/imageConstants';
-	import type { UploadedImage } from '$lib/interfaces/uploads';
+	import type { ImageBody, UploadedImage } from '$lib/interfaces/uploads';
 	import type { FormEventHandler } from '$lib/interfaces/inputs';
 	import { fade, slide } from 'svelte/transition';
 	import { flip } from 'svelte/animate';
@@ -22,9 +16,11 @@
 	// state variables for the context of sending posting image data to the server and loading from the user's file system
 	let totalInvalidFiles = 0;
 	let tooManyImages = false;
-	let fullyUploadedToServer = 0;
+	let totalImagesUploaded = 0;
 	let uploadingToServer = false;
+	let postUploadingComplete = false;
 	let uploadedImages: (UploadedImage | boolean)[] = [];
+	let uploadErrorMessage = '';
 
 	// state variables for the post metadata
 	let artist = '';
@@ -85,10 +81,21 @@
 
 	const resetUploadingStates = () => {
 		uploadedImages = [];
-		fullyUploadedToServer = 0;
+		totalImagesUploaded = 0;
 		totalInvalidFiles = 0;
 		tooManyImages = false;
 		uploadingToServer = false;
+		postUploadingComplete = false;
+		uploadErrorMessage = '';
+
+		const fileSelector = document.querySelector('#file-selector') as HTMLInputElement;
+		fileSelector.value = '';
+
+		isNSFW = false;
+		tag = '';
+		artist = '';
+		tags = [];
+		artists = [];
 	};
 
 	const handleFileSelection = async (event: FormEventHandler<HTMLInputElement>) => {
@@ -108,19 +115,7 @@
 
 			const uploadedImageData = await Promise.all(
 				rawFiles.map(async (file: File) => {
-					const sizeInMB = getFileSizeInMB(file);
-
-					if (sizeInMB > MAXIMUM_IMAGE_SIZE_MB) {
-						return false;
-					}
-					const encoding = await getImageEncoding(file);
-					const [width, height] = getImageDimensions(encoding);
-					const imageArea = width * height;
-
-					if (imageArea > MAXIMUM_IMAGE_AREA) {
-						return false;
-					}
-					return { sizeInMB, fileName: file.name, encoding, width, height };
+					return validateImage(file);
 				})
 			);
 
@@ -129,9 +124,80 @@
 			totalInvalidFiles = uploadedImageData.length - validUploadedImageData.length;
 		}
 	};
+
+	// server upload function
+
+	async function uploadImage(image: UploadedImage | boolean): Promise<string> {
+		if (typeof image === 'boolean') {
+			return '';
+		}
+
+		if (typeof image.encoding !== 'string') {
+			return '';
+		}
+
+		const imageBody: ImageBody = {
+			fileSize: image.sizeInMB,
+			encoding: image.encoding,
+			type: 'post'
+		};
+
+		const response = await fetch('/auth/upload/image', {
+			method: 'POST',
+			body: JSON.stringify(imageBody)
+		});
+
+		const finalUrl = await response.text();
+		return finalUrl;
+	}
+
+	async function uploadPost() {
+		if (uploadingToServer) {
+			uploadErrorMessage = 'Please wait for the current upload to finish processing!';
+			return;
+		}
+
+		if (!uploadedImages.length) {
+			uploadErrorMessage = 'A post needs to contain at least one image!';
+			ui('#upload-error-toast', 3500);
+			return;
+		}
+
+		uploadingToServer = true;
+		totalImagesUploaded = 0;
+
+		const postImageUrls: string[] = [];
+
+		for (const image of uploadedImages) {
+			const imageUrl = await uploadImage(image);
+			if (imageUrl) {
+				postImageUrls.push(imageUrl);
+				totalImagesUploaded++;
+				ui('#upload-progress', (totalImagesUploaded / uploadedImages.length) * 100);
+			}
+		}
+
+		const postBody = {
+			tags,
+			artists,
+			nsfw: isNSFW,
+			images: postImageUrls
+		};
+
+		const response = await fetch('/auth/upload/post', {
+			method: 'POST',
+			body: JSON.stringify(postBody)
+		});
+
+		if (response.ok) {
+			postUploadingComplete = true;
+			ui('#upload-done-toast', 3500);
+			resetUploadingStates();
+		}
+	}
 </script>
 
-<div id="upload-modal" class="modal active">
+<div id="upload-modal" class="modal">
 	<div class="row">
 		<button data-ui="#upload-modal" class="transparent circle">
 			<i>close</i>
@@ -150,6 +216,7 @@
 			<i>attach_file</i>
 			<input type="text" />
 			<input
+				id="file-selector"
 				on:change={handleFileSelection}
 				name="selectedFiles"
 				type="file"
@@ -242,14 +309,47 @@
 
 	<br />
 	<div class="uploadButtonCtn">
-		<button class="uploadButton">
+		<button on:click={uploadPost} class="uploadButton">
 			<i>cloud_upload</i>
 			<span>Post</span>
 		</button>
 	</div>
+
+	<div id="upload-error-toast" class="toast pink white-text">
+		<i>error</i>
+		<span>{uploadErrorMessage}</span>
+	</div>
+
+	<div id="upload-done-toast" class="toast green white-text">
+		<i>error</i>
+		<span>The post was uploaded to our servers successfully! :))</span>
+	</div>
+
+	{#if uploadingToServer}
+		<div class="progress-bar small-space border">
+			<div id="upload-progress" class="progress left orange" />
+		</div>
+		<h6 class="completed-heading center-align">
+			Images uploaded: {totalImagesUploaded} / {uploadedImages.length}
+		</h6>
+	{/if}
 </div>
 
 <style>
+	.progress-bar {
+		width: 50%;
+		margin-left: auto;
+		margin-right: auto;
+		margin-top: 10px;
+	}
+
+	.completed-heading {
+		text-align: center;
+		font-size: 15px;
+		color: gray;
+		margin: 2px 0px 0px;
+	}
+
 	.modal {
 		width: 80%;
 	}
@@ -276,6 +376,12 @@
 
 	.chip {
 		margin: 5px;
+		transition: all 200ms ease-in-out;
+	}
+
+	.chip:hover {
+		cursor: pointer;
+		scale: 1.05;
 	}
 
 	.chip-row {
@@ -314,8 +420,8 @@
 	}
 
 	.uploadButtonCtn {
-		margin-top:15px;
-		display:flex;
-		justify-content:center;
+		margin-top: 15px;
+		display: flex;
+		justify-content: center;
 	}
 </style>
