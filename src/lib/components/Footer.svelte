@@ -36,5 +36,6 @@
 		background-color: rgb(67, 137, 249);
 		color: white;
 		font-size: 18px;
+		z-index:1000;
 	}
 </style>

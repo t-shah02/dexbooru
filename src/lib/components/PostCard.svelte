@@ -1,81 +1,153 @@
 <script lang="ts">
+	import type { ImageData } from '$lib/interfaces/posts';
+	import 'swiper/css';
+	import 'swiper/css/pagination';
+	import 'swiper/css/navigation';
+	import { Pagination, Navigation } from 'swiper';
+	import { Swiper, SwiperSlide } from 'swiper/svelte';
+	import '$lib/assets/swiper.css';
+
 	export let postId: string;
 	export let date: Date;
 	export let likes: number;
-	export let images: string[];
+	export let images: ImageData[];
 	export let authorName: string;
 	export let authorProfileUrl: string;
 	export let tags: string[];
 	export let artists: string[];
 	export let nsfw: boolean;
 
+	let isBlurred = nsfw;
+	let censoredImages = images.map((imageData) => imageData.censored);
+	let uncensoredImages = images.map((imageData) => imageData.uncensored);
+
 	const ymdFormat = `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDay()}`;
+	const hours = date.getHours() < 10 ? `0${date.getHours()}` : date.getHours();
+	const minutes = date.getMinutes() < 10 ? `0${date.getMinutes()}` : date.getMinutes();
+	const timeStampFormat = `${hours}:${minutes}`;
+	const finalDatePostedFormat = `${ymdFormat} @ ${timeStampFormat}`;
 
-	let imageIndex = 0;
+	const postUrl = `/posts/view/${postId}`;
 
-	const goLeft = () => {
-		imageIndex++;
-		if (imageIndex >= images.length) {
-			imageIndex = 0;
-		}
-	};
-
-	const goRight = () => {
-		imageIndex--;
-		if (imageIndex < 0) {
-			imageIndex = images.length - 1;
-		}
-	};
+	const toggleBlur = () => (isBlurred = !isBlurred);
 </script>
 
-<div class="post-card">
-	<div class="card-header">
-		<div class="uploader-info">
-			<img
-				class="uploader-pfp circle tiny"
-				src={authorProfileUrl}
-				alt="profile image of {authorProfileUrl}"
-			/>
-			<h6>{authorName}</h6>
-			<h6>{ymdFormat}</h6>
+<article class="no-padding">
+	<div class="grid no-space">
+		<div class="s6">
+			<Swiper
+				slidesPerView={1}
+				loop={images.length > 1 ? true : false}
+				pagination={{
+					clickable: true
+				}}
+				navigation={images.length > 1 ? true : false}
+				modules={images.length > 1 ? [Pagination, Navigation] : []}
+				class="mySwiper"
+			>
+				{#if isBlurred}
+					{#each Object.entries(censoredImages) as [index, image]}
+						<SwiperSlide>
+							<a href={postUrl}>
+								<img class="responsive" src={image} alt="image #{index + 1} for {postId}" />
+							</a>
+						</SwiperSlide>
+					{/each}
+				{:else}
+					{#each Object.entries(uncensoredImages) as [index, image]}
+						<SwiperSlide>
+							<a href={postUrl}>
+								<img class="responsive" src={image} alt="image #{index + 1} for {postId}" />
+							</a>
+						</SwiperSlide>
+					{/each}
+				{/if}
+			</Swiper>
+		</div>
+		<div class="s6">
+			<div class="uploader-info padding">
+				<h6>
+					<a href="/profile/{authorName}">
+						<img
+							class="circle tiny"
+							style="margin-right : 3.5px"
+							src={authorProfileUrl}
+							alt="profile picture for {authorName}"
+						/>
+						{authorName}
+					</a>
+				</h6>
+				<h6>
+					<i>schedule</i>
+					{finalDatePostedFormat}
+				</h6>
+			</div>
+			{#if nsfw}
+				<div class="nsfw-container">
+					<p>
+						<i>warning</i>
+						This post has been marked as NSFW. Unblur photos at your own risk!
+					</p>
+					<label class="blur-checkbox checkbox">
+						<input type="checkbox" on:change={toggleBlur} checked />
+						<span>Blur image</span>
+					</label>
+				</div>
+			{/if}
 		</div>
 	</div>
-	<div class="card-images-body">
-		<img
-			class="active-post-image"
-			src={images[imageIndex]}
-			alt="post id {postId} image # {imageIndex + 1}"
-		/>
-	</div>
-	<div class="card-footer" />
-</div>
+</article>
 
 <style>
-	.post-card {
-		box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
-		border-radius: 10px;
-		height: 350px;
+	article {
+		width: 350px;
 	}
 
-	h6 {
-		margin: 0;
+	img {
+		cursor: pointer;
+	}
+	.s6 {
+		border-bottom-left-radius: 0px;
+		border-bottom-right-radius: 0px;
 	}
 
-	.card-images-body {
-		height : 75%;
+	.grid {
+		display: flex;
+		flex-direction: column;
 	}
 
 	.uploader-info {
 		display: flex;
+		flex-wrap: wrap;
+		justify-content: space-between;
 		align-items: center;
-		justify-content: space-evenly;
 	}
 
-	.active-post-image {
-		display: block;
-		border-radius: 0px;
-		width : 100%;
-		object-fit: contain;
-		max-height: 100%;
+	.nsfw-container {
+		margin: 5px;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.nsfw-container p {
+		text-align: center;
+		color: red;
+		font-size: 12px;
+	}
+
+	.blur-checkbox {
+		display: inline-block;
+		margin-left: auto;
+		margin-right: auto;
+		margin-bottom: 15px;
+	}
+
+	h6 {
+		font-size: 18px;
+		margin: 0;
+	}
+
+	i {
+		margin-right: 5px;
 	}
 </style>

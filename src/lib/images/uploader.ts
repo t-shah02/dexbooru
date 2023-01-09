@@ -4,7 +4,7 @@ import { compressImage } from './imageServer';
 
 export const PROFILE_FOLDER = "profile_pictures"
 export const DEFAULT_PROFILE_URL = "assets/default_profile_k1tJoKFet.png";
-export const urlFormer = (filePath: string): string => `${ENDPOINT}/${filePath}`
+export const urlFormer = (filePath: string, urlParams: string = ""): string => `${ENDPOINT}/${filePath}?${urlParams}`
 
 export async function uploadImageToCloud(fileName: string, folder: string, file: Buffer) {
     let uploadedImage = true;

@@ -41,8 +41,13 @@ export const load: PageServerLoad = async ({ url }) => {
             postId: postData.id,
             date: postData.createdAt,
             likes: postData.likes,
-            nsfw : postData.nsfw,
-            images: postData.images.map((imagePath) => urlFormer(imagePath)),
+            nsfw: postData.nsfw,
+            images: postData.images.map((imagePath) => {
+                return {
+                    censored: urlFormer(imagePath, "tr=bl-100"),
+                    uncensored: urlFormer(imagePath)
+                }
+            }),
             authorName: postData.author.username,
             authorProfileUrl: urlFormer(postData.author.profilePictureUrl),
             tags: postData.tags.map((data) => data.name),

@@ -1,7 +1,4 @@
 <script lang="ts">
-	import Textfield from '@smui/textfield';
-	import HelperText from '@smui/textfield/helper-text';
-	import Button, { Label } from '@smui/button';
 	import type { ActionData } from './$types';
 
 	export let form: ActionData;
@@ -65,7 +62,6 @@
 	}
 
 	div {
-		margin : 10px;
+		margin: 10px;
 	}
-
 </style>
