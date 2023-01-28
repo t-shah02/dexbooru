@@ -32,7 +32,22 @@ export function getImageEncoding(file: File): Promise<string | ArrayBuffer | nul
     });
 }
 
+export function getImageDimensionsOnURL(imageURL : string): Promise<[number, number]> {
+    return new Promise((resolve, reject) => {
 
+        const image = new Image();
+
+        image.onload = () => {
+            resolve([image.naturalWidth, image.naturalHeight]);
+        }
+
+        image.onerror = reject;
+
+        image.src = imageURL;
+
+    });
+
+}
 
 export function getImageDimensions(imageEncoding: string | ArrayBuffer | null): Promise<[number, number]> {
     return new Promise((resolve, reject) => {
@@ -50,3 +65,5 @@ export function getImageDimensions(imageEncoding: string | ArrayBuffer | null): 
     });
 
 }
+
+

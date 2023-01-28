@@ -1,4 +1,4 @@
-import type { RequestHandler } from "../$types";
+import type { RequestHandler } from "./$types";
 import type { PostMetaData } from "$lib/interfaces/uploads";
 import dbClient from "$lib/database/dbClient";
 

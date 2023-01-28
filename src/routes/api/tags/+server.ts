@@ -3,6 +3,7 @@ import type { RequestHandler } from "./$types";
 import dbClient from '$lib/database/dbClient';
 import cacheClient from "$lib/database/cacheClient";
 import { TAGS_PER_PAGE } from '$lib/query/queryConstants';
+import { cleanQueryResult } from "$lib/query/queryHelpers";
 
 export const GET = (async ({ url }) => {
     const queryCharacter = url.searchParams.get("qc");
@@ -38,7 +39,7 @@ export const GET = (async ({ url }) => {
         take: TAGS_PER_PAGE
     });
 
-    const finalTagNames = tagResults.map(tagData => tagData.name.replace("\r", ""));
+    const finalTagNames = tagResults.map(tagData => cleanQueryResult(tagData.name));
     const stringResults = JSON.stringify({ results: finalTagNames });
 
     await cacheClient.set(cacheQuery, stringResults, {

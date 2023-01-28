@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { MouseEvent } from '$lib/interfaces/inputs';
-	import type { TagResponse } from '$lib/interfaces/queries';
+	import type { TagResponse, TagMapValue } from '$lib/interfaces/queries';
 	import { fade } from 'svelte/transition';
 
 	const letters = [
@@ -32,7 +32,7 @@
 		'z'
 	];
 
-	const tagMap = new Map<string, string[]>();
+	const tagMap = new Map<string, TagMapValue>();
 
 	let activeLetter = '';
 	let previousLetter = '';
@@ -40,7 +40,6 @@
 	let tagResults: string[] = [];
 
 	const fetchTagResults = async (letter: string, pageNumber: number) => {
-		
 		const response = await fetch(`/api/tags?qc=${letter}&page=${pageNumber}`);
 		if (response.ok) {
 			const data: TagResponse = await response.json();
@@ -57,15 +56,26 @@
 		if (activeLetter === previousLetter) return;
 
 		previousLetter = activeLetter;
-		currentPage = 0;
+
+		if (tagMap.has(activeLetter)) {
+			const { tags, pageNumber } = tagMap.get(activeLetter) || { tags: [], pageNumber: 0 };
+			tagResults = tags;
+			currentPage = pageNumber;
+			return;
+		}
+
 		tagResults = await fetchTagResults(activeLetter, currentPage);
 		currentPage++;
+
+		tagMap.set(activeLetter, { tags: tagResults, pageNumber: currentPage });
 	};
 
 	const loadMoreTags = async () => {
 		currentPage++;
 		const pageResultsForTag = await fetchTagResults(activeLetter, currentPage);
 		tagResults = tagResults.concat(pageResultsForTag);
+
+		tagMap.set(activeLetter, { tags: tagResults, pageNumber: currentPage });
 	};
 </script>
 

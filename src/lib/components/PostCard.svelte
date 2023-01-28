@@ -1,5 +1,7 @@
 <script lang="ts">
 	import type { ImageData } from '$lib/interfaces/posts';
+	import { prettifyDate } from '$lib/dates/helpers';
+
 	import 'swiper/css';
 	import 'swiper/css/pagination';
 	import 'swiper/css/navigation';
@@ -9,7 +11,7 @@
 
 	export let postId: string;
 	export let date: Date;
-	export let likes: number;
+	export let views: number;
 	export let images: ImageData[];
 	export let authorName: string;
 	export let authorProfileUrl: string;
@@ -18,34 +20,39 @@
 	export let nsfw: boolean;
 
 	let isBlurred = nsfw;
-	let censoredImages = images.map((imageData) => imageData.censored);
-	let uncensoredImages = images.map((imageData) => imageData.uncensored);
 
-	const ymdFormat = `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDay()}`;
-	const hours = date.getHours() < 10 ? `0${date.getHours()}` : date.getHours();
-	const minutes = date.getMinutes() < 10 ? `0${date.getMinutes()}` : date.getMinutes();
-	const timeStampFormat = `${hours}:${minutes}`;
-	const finalDatePostedFormat = `${ymdFormat} @ ${timeStampFormat}`;
+	let prettyDate = '';
+	let censoredImages: string[] = [];
+	let uncensoredImages: string[] = [];
 
+	$: {
+		prettyDate = prettifyDate(date);
+		isBlurred = nsfw;
+
+		censoredImages = images.map((image) => image.censored);
+		uncensoredImages = images.map((image) => image.uncensored);
+	}
 	const postUrl = `/posts/view/${postId}`;
 
-	const toggleBlur = () => (isBlurred = !isBlurred);
+	const toggleBlur = () => {
+		isBlurred = !isBlurred;
+	};
 </script>
 
 <article class="no-padding">
 	<div class="grid no-space">
 		<div class="s6">
-			<Swiper
-				slidesPerView={1}
-				loop={images.length > 1 ? true : false}
-				pagination={{
-					clickable: true
-				}}
-				navigation={images.length > 1 ? true : false}
-				modules={images.length > 1 ? [Pagination, Navigation] : []}
-				class="mySwiper"
-			>
-				{#if isBlurred}
+			{#if isBlurred}
+				<Swiper
+					slidesPerView={1}
+					loop={images.length > 1 ? true : false}
+					pagination={{
+						clickable: true
+					}}
+					navigation={images.length > 1 ? true : false}
+					modules={images.length > 1 ? [Pagination, Navigation] : []}
+					class="mySwiper"
+				>
 					{#each Object.entries(censoredImages) as [index, image]}
 						<SwiperSlide>
 							<a href={postUrl}>
@@ -53,7 +60,18 @@
 							</a>
 						</SwiperSlide>
 					{/each}
-				{:else}
+				</Swiper>
+			{:else}
+				<Swiper
+					slidesPerView={1}
+					loop={images.length > 1 ? true : false}
+					pagination={{
+						clickable: true
+					}}
+					navigation={images.length > 1 ? true : false}
+					modules={images.length > 1 ? [Pagination, Navigation] : []}
+					class="mySwiper"
+				>
 					{#each Object.entries(uncensoredImages) as [index, image]}
 						<SwiperSlide>
 							<a href={postUrl}>
@@ -61,8 +79,8 @@
 							</a>
 						</SwiperSlide>
 					{/each}
-				{/if}
-			</Swiper>
+				</Swiper>
+			{/if}
 		</div>
 		<div class="s6">
 			<div class="uploader-info padding">
@@ -77,17 +95,34 @@
 						{authorName}
 					</a>
 				</h6>
-				<h6>
-					<i>schedule</i>
-					{finalDatePostedFormat}
-				</h6>
+				<div class="flex">
+					<button>
+						<i style="color : green">bookmark</i>
+						<div class="tooltip bottom">Save post</div>
+					</button>
+					<button>
+						<i style="color : red">report</i>
+						<div class="tooltip bottom">Report post</div>
+					</button>
+				</div>
+			</div>
+			<div class="flex justify-around ml-40 mb-40">
+				<div class="flex">
+					<i>calendar_month</i>
+					<h1>{prettyDate}</h1>
+				</div>
+				<div class="flex">
+					<i>visibility</i>
+					<h1>{views} view(s)</h1>
+				</div>
 			</div>
 			{#if nsfw}
-				<div class="nsfw-container">
-					<p>
-						<i>warning</i>
-						This post has been marked as NSFW. Unblur photos at your own risk!
-					</p>
+				<div class="flex justify-around ml-40 mb-40">
+					<div class="flex">
+						<i class="mt-20">priority_high </i>
+						<h1>Post is NSFW</h1>
+					</div>
+
 					<label class="blur-checkbox checkbox">
 						<input type="checkbox" on:change={toggleBlur} checked />
 						<span>Blur image</span>
@@ -101,11 +136,19 @@
 <style>
 	article {
 		width: 350px;
+		margin : 10px;
+		transition: scale 150ms ease-in-out;
+	}
+
+	article:hover {
+		scale: 1.05;
 	}
 
 	img {
+		width: 100%;
 		cursor: pointer;
 	}
+
 	.s6 {
 		border-bottom-left-radius: 0px;
 		border-bottom-right-radius: 0px;
@@ -123,18 +166,6 @@
 		align-items: center;
 	}
 
-	.nsfw-container {
-		margin: 5px;
-		display: flex;
-		flex-direction: column;
-	}
-
-	.nsfw-container p {
-		text-align: center;
-		color: red;
-		font-size: 12px;
-	}
-
 	.blur-checkbox {
 		display: inline-block;
 		margin-left: auto;
@@ -149,5 +180,6 @@
 
 	i {
 		margin-right: 5px;
+		margin-left: 5px;
 	}
 </style>
