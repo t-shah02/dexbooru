@@ -69,7 +69,11 @@
 			searchSuggestions = await callAutoCompleteAPI();
 		}, 750);
 	}
+
+	let y = 0
 </script>
+
+<svelte:window bind:innerWidth={y}/>
 
 <header>
 	<nav>
@@ -80,6 +84,7 @@
 		<button class="circle transparent">
 			<img class="responsive" src={logo} alt="dexbooru navbar logo" />
 		</button>
+		{#if y >= 600}
 		<div class="max" />
 		<div class="field label prefix suffix border">
 			<i>search</i>
@@ -140,6 +145,7 @@
 				</div>
 			{/if}
 		</div>
+		{/if}
 	</nav>
 </header>
 
@@ -156,7 +162,68 @@
 		<i>home </i>
 		<span>Home</span>
 	</a>
+	{#if y < 600}
+	<div class="max" />
+	<div class="field label prefix suffix border" style={"margin-left: 20px"}>
+		<i>search</i>
+		<input
+			bind:value={query}
+			on:input={updateSearchSuggestions}
+			on:focusin={focusOnSearchBar}
+			on:focusout={focusOffSearchBar}
+			class="search-bar"
+			type="text"
+			placeholder="Find artists, tags, users"
+		/>
+		{#if !emptySuggestions(searchSuggestions)}
+			<div in:slide out:slide class="autocomplete-results">
+				{#if searchSuggestions.tags.length}
+					<div class="search-header">
+						<i>tag</i>
+						<h5 class="search-heading">Tags</h5>
+					</div>
+					<div class="search-section">
+						{#each searchSuggestions.tags as tag}
+							<h6>{tag}</h6>
+						{/each}
+					</div>
+				{/if}
 
+				{#if searchSuggestions.artists.length}
+					<div class="search-header">
+						<i>palette</i>
+						<h5 class="search-heading">Artists</h5>
+					</div>
+					<div class="search-section">
+						{#each searchSuggestions.artists as artist}
+							<h6>{artist}</h6>
+						{/each}
+					</div>
+				{/if}
+
+				{#if searchSuggestions.users.length}
+					<div class="search-header">
+						<i>person</i>
+						<h5 class="search-heading">Users</h5>
+					</div>
+					<div class="search-section">
+						{#each searchSuggestions.users as user}
+							<div class="user-suggestion">
+								<img
+									style="margin-right : 5px;"
+									class="circle tiny"
+									src={user.profilePictureUrl}
+									alt="profile picture for {user.username}"
+								/>
+								<h6>{user.username}</h6>
+							</div>
+						{/each}
+					</div>
+				{/if}
+			</div>
+		{/if}
+	</div>
+	{/if}
 	<a href="/tags" class="row round">
 		<i>tag </i>
 		<span>Tags</span>
