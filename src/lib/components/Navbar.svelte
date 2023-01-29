@@ -173,7 +173,7 @@
 			on:focusout={focusOffSearchBar}
 			class="search-bar"
 			type="text"
-			placeholder="Find artists, tags, users"
+			placeholder="Find artists, tags, users" 
 		/>
 		{#if !emptySuggestions(searchSuggestions)}
 			<div in:slide out:slide class="autocomplete-results">
