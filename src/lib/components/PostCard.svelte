@@ -7,7 +7,7 @@
 	import 'swiper/css/navigation';
 	import { Pagination, Navigation } from 'swiper';
 	import { Swiper, SwiperSlide } from 'swiper/svelte';
-	import '$lib/assets/swiper.css';
+	import '$lib/assets/styles/swiper.css';
 
 	export let postId: string;
 	export let date: Date;
@@ -106,7 +106,7 @@
 					</button>
 				</div>
 			</div>
-			<div class="flex justify-around ml-40 mb-40">
+			<div class="flex flex-col ml-40 mb-40">
 				<div class="flex">
 					<i>calendar_month</i>
 					<h1>{prettyDate}</h1>
@@ -117,9 +117,9 @@
 				</div>
 			</div>
 			{#if nsfw}
-				<div class="flex justify-around ml-40 mb-40">
+				<div class="flex flex-col ml-40 mb-40">
 					<div class="flex">
-						<i class="mt-20">priority_high </i>
+						<i>priority_high </i>
 						<h1>Post is NSFW</h1>
 					</div>
 
@@ -135,18 +135,16 @@
 
 <style>
 	article {
-		width: 350px;
-		margin : 10px;
+		margin: 10px;
 		transition: scale 150ms ease-in-out;
 	}
 
 	article:hover {
-		scale: 1.05;
+		scale: 1.01;
 	}
 
-	img {
+	a {
 		width: 100%;
-		cursor: pointer;
 	}
 
 	.s6 {
@@ -166,13 +164,6 @@
 		align-items: center;
 	}
 
-	.blur-checkbox {
-		display: inline-block;
-		margin-left: auto;
-		margin-right: auto;
-		margin-bottom: 15px;
-	}
-
 	h6 {
 		font-size: 18px;
 		margin: 0;
@@ -182,4 +173,9 @@
 		margin-right: 5px;
 		margin-left: 5px;
 	}
+
+	.blur-checkbox {
+		margin-left : 5px;
+	}
+
 </style>

@@ -1,8 +1,9 @@
 <script lang="ts">
+	import '$lib/assets/styles/smui/layoutgrid.css';
 	import type { PageData } from './$types';
+	import LayoutGrid, { Cell } from '@smui/layout-grid';
 	import PostCard from '$lib/components/PostCard.svelte';
 	import noPostsMascot from '$lib/assets/no_posts_mascot.png';
-	import { onMount } from 'svelte';
 	import type { FormEventHandler } from '$lib/interfaces/inputs';
 	import { flip } from 'svelte/animate';
 
@@ -30,10 +31,9 @@
 				return data.posts;
 		}
 	};
-
 </script>
 
-<main>
+<div>
 	{#if foundPosts}
 		<div class="control-section">
 			<h6 class="center-align">Filter</h6>
@@ -59,13 +59,13 @@
 			</div>
 		</div>
 
-		<div class="image-grid" id="main">
+		<LayoutGrid align="right">
 			{#each posts as post (post)}
-				<div animate:flip={{ duration: 500 }}>
+				<Cell>
 					<PostCard {...post} />
-				</div>
+				</Cell>
 			{/each}
-		</div>
+		</LayoutGrid>
 
 		<div class="navigation-controls">
 			{#if pageNumber - 1 >= 0}
@@ -93,7 +93,7 @@
 			</a>
 		</div>
 	{/if}
-</main>
+</div>
 
 <style lang="postcss">
 	.all-controls {
@@ -111,11 +111,6 @@
 		font-size: 20px;
 	}
 
-	img {
-		width: 350px;
-		height: 350px;
-	}
-
 	.no-posts-container {
 		display: flex;
 		flex-direction: column;
@@ -129,12 +124,9 @@
 		width: 200px;
 	}
 
-	h6 {
-		margin-bottom: 10px;
-	}
-
 	.navigation-controls {
-		margin-top : 10px;
+		height: 100px;
+		margin: 25px;
 		display: flex;
 	}
 
@@ -145,12 +137,5 @@
 	.navigation-controls > a {
 		margin-left: auto;
 		margin-right: auto;
-	}
-
-	.image-grid {
-		width : 100%;
-		display : flex;
-		flex-wrap : wrap;
-		justify-content : center;
 	}
 </style>

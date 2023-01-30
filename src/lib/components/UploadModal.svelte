@@ -263,7 +263,7 @@
 	<div class="text-field field label border" id="inputTags">
 		<input on:keydown={addTagOnKeypress} bind:value={tag} type="text" />
 		<label>Enter a tag name</label>
-		<button on:click={addTag} class="add-btn">Add tag</button>
+		<button on:click={addTag} class="add-btn button">Add tag</button>
 	</div>
 
 	<div class="chip-row">
@@ -284,7 +284,7 @@
 	<div class="text-field field label border">
 		<input on:keydown={addArtistOnKeypress} bind:value={artist} type="text" />
 		<label>Enter an artist name</label>
-		<button on:click={addArtist} class="add-btn">Add artist</button>
+		<button on:click={addArtist} class="add-btn button">Add artist</button>
 	</div>
 
 	<div class="chip-row">
