@@ -2,6 +2,7 @@
 	import logo from '$lib/assets/logo.ico';
 	import type { AutoCompleteResponse } from '$lib/interfaces/queries';
 	import { slide } from 'svelte/transition';
+	import { onMount } from 'svelte';
 
 	export let user: any = null;
 
@@ -11,8 +12,8 @@
 	let query = '';
 	let searchSuggestions: AutoCompleteResponse = emptyAutoCompleteResponse;
 	let previousSearchSuggestions: AutoCompleteResponse = emptyAutoCompleteResponse;
-
 	let debouncing = false;
+	let searchBar: HTMLInputElement | undefined;
 
 	const emptySuggestions = (suggestions: AutoCompleteResponse) =>
 		!suggestions.tags.length && !suggestions.artists.length && !suggestions.users.length;
@@ -25,6 +26,15 @@
 		previousSearchSuggestions = searchSuggestions;
 		searchSuggestions = emptyAutoCompleteResponse;
 	};
+
+	onMount(() => {
+		window.onscroll = () => {
+			if (!emptySuggestions(searchSuggestions)) {
+				previousSearchSuggestions = searchSuggestions;
+				searchSuggestions = emptyAutoCompleteResponse;
+			}
+		};
+	});
 
 	async function callAutoCompleteAPI(): Promise<AutoCompleteResponse> {
 		if (!query) return emptyAutoCompleteResponse;
@@ -81,14 +91,16 @@
 			<i>menu</i>
 		</button>
 		<h5 class="center-align">DEXBOORU</h5>
-		<button class="circle transparent">
-			<img class="responsive" src={logo} alt="dexbooru navbar logo" />
-		</button>
+
 		{#if y >= 600}
 		<div class="max" />
+		<a href="/">
+			<img class="circle tiny" src={logo} alt="dexbooru navbar logo" />
+		</a>
 		<div class="field label prefix suffix border">
 			<i>search</i>
 			<input
+				bind:this={searchBar}
 				bind:value={query}
 				on:input={updateSearchSuggestions}
 				on:focusin={focusOnSearchBar}
@@ -270,30 +282,20 @@
 		background-color: #f0f3f5;
 	}
 
-	img {
-		object-fit: cover;
-		margin: 5.5px;
-	}
-
 	header {
 		margin: 0;
 		padding: 0;
+		position: sticky;
+		top: 0;
+		z-index: 100;
 	}
+
 
 	.autocomplete-results {
 		text-align: center;
 		background-color: white;
 		box-shadow: rgb(38, 57, 77) 0px 20px 30px -10px;
-		z-index: 1200;
 		transition: height 200ms ease-in-out;
-	}
-
-	h6 {
-		font-size: 15px;
-	}
-
-	h5 {
-		font-size: 17px;
 	}
 
 	.user-suggestion {
@@ -303,6 +305,10 @@
 
 	.search-section {
 		margin-left: 20px;
+	}
+
+	.field {
+		margin-left: 20px !important;
 	}
 
 	.search-header {

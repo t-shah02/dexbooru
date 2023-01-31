@@ -63,12 +63,19 @@ export const load: PageServerLoad = async ({ url }) => {
 	});
 
 	const cleanedPosts: Post[] = posts.map((postData) => {
-		return { 
+		return {
 			postId: postData.id,
 			date: postData.createdAt,
 			views: postData.views,
 			nsfw: postData.nsfw,
 			images: postData.images.map((imagePath) => {
+				if (imagePath.startsWith('https://')) {
+					return {
+						censored: imagePath,
+						uncensored: imagePath
+					};
+				}
+
 				return {
 					censored: urlFormer(imagePath, 'tr=bl-100'),
 					uncensored: urlFormer(imagePath)

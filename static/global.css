@@ -1,4 +1,5 @@
 
+
 *{
     margin : 0;
     padding : 0;
@@ -6,12 +7,20 @@
 
 } 
 
-html {
-    min-height : 100%;
+
+body {
+	min-height: 100vh;
+	background-color: #f0f3f5 !important;
 }
 
-body {  
-    min-width : fit-content;
-    min-height   : 100vh;
-    background-color : #f0f3f5 !important;
+:root {
+	--mdc-layout-grid-margin-desktop: 24px;
+	--mdc-layout-grid-gutter-desktop: 24px;
+	--mdc-layout-grid-column-width-desktop: 72px;
+	--mdc-layout-grid-margin-tablet: 16px;
+	--mdc-layout-grid-gutter-tablet: 16px;
+	--mdc-layout-grid-column-width-tablet: 72px;
+	--mdc-layout-grid-margin-phone: 16px;
+	--mdc-layout-grid-gutter-phone: 16px;
+	--mdc-layout-grid-column-width-phone: 72px;
 }

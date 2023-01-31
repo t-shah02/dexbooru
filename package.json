@@ -38,6 +38,7 @@
 	"type": "module",
 	"dependencies": {
 		"@prisma/client": "^4.9.0",
+		"@smui/layout-grid": "^7.0.0-beta.0",
 		"@types/bcrypt": "^5.0.0",
 		"@upstash/redis": "^1.19.1",
 		"bcryptjs": "^2.4.3",
