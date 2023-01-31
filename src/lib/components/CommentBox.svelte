@@ -1,27 +1,23 @@
 <script lang="ts">
 	import MarkdownModal from './MarkdownModal.svelte';
 	import { MAXIMUM_COMMENT_LENGTH } from '$lib/comments/commentConstants';
-	import MarkdownIt from 'markdown-it';
-	import MarkdownEmoji from 'markdown-it-emoji';
-
-	import sanitizeHtml from 'sanitize-html';
+	import { convertAndCleanRawMD } from '$lib/comments/markdownHelpers';
 	import { fade } from 'svelte/transition';
 	import type { FormEventHandler } from '$lib/interfaces/inputs';
+	import type { CommentBody, Comment } from '$lib/interfaces/comments';
+	import { allComments } from '$lib/stores/commentStores';
 
-	const md = new MarkdownIt();
-	md.use(MarkdownEmoji);
+	export let postID: string;
 
 	type CommentType = 'Text' | 'Markdown';
 
-	let comment = '';
+	let textComment = '';
 	let markdownComment = '';
 	let commentType: CommentType = 'Text';
 
 	const onCommentChange = () => {
 		if (commentType === 'Markdown') {
-			markdownComment = sanitizeHtml(md.render(comment), {
-				allowedTags: ['p', 'h1', 'img', 'strong', 'em', 'span']
-			});
+			markdownComment = convertAndCleanRawMD(textComment);
 		}
 	};
 
@@ -30,9 +26,27 @@
 		const type = target.value as CommentType;
 
 		if (type === 'Markdown') {
-			markdownComment = sanitizeHtml(md.render(comment), {
-				allowedTags: ['p', 'h1', 'img', 'strong', 'em', 'span']
+			markdownComment = convertAndCleanRawMD(textComment);
+		}
+	};
+
+	const onCommentClick = async () => {
+		const content = commentType === 'Markdown' ? markdownComment : textComment;
+		if (content) {
+			const body: CommentBody = {
+				content,
+				postID
+			};
+
+			const response = await fetch('/auth/comments/create', {
+				method: 'POST',
+				body: JSON.stringify(body)
 			});
+
+			if (response.ok) {
+				const postedComment: Comment = await response.json();
+				allComments.set([...$allComments, postedComment]);
+			}
 		}
 	};
 </script>
@@ -40,13 +54,13 @@
 <section class="comment-box">
 	<div>
 		<textarea
-			bind:value={comment}
+			bind:value={textComment}
 			on:input={onCommentChange}
 			maxlength={MAXIMUM_COMMENT_LENGTH}
 			rows="3"
 			placeholder="Leave a comment"
 		/>
-		<h6 class="comment-length block text-right">{comment.length}/{MAXIMUM_COMMENT_LENGTH}</h6>
+		<h6 class="comment-length block text-right">{textComment.length}/{MAXIMUM_COMMENT_LENGTH}</h6>
 	</div>
 
 	<div class="comment-controls flex align-middle">
@@ -63,7 +77,7 @@
 				Preview markdown
 			</button>
 		{/if}
-		<button class="button comment-btn">Comment</button>
+		<button on:click={onCommentClick} class="button comment-btn">Comment</button>
 	</div>
 </section>
 

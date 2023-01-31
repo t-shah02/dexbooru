@@ -8,14 +8,17 @@ datasource db {
 }
 
 model User {
-  id                String   @id @default(uuid())
-  username          String   @unique() @db.VarChar(15)
-  email             String   @unique()
+  id                String    @id @default(uuid())
+  username          String    @unique() @db.VarChar(15)
+  email             String    @unique()
   password          String
-  createdAt         DateTime @default(now())
+  createdAt         DateTime  @default(now())
   profilePictureUrl String
   posts             Post[]
-  sessionToken      String   @unique()
+  sessionToken      String    @unique()
+  comments          Comment[]
+
+  @@index([id])
 }
 
 model Tag {
@@ -31,15 +34,29 @@ model Artist {
 }
 
 model Post {
-  id        String   @id @default(uuid())
+  id        String    @id @default(uuid())
   images    String[]
   tags      Tag[]
-  views     Int   @default(0)
-  nsfw      Boolean  @default(false)
-  createdAt DateTime @default(now())
-  author    User     @relation(fields: [authorId], references: [id])
+  views     Int       @default(0)
+  nsfw      Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  author    User      @relation(fields: [authorId], references: [id])
   authorId  String
   artists   Artist[]
+  comments  Comment[]
 
   @@index([id])
+}
+
+model Comment {
+  id              String    @id @default(uuid())
+  content         String
+  createdAt       DateTime  @default(now())
+  author          User      @relation(fields: [authorId], references: [id])
+  authorId        String
+  post            Post      @relation(fields: [postId], references: [id])
+  postId          String
+  replies         Comment[] @relation("replies")
+  parentComment   Comment?  @relation("replies", fields: [parentCommentID], references: [id])
+  parentCommentID String?
 }

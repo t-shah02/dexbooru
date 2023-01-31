@@ -4,6 +4,7 @@ import cacheClient from '$lib/database/cacheClient';
 import { redirect } from '@sveltejs/kit';
 import { urlFormer } from '$lib/images/uploader';
 import type { Post } from '$lib/interfaces/posts';
+import type { Comment } from '$lib/interfaces/comments';
 
 export const load: PageServerLoad = async ({ params }) => {
 	const { postid } = params;
@@ -24,6 +25,20 @@ export const load: PageServerLoad = async ({ params }) => {
 		include: {
 			tags: true,
 			artists: true,
+			comments: {
+				select: {
+					content: true,
+					createdAt: true,
+					parentCommentID: true,
+					id: true,
+					author: {
+						select: {
+							profilePictureUrl: true,
+							username: true
+						}
+					}
+				}
+			},
 			author: {
 				select: {
 					username: true,
@@ -65,7 +80,8 @@ export const load: PageServerLoad = async ({ params }) => {
 			authorName: post.author.username,
 			authorProfileUrl: urlFormer(post.author.profilePictureUrl),
 			tags: post.tags.map((data) => data.name),
-			artists: post.artists.map((data) => data.name)
+			artists: post.artists.map((data) => data.name),
+			comments: post.comments
 		};
 
 		await cacheClient.set(cacheKey, JSON.stringify(cleanedData), { ex: 200 });

@@ -1,7 +1,9 @@
 <script lang="ts">
 	import CommentBox from '$lib/components/CommentBox.svelte';
+	import CommentContainer from '$lib/components/CommentContainer.svelte';
 	import { prettifyDate } from '$lib/dates/helpers';
 	import type { PageData } from './$types';
+	import { allComments } from '$lib/stores/commentStores';
 
 	export let data: PageData;
 	const post = data.post;
@@ -11,9 +13,10 @@
 	const artists = post.artists;
 	const images = post.images;
 	const authorName = post.authorName;
-	const authorProfilePictureURL = post.authorProfileUrl;
 	const date = prettifyDate(post.date);
 	const views = post.views;
+	const comments = post.comments;
+	allComments.set(comments);
 
 	let isBlurred = true;
 	let censoredImages: string[] = images.map((image) => image.censored);
@@ -66,11 +69,8 @@
 
 	<img class="post-image" src={uncensoredImages[0]} />
 
-	<CommentBox />
-
-	<section class="post-comments-container">
-		<h4>Comments</h4>
-	</section>
+	<CommentBox postID={postId} />
+	<CommentContainer />
 </main>
 
 <style>
