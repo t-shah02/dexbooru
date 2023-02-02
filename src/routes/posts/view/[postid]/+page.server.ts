@@ -14,6 +14,9 @@ export const load: PageServerLoad = async ({ params }) => {
 
 	if (cacheHit) {
 		cacheHit.date = new Date(cacheHit.date);
+		for (let i = 0; i < cacheHit.comments.length; i++) {
+			cacheHit.comments[i].createdAt = new Date(cacheHit.comments[i].createdAt);
+		}
 
 		return { post: cacheHit };
 	}
@@ -59,6 +62,13 @@ export const load: PageServerLoad = async ({ params }) => {
 				}
 			}
 		});
+
+		console.log(
+			post.comments.map((comment) => {
+				comment.author.profilePictureUrl = urlFormer(comment.author.profilePictureUrl);
+				return comment;
+			})
+		);
 
 		const cleanedData = {
 			postId: post.id,

@@ -1,10 +1,18 @@
-* {
-	box-sizing: border-box;
+*{
+    margin : 0;
+    padding : 0;
+    box-sizing: border-box;
+
+} 
+
+html {
+    min-height : 100%;
 }
 
-body {
-	min-height: 100vh;
-	background-color: #f0f3f5 !important;
+body {  
+    min-width : fit-content;
+    min-height   : 100vh;
+    background-color : #f0f3f5 !important;
 }
 
 :root {
