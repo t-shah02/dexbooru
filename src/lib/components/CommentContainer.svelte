@@ -12,12 +12,11 @@
 	export let authorName: string;
 	export let authorProfileUrl: string;
 	export let replies: Comment[];
+	export let postID: string;
 
 	const prettyDate = prettifyDate(createdAt);
 	let showReplies = false;
 	let showReplyBox = false;
-
-	console.log(replies.length);
 
 	function toggleView() {
 		showReplies = !showReplies;
@@ -43,7 +42,7 @@
 		<button on:click={toggleReplies}>{showReplyBox ? 'cancel' : 'reply'}</button>
 		{#if showReplyBox}
 			<div in:slide out:slide>
-				<CommentBox />
+				<CommentBox {postID} {parentCommentID} />
 			</div>
 		{/if}
 		{#if replies.length}
@@ -51,16 +50,16 @@
 		{/if}
 		{#if showReplies}
 			{#each replies as reply}
-				<!-- {#if reply.replie} -->
 				<ul>
 					<svelte:self
+						{postID}
 						content={reply.content}
 						createdAt={reply.createdAt}
 						parentCommentID={reply.parentCommentID}
 						id={reply.id}
 						authorName={reply.author.username}
 						authorProfileUrl={reply.author.profilePictureUrl}
-						replies={$commentTree.get(reply.id)}
+						replies={$commentTree.get(reply.id) || []}
 					/>
 				</ul>
 			{/each}
@@ -117,5 +116,9 @@
 	.temp {
 		display: flex;
 		flex-direction: column;
+	}
+
+	article {
+		background-color: inherit !important;
 	}
 </style>

@@ -3,6 +3,8 @@
 	import CommentContainer from '$lib/components/CommentContainer.svelte';
 	import type { Comment } from '$lib/interfaces/comments';
 
+	export let postID: string;
+
 	function getIdToCommentMap(comments: Comment[]) {
 		const commentMap = new Map<string, Comment>();
 
@@ -42,8 +44,9 @@
 	<h4>Comments</h4>
 
 	{#if parentComments}
-		{#each parentComments as pc}
+		{#each $commentTree.get('/') || [] as pc}
 			<CommentContainer
+				{postID}
 				content={pc.content}
 				createdAt={pc.createdAt}
 				parentCommentID={null}
@@ -57,5 +60,4 @@
 </section>
 
 <style>
-	
 </style>

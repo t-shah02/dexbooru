@@ -1,6 +1,6 @@
 <script lang="ts">
 	import CommentBox from '$lib/components/CommentBox.svelte';
-	import CommentContainer from '$lib/components/CommentList.svelte';
+	import CommentList from '$lib/components/CommentList.svelte';
 	import { prettifyDate } from '$lib/dates/helpers';
 	import type { PageData } from './$types';
 	import { allComments } from '$lib/stores/commentStores';
@@ -70,7 +70,7 @@
 	<img class="post-image" src={uncensoredImages[0]} />
 
 	<CommentBox postID={postId} />
-	<CommentContainer />
+	<CommentList postID={postId} />
 </main>
 
 <style>

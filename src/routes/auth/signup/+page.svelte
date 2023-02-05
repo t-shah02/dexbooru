@@ -265,14 +265,13 @@
 
 	.signup-form-ctn {
 		box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
-		padding: 10px;
+		padding: 20px;
 		border-radius: 10px;
 		margin-top: 10px;
 		margin-left: auto;
 		margin-right: auto;
-		margin-bottom: 120px;
-		width: 50%;
-		max-width: 500px;
+		margin-bottom : 100px;
+		width : 50%;
 	}
 
 	article {

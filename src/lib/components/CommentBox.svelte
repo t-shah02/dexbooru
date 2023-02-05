@@ -5,9 +5,10 @@
 	import { fade } from 'svelte/transition';
 	import type { FormEventHandler } from '$lib/interfaces/inputs';
 	import type { CommentBody, Comment } from '$lib/interfaces/comments';
-	import { allComments } from '$lib/stores/commentStores';
+	import { commentTree } from '$lib/stores/commentStores';
 
 	export let postID: string;
+	export let parentCommentID: string | null;
 
 	type CommentType = 'Text' | 'Markdown';
 
@@ -33,10 +34,8 @@
 	const onCommentClick = async () => {
 		const content = commentType === 'Markdown' ? markdownComment : textComment;
 		if (content) {
-			const body: CommentBody = {
-				content,
-				postID
-			};
+			const body: CommentBody =
+				parentCommentID != null ? { content, postID, parentCommentID } : { content, postID };
 
 			const response = await fetch('/auth/comments/create', {
 				method: 'POST',
@@ -45,7 +44,15 @@
 
 			if (response.ok) {
 				const postedComment: Comment = await response.json();
-				allComments.set([...$allComments, postedComment]);
+				postedComment.createdAt = new Date(postedComment.createdAt);
+
+				if (parentCommentID) {
+					$commentTree.get(parentCommentID)?.push(postedComment);
+				} else {
+					$commentTree.get('/')?.push(postedComment);
+				}
+
+				commentTree.set($commentTree);
 			}
 		}
 	};
