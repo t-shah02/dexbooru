@@ -14,23 +14,35 @@
 			referrerpolicy="no-referrer"
 		/>
 		<link rel="stylesheet" href="%sveltekit.assets%/global.css" />
-		<link
-			href="https://cdn.jsdelivr.net/npm/beercss@2.3.0/dist/cdn/beer.min.css"
-			rel="stylesheet"
-		/>
-		<script
-			src="https://cdn.jsdelivr.net/npm/beercss@2.3.0/dist/cdn/beer.min.js"
-			type="text/javascript"
-		></script>
 		<script
 			src="https://cdn.jsdelivr.net/npm/material-dynamic-colors@0.0.10/dist/cdn/material-dynamic-colors.min.js"
 			type="text/javascript"
 		></script>
+		<script
+			src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.6.3/flowbite.js"
+			integrity="sha512-J7uKR69aZGGGVlt2wkk/bG6XKOsiRE35PE/vU+aau44g3f5bQqGoW7tKe4LKhVI57etFJOYwy/F/vCYTweELIw=="
+			crossorigin="anonymous"
+			referrerpolicy="no-referrer"
+		></script>
+
+		<script>
+			// On page load or when changing themes, best to add inline in `head` to avoid FOUC
+			if (
+				localStorage.getItem('color-theme') === 'dark' ||
+				(!('color-theme' in localStorage) &&
+					window.matchMedia('(prefers-color-scheme: dark)').matches)
+			) {
+				document.documentElement.classList.add('dark');
+				document.body.classList.add('dark');
+			} else {
+				document.documentElement.classList.remove('dark');
+			}
+		</script>
 
 		%sveltekit.head%
 	</head>
 
-	<body data-sveltekit-preload-data="hover">
+	<body class="dark:bg-gray-900">
 		<div style="display: contents">%sveltekit.body%</div>
 	</body>
 </html>

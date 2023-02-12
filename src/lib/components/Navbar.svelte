@@ -1,287 +1,154 @@
 <script lang="ts">
-	import logo from '$lib/assets/logo.ico';
-	import type { AutoCompleteResponse } from '$lib/interfaces/queries';
-	import { slide } from 'svelte/transition';
-	export let user: any = null;
-	const emptyAutoCompleteResponse: AutoCompleteResponse = { tags: [], artists: [], users: [] };
-	const queryMap = new Map<string, AutoCompleteResponse>();
-	let query = '';
-	let searchSuggestions: AutoCompleteResponse = emptyAutoCompleteResponse;
-	let previousSearchSuggestions: AutoCompleteResponse = emptyAutoCompleteResponse;
-	let debouncing = false;
-	const emptySuggestions = (suggestions: AutoCompleteResponse) =>
-		!suggestions.tags.length && !suggestions.artists.length && !suggestions.users.length;
-	const focusOnSearchBar = () => {
-		searchSuggestions = previousSearchSuggestions;
-	};
-	const focusOffSearchBar = () => {
-		previousSearchSuggestions = searchSuggestions;
-		searchSuggestions = emptyAutoCompleteResponse;
-	};
-	async function callAutoCompleteAPI(): Promise<AutoCompleteResponse> {
-		if (!query) return emptyAutoCompleteResponse;
-		if (queryMap.has(query)) {
-			return queryMap.get(query) || { tags: [], artists: [], users: [] };
-		}
-		const response = await fetch(`/api/autocomplete?q=${query}`);
-		const suggestions: AutoCompleteResponse = await response.json();
-		return suggestions;
-	}
-	async function updateSearchSuggestions() {
-		if (!query) {
-			searchSuggestions = emptyAutoCompleteResponse;
-			return;
-		}
-		if (debouncing) return;
-		debouncing = true;
-		searchSuggestions = await callAutoCompleteAPI();
-		queryMap.set(query, searchSuggestions);
-		const queryPreDebounce = query;
-		setTimeout(async () => {
-			debouncing = false;
-			if (!query) {
-				searchSuggestions = emptyAutoCompleteResponse;
-				return;
-			}
-			if (query === queryPreDebounce) {
-				return;
-			}
-			searchSuggestions = await callAutoCompleteAPI();
-		}, 750);
-	}
-	let y = 0
+	import appLogo from '$lib/assets/logo.ico';
+	import DarkmodeToggle from './DarkmodeToggle.svelte';
+
+	export let user: UserApp | undefined;
 </script>
 
-<svelte:window bind:innerWidth={y}/>
+<nav
+	class="bg-white px-2 sm:px-4 py-2.5 dark:bg-gray-900 fixed w-full z-20 top-0 left-0 border-b border-gray-200 dark:border-gray-600"
+>
+	<div class="container flex flex-wrap items-center justify-between mx-auto">
+		<a href="/" class="flex items-center">
+			<img src={appLogo} class="h-6 mr-3 sm:h-9 rounded-full" alt="Dexbooru Logo" />
+			<span class="self-center text-xl font-semibold whitespace-nowrap dark:text-white"
+				>Dexbooru</span
+			>
+		</a>
+		<div class="flex md:order-2">
+			{#if user}
+				<button
+					id="dropdownAvatarNameButton"
+					data-dropdown-toggle="dropdownAvatarName"
+					class="flex items-center text-sm font-medium text-gray-900 rounded-full hover:text-blue-600 dark:hover:text-blue-500 md:mr-0 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:text-white"
+					type="button"
+				>
+					<span class="sr-only">Open user menu</span>
+					<img
+						class="w-8 h-8 mr-2 rounded-full"
+						src={user.profilePictureUrl}
+						alt="profile for {user.username}"
+					/>
+					{user.username}
+					<svg
+						class="w-4 h-4 mx-1.5"
+						aria-hidden="true"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+						xmlns="http://www.w3.org/2000/svg"
+						><path
+							fill-rule="evenodd"
+							d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+							clip-rule="evenodd"
+						/></svg
+					>
+				</button>
 
-<header>
-	<nav>
-		<button data-ui="#left-menu-bar" class="circle transparent">
-			<i>menu</i>
-		</button>
-		<h5 class="center-align">DEXBOORU</h5>
-		<button class="circle transparent">
-			<img class="responsive" src={logo} alt="dexbooru navbar logo" />
-		</button>
-		{#if y >= 600}
-		<div class="max" />
-		<div class="field label prefix suffix border">
-			<i>search</i>
-			<input
-				bind:value={query}
-				on:input={updateSearchSuggestions}
-				on:focusin={focusOnSearchBar}
-				on:focusout={focusOffSearchBar}
-				class="search-bar"
-				type="text"
-				placeholder="Find artists, tags, users"
-			/>
-			{#if !emptySuggestions(searchSuggestions)}
-				<div in:slide out:slide class="autocomplete-results">
-					{#if searchSuggestions.tags.length}
-						<div class="search-header">
-							<i>tag</i>
-							<h5 class="search-heading">Tags</h5>
-						</div>
-						<div class="search-section">
-							{#each searchSuggestions.tags as tag}
-								<h6>{tag}</h6>
-							{/each}
-						</div>
-					{/if}
-
-					{#if searchSuggestions.artists.length}
-						<div class="search-header">
-							<i>palette</i>
-							<h5 class="search-heading">Artists</h5>
-						</div>
-						<div class="search-section">
-							{#each searchSuggestions.artists as artist}
-								<h6>{artist}</h6>
-							{/each}
-						</div>
-					{/if}
-
-					{#if searchSuggestions.users.length}
-						<div class="search-header">
-							<i>person</i>
-							<h5 class="search-heading">Users</h5>
-						</div>
-						<div class="search-section">
-							{#each searchSuggestions.users as user}
-								<div class="user-suggestion">
-									<img
-										style="margin-right : 5px;"
-										class="circle tiny"
-										src={user.profilePictureUrl}
-										alt="profile picture for {user.username}"
-									/>
-									<h6>{user.username}</h6>
-								</div>
-							{/each}
-						</div>
-					{/if}
+				<!-- Dropdown menu -->
+				<div
+					id="dropdownAvatarName"
+					class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700 dark:divide-gray-600"
+				>
+					<div class="px-4 py-3 text-sm text-gray-900 dark:text-white">
+						<div class="font-medium ">Basic User</div>
+						<div class="truncate">{user?.email}</div>
+					</div>
+					<ul
+						class="py-2 text-sm text-gray-700 dark:text-gray-200"
+						aria-labelledby="dropdownInformdropdownAvatarNameButtonationButton"
+					>
+						<li>
+							<a
+								href="/profile/{user.username}"
+								class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+								>Profile</a
+							>
+						</li>
+						<li>
+							<a
+								href="/history"
+								class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+								>History</a
+							>
+						</li>
+					</ul>
+					<div class="py-2">
+						<a
+							href="/auth/signout"
+							class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
+							>Sign out</a
+						>
+					</div>
 				</div>
 			{/if}
-		</div>
-		{/if}
-	</nav>
-</header>
-
-<div id="left-menu-bar" class="modal left">
-	<header class="fixed">
-		<nav>
-			<button data-ui="#left-menu-bar" class="transparent circle">
-				<i>close</i>
+			<DarkmodeToggle />
+			<button
+				data-collapse-toggle="navbar-sticky"
+				type="button"
+				class="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
+				aria-controls="navbar-sticky"
+				aria-expanded="false"
+			>
+				<span class="sr-only">Open main menu</span>
+				<svg
+					class="w-6 h-6"
+					aria-hidden="true"
+					fill="currentColor"
+					viewBox="0 0 20 20"
+					xmlns="http://www.w3.org/2000/svg"
+					><path
+						fill-rule="evenodd"
+						d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+						clip-rule="evenodd"
+					/></svg
+				>
 			</button>
-			<h5 class="max">Menu</h5>
-		</nav>
-	</header>
-	<a data-sveltekit-reload href="/" class="row round">
-		<i>home </i>
-		<span>Home</span>
-	</a>
-	{#if y < 600}
-	<div class="max" />
-	<div class="field label prefix suffix border" style={"margin-left: 20px"}>
-		<i>search</i>
-		<input
-			bind:value={query}
-			on:input={updateSearchSuggestions}
-			on:focusin={focusOnSearchBar}
-			on:focusout={focusOffSearchBar}
-			class="search-bar"
-			type="text"
-			placeholder="Find artists, tags, users"
-		/>
-		{#if !emptySuggestions(searchSuggestions)}
-			<div in:slide out:slide class="autocomplete-results">
-				{#if searchSuggestions.tags.length}
-					<div class="search-header">
-						<i>tag</i>
-						<h5 class="search-heading">Tags</h5>
-					</div>
-					<div class="search-section">
-						{#each searchSuggestions.tags as tag}
-							<h6>{tag}</h6>
-						{/each}
-					</div>
+		</div>
+		<div
+			class="items-center justify-between hidden w-full md:flex md:w-auto md:order-1"
+			id="navbar-sticky"
+		>
+			<ul
+				class="flex flex-col p-4 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:flex-row md:space-x-8 md:mt-0 md:text-sm md:font-medium md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700"
+			>
+				<li>
+					<a
+						href="/"
+						class="block py-2 pl-3 pr-4 text-gray-700 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 md:dark:hover:text-white dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700"
+						>Home</a
+					>
+				</li>
+				<li>
+					<a
+						href="/artists"
+						class="block py-2 pl-3 pr-4 text-gray-700 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 md:dark:hover:text-white dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700"
+						>Artists</a
+					>
+				</li>
+				<li>
+					<a
+						href="/tags"
+						class="block py-2 pl-3 pr-4 text-gray-700 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 md:dark:hover:text-white dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700"
+						>Tags</a
+					>
+				</li>
+				{#if user === undefined}
+					<li>
+						<a
+							href="/auth/login"
+							class="block py-2 pl-3 pr-4 text-gray-700 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 md:dark:hover:text-white dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700"
+							>Login</a
+						>
+					</li>
+					<li>
+						<a
+							href="/auth/signup"
+							class="block py-2 pl-3 pr-4 text-gray-700 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 md:dark:hover:text-white dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700"
+							>Sign up</a
+						>
+					</li>
 				{/if}
-
-				{#if searchSuggestions.artists.length}
-					<div class="search-header">
-						<i>palette</i>
-						<h5 class="search-heading">Artists</h5>
-					</div>
-					<div class="search-section">
-						{#each searchSuggestions.artists as artist}
-							<h6>{artist}</h6>
-						{/each}
-					</div>
-				{/if}
-
-				{#if searchSuggestions.users.length}
-					<div class="search-header">
-						<i>person</i>
-						<h5 class="search-heading">Users</h5>
-					</div>
-					<div class="search-section">
-						{#each searchSuggestions.users as user}
-							<div class="user-suggestion">
-								<img
-									style="margin-right : 5px;"
-									class="circle tiny"
-									src={user.profilePictureUrl}
-									alt="profile picture for {user.username}"
-								/>
-								<h6>{user.username}</h6>
-							</div>
-						{/each}
-					</div>
-				{/if}
-			</div>
-		{/if}
+			</ul>
+		</div>
 	</div>
-	{/if}
-	<a href="/tags" class="row round">
-		<i>tag </i>
-		<span>Tags</span>
-	</a>
-
-	<a href="/artists" class="row round">
-		<i>palette</i>
-		<span>Artists</span>
-	</a>
-
-	{#if !user}
-		<a href="/auth/signup" class="row round">
-			<i>person_add</i>
-			<span>Sign up</span>
-		</a>
-		<a href="/auth/login" class="row round">
-			<i>login</i>
-			<span>Log in</span>
-		</a>
-	{:else}
-		<div class="small-divider" />
-		<div class="row">Signed in as {user.username}</div>
-		<a href="/profile/{user.username}" class="row round">
-			<img
-				class="circle"
-				src={user.profilePictureUrl}
-				alt="menu bar profile picture for {user.username}"
-			/>
-			<span>Profile</span>
-		</a>
-		<a href="/auth/signout" class="row round">
-			<i>logout</i>
-			<span>Sign out</span>
-		</a>
-	{/if}
-</div>
-
-<style>
-	#left-menu-bar {
-		background-color: #f0f3f5;
-	}
-	nav {
-		background-color: #f0f3f5;
-	}
-	img {
-		object-fit: cover;
-		margin: 5.5px;
-	}
-	header {
-		margin: 0;
-		padding: 0;
-	}
-	.autocomplete-results {
-		text-align: center;
-		background-color: white;
-		box-shadow: rgb(38, 57, 77) 0px 20px 30px -10px;
-		z-index: 1200;
-		transition: height 200ms ease-in-out;
-	}
-	h6 {
-		font-size: 15px;
-	}
-	h5 {
-		font-size: 17px;
-	}
-	.user-suggestion {
-		display: flex;
-		margin-top: 5px;
-	}
-	.search-section {
-		margin-left: 20px;
-	}
-	.search-header {
-		margin-left: 7.5px;
-		margin-top: 5px;
-		display: flex;
-		align-items: center;
-	}
-	.label {
-		right: 20px;
-	}
-</style>
+</nav>

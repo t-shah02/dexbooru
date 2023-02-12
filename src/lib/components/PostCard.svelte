@@ -39,143 +39,32 @@
 	};
 </script>
 
-<article class="no-padding">
-	<div class="grid no-space">
-		<div class="s6">
-			{#if isBlurred}
-				<Swiper
-					slidesPerView={1}
-					loop={images.length > 1 ? true : false}
-					pagination={{
-						clickable: true
-					}}
-					navigation={images.length > 1 ? true : false}
-					modules={images.length > 1 ? [Pagination, Navigation] : []}
-					class="mySwiper"
-				>
-					{#each Object.entries(censoredImages) as [index, image]}
-						<SwiperSlide>
-							<a href={postUrl}>
-								<img class="responsive" src={image} alt="image #{index + 1} for {postId}" />
-							</a>
-						</SwiperSlide>
-					{/each}
-				</Swiper>
-			{:else}
-				<Swiper
-					slidesPerView={1}
-					loop={images.length > 1 ? true : false}
-					pagination={{
-						clickable: true
-					}}
-					navigation={images.length > 1 ? true : false}
-					modules={images.length > 1 ? [Pagination, Navigation] : []}
-					class="mySwiper"
-				>
-					{#each Object.entries(uncensoredImages) as [index, image]}
-						<SwiperSlide>
-							<a href={postUrl}>
-								<img class="responsive" src={image} alt="image #{index + 1} for {postId}" />
-							</a>
-						</SwiperSlide>
-					{/each}
-				</Swiper>
-			{/if}
-		</div>
-		<div class="s6">
-			<div class="uploader-info padding">
-				<h6>
-					<a href="/profile/{authorName}">
-						<img
-							class="circle tiny"
-							style="margin-right : 3.5px"
-							src={authorProfileUrl}
-							alt="profile picture for {authorName}"
-						/>
-						{authorName}
-					</a>
-				</h6>
-				<div class="flex">
-					<button>
-						<i style="color : green">bookmark</i>
-						<div class="tooltip bottom">Save post</div>
-					</button>
-					<button>
-						<i style="color : red">report</i>
-						<div class="tooltip bottom">Report post</div>
-					</button>
-				</div>
-			</div>
-			<div class="flex flex-col ml-40 mb-40">
-				<div class="flex">
-					<i>calendar_month</i>
-					<h1>{prettyDate}</h1>
-				</div>
-				<div class="flex">
-					<i>visibility</i>
-					<h1>{views} view(s)</h1>
-				</div>
-			</div>
-			{#if nsfw}
-				<div class="flex flex-col ml-40 mb-40">
-					<div class="flex">
-						<i>priority_high </i>
-						<h1>Post is NSFW</h1>
-					</div>
+<div
+	class="max-w-sm bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700"
+>
+	<a href={postUrl}>
+		<img class="rounded-t-lg" src={censoredImages[0]} alt="" />
+	</a>
+	<div class="p-5">
+		<h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+			{authorName} @ {prettyDate}
+		</h5>
 
-					<label class="blur-checkbox checkbox">
-						<input type="checkbox" on:change={toggleBlur} checked />
-						<span>Blur image</span>
-					</label>
-				</div>
-			{/if}
-		</div>
+		<p class="mb-3 font-normal text-gray-700 dark:text-gray-400">
+			Views: {views}
+		</p>
+
+		<button
+			type="button"
+			class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
+			>Save post</button
+		>
+
+		<button
+			type="button"
+			class="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900"
+			>Report post</button
+		>
 	</div>
-</article>
+</div>
 
-<style>
-	article {
-		margin: 10px;
-		transition: scale 150ms ease-in-out;
-	}
-
-	article:hover {
-		scale: 1.01;
-	}
-
-	a {
-		width: 100%;
-	}
-
-	.s6 {
-		border-bottom-left-radius: 0px;
-		border-bottom-right-radius: 0px;
-	}
-
-	.grid {
-		display: flex;
-		flex-direction: column;
-	}
-
-	.uploader-info {
-		display: flex;
-		flex-wrap: wrap;
-		justify-content: space-between;
-		align-items: center;
-	}
-
-	h6 {
-		font-size: 18px;
-		margin: 0;
-	}
-
-	i {
-		margin-right: 5px;
-		margin-left: 5px;
-	}
-
-	.blur-checkbox {
-		margin-left : 5px;
-	}
-
-</style>
