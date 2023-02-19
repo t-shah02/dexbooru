@@ -4,7 +4,7 @@ import { hashPassword, isStrongPassword, isValidUsername } from '$lib/auth/helpe
 import { getFileSizeInMB } from '$lib/images/imageGeneral';
 import { MAXIMUM_IMAGE_SIZE_MB } from '$lib/images/imageConstants';
 import { uploadImageToCloud, DEFAULT_PROFILE_URL, PROFILE_FOLDER } from '$lib/images/uploader';
-import db from '$lib/database/dbClient';
+import dbClient from '$lib/database/dbClient';
 import { registrationErrors } from '$lib/auth/errorMessages';
 import { validateImage } from '$lib/images/imageServer';
 
@@ -17,13 +17,11 @@ export const load: PageServerLoad = async ({ fetch, locals }) => {
 const signup: Action = async ({ request }) => {
 	const data = await request.formData();
 
-	
-
 	const emailData = data.get('email');
 	const usernameData = data.get('username');
 	const passwordData = data.get('password');
 	const confirmedPasswordData = data.get('passwordConfirm');
-	const profilePictureFile = data.get('profilePicture') as Blob;
+	const profilePictureData = data.get('profilePicture');
 
 	if (!emailData || !usernameData || !passwordData || !confirmedPasswordData) {
 		return fail(400, { error: registrationErrors.missingFields });
@@ -46,7 +44,7 @@ const signup: Action = async ({ request }) => {
 		return fail(400, { error: registrationErrors.noPasswordMatch });
 	}
 
-	const user = await db.user.findFirst({
+	const user = await dbClient.user.findFirst({
 		where: {
 			OR: [{ email }, { username }]
 		}
@@ -56,34 +54,32 @@ const signup: Action = async ({ request }) => {
 		return fail(409, { error: registrationErrors.userExists });
 	}
 
-	let finalCloudURL = '';
-	if (profilePictureFile.size > 0) {
-		const fileSizeMb = getFileSizeInMB(profilePictureFile);
-		const profileArrayBuffer = await profilePictureFile.arrayBuffer();
-		const profileBuffer = Buffer.from(profileArrayBuffer);
+	let finalCloudURL: string | null = null;
+	let finalCloudFileID: string | null = null;
 
-		const validationTest = await validateImage(profileBuffer, fileSizeMb);
+	if (profilePictureData) {
+		const profilePictureFile = profilePictureData as File;
 
-		if (typeof validationTest !== 'boolean') {
-			return fail(409, { error: registrationErrors.profileImageTooLarge });
-		}
+		if (profilePictureFile.size > 0) {
+			const imageData = await validateImage(profilePictureFile);
 
-		const uploadResponse = await uploadImageToCloud(
-			crypto.randomUUID(),
-			'profile_pictures',
-			profileBuffer
-		);
-		if (uploadResponse.uploadedImage) {
-			finalCloudURL = uploadResponse.uploadedURL;
+			if (typeof imageData === 'string') {
+				return fail(409, { error: registrationErrors.profileImageTooLarge });
+			}
+
+			const uploadResponse = await uploadImageToCloud(PROFILE_FOLDER, imageData);
+			finalCloudFileID = uploadResponse.cloudFileID;
+			finalCloudURL = uploadResponse.cloudFilePath;
 		}
 	}
 
-	await db.user.create({
+	await dbClient.user.create({
 		data: {
 			email,
 			username,
 			password: await hashPassword(password),
 			profilePictureUrl: finalCloudURL ? finalCloudURL : DEFAULT_PROFILE_URL,
+			profilePictureFileID: finalCloudFileID ? finalCloudFileID : 'default',
 			sessionToken: crypto.randomUUID()
 		}
 	});

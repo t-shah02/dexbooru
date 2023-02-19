@@ -1,9 +1,7 @@
 <script lang="ts">
-	import appLogo from '$lib/assets/logo.ico';
 	const today = new Date();
 	const year = today.getFullYear();
 
-	export let user: object | undefined;
 </script>
 
 <footer
@@ -35,7 +33,7 @@
 <style>
 	footer {
 		width: 100%;
-		position: sticky;
+		position: fixed;
 		bottom: 0;
 	}
 </style>

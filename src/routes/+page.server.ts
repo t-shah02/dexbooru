@@ -3,7 +3,7 @@ import type { Post } from '$lib/interfaces/posts';
 import dbClient from '$lib/database/dbClient';
 import cacheClient from '$lib/database/cacheClient';
 import { urlFormer } from '$lib/images/uploader';
-import { generateFilteredPosts } from '$lib/query/postFilters';
+import { generatePostArrangements } from '$lib/query/postFilters';
 import { redirect } from '@sveltejs/kit';
 
 const POSTS_PER_PAGE = 30;
@@ -22,16 +22,17 @@ export const load: PageServerLoad = async ({ url }) => {
 	const postCache: Post[] | null = await cacheClient.get(postCacheQuery);
 
 	if (postCache) {
+		console.log('hit cache');
 		postCache.forEach((post) => {
 			post.date = new Date(post.date);
 		});
 
 		const postCacheCopy = [...postCache];
-		const filterData = generateFilteredPosts(postCache);
+		const arrangements = generatePostArrangements(postCache);
 		return {
 			foundPosts: postCache.length ? true : false,
 			posts: postCacheCopy,
-			filters: filterData,
+			arrangements,
 			pageNumber
 		};
 	}
@@ -68,18 +69,12 @@ export const load: PageServerLoad = async ({ url }) => {
 			date: postData.createdAt,
 			views: postData.views,
 			nsfw: postData.nsfw,
-			images: postData.images.map((imagePath) => {
-				if (imagePath.startsWith('https://')) {
-					return {
-						censored: imagePath,
-						uncensored: imagePath
-					};
+			images: postData.images.map((imageURL) => {
+				if (imageURL.startsWith('https://')) {
+					return imageURL;
 				}
 
-				return {
-					censored: urlFormer(imagePath, 'tr=bl-100'),
-					uncensored: urlFormer(imagePath)
-				};
+				return urlFormer(imageURL);
 			}),
 			authorName: postData.author.username,
 			authorProfileUrl: urlFormer(postData.author.profilePictureUrl),
@@ -91,12 +86,12 @@ export const load: PageServerLoad = async ({ url }) => {
 	await cacheClient.set(postCacheQuery, JSON.stringify(cleanedPosts), { ex: 50 });
 
 	const cleanedPostsCopy = [...cleanedPosts];
-	const filterData = generateFilteredPosts(cleanedPosts);
+	const arrangements = generatePostArrangements(cleanedPosts);
 
 	return {
 		foundPosts: cleanedPosts.length ? true : false,
 		posts: cleanedPostsCopy,
-		filters: filterData,
+		arrangements,
 		pageNumber
 	};
 };

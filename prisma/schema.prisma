@@ -8,15 +8,16 @@ datasource db {
 }
 
 model User {
-  id                String    @id @default(uuid())
-  username          String    @unique() @db.VarChar(15)
-  email             String    @unique()
-  password          String
-  createdAt         DateTime  @default(now())
-  profilePictureUrl String
-  posts             Post[]
-  sessionToken      String    @unique()
-  comments          Comment[]
+  id                   String    @id @default(uuid())
+  username             String    @unique() @db.VarChar(15)
+  email                String    @unique()
+  password             String
+  createdAt            DateTime  @default(now())
+  profilePictureUrl    String
+  profilePictureFileID String
+  posts                Post[]
+  sessionToken         String    @unique()
+  comments             Comment[]
 
   @@index([id])
 }

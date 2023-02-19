@@ -4,7 +4,7 @@ const config = {
 		extend: {}
 	},
 	darkMode: 'class',
-	plugins: [require('flowbite/plugin')]
+	plugins: [require('flowbite/plugin'), require('flowbite-typography')]
 };
 
 module.exports = config;

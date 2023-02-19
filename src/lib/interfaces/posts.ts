@@ -1,10 +1,5 @@
 import type { Comment } from './comments';
 
-export interface ImageData {
-	censored: string;
-	uncensored: string;
-}
-
 export interface LikeData {
 	postId: string;
 	action: number;
@@ -15,12 +10,12 @@ export interface Post {
 	date: Date;
 	views: number;
 	nsfw: boolean;
-	images: ImageData[];
+	images: string[];
 	authorName: string;
 	authorProfileUrl: string;
 	tags: string[];
 	artists: string[];
-	comments: Comment[];
+	comments?: Comment[];
 }
 
 export interface PostFilters {

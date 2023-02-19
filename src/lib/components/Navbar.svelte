@@ -1,8 +1,7 @@
 <script lang="ts">
 	import appLogo from '$lib/assets/logo.ico';
 	import DarkmodeToggle from './DarkmodeToggle.svelte';
-
-	export let user: UserApp | undefined;
+	import { authenticatedUser } from '$lib/stores/userStores';
 </script>
 
 <nav
@@ -16,7 +15,7 @@
 			>
 		</a>
 		<div class="flex md:order-2">
-			{#if user}
+			{#if $authenticatedUser}
 				<button
 					id="dropdownAvatarNameButton"
 					data-dropdown-toggle="dropdownAvatarName"
@@ -26,10 +25,10 @@
 					<span class="sr-only">Open user menu</span>
 					<img
 						class="w-8 h-8 mr-2 rounded-full"
-						src={user.profilePictureUrl}
-						alt="profile for {user.username}"
+						src={$authenticatedUser.profilePictureUrl}
+						alt="profile for {$authenticatedUser.username}"
 					/>
-					{user.username}
+					{$authenticatedUser.username}
 					<svg
 						class="w-4 h-4 mx-1.5"
 						aria-hidden="true"
@@ -51,7 +50,7 @@
 				>
 					<div class="px-4 py-3 text-sm text-gray-900 dark:text-white">
 						<div class="font-medium ">Basic User</div>
-						<div class="truncate">{user?.email}</div>
+						<div class="truncate">{$authenticatedUser.email}</div>
 					</div>
 					<ul
 						class="py-2 text-sm text-gray-700 dark:text-gray-200"
@@ -59,7 +58,8 @@
 					>
 						<li>
 							<a
-								href="/profile/{user.username}"
+								data-sveltekit-reload
+								href="/profile/{$authenticatedUser.username}"
 								class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
 								>Profile</a
 							>
@@ -82,6 +82,7 @@
 				</div>
 			{/if}
 			<DarkmodeToggle />
+
 			<button
 				data-collapse-toggle="navbar-sticky"
 				type="button"
@@ -132,7 +133,14 @@
 						>Tags</a
 					>
 				</li>
-				{#if user === undefined}
+				{#if $authenticatedUser}
+					<a
+						href="/upload"
+						class="block py-2 pl-3 pr-4 text-gray-700 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 md:dark:hover:text-white dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700"
+						>Upload</a
+					>
+				{/if}
+				{#if $authenticatedUser === null}
 					<li>
 						<a
 							href="/auth/login"

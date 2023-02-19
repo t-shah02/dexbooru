@@ -1,38 +1,23 @@
 <script lang="ts">
-	import type { ImageData } from '$lib/interfaces/posts';
 	import { prettifyDate } from '$lib/dates/helpers';
-
-	import 'swiper/css';
-	import 'swiper/css/pagination';
-	import 'swiper/css/navigation';
-	import { Pagination, Navigation } from 'swiper';
-	import { Swiper, SwiperSlide } from 'swiper/svelte';
-	import '$lib/assets/styles/swiper.css';
 
 	export let postId: string;
 	export let date: Date;
 	export let views: number;
-	export let images: ImageData[];
+	export let images: string[];
 	export let authorName: string;
-	export let authorProfileUrl: string;
-	export let tags: string[];
-	export let artists: string[];
 	export let nsfw: boolean;
 
 	let isBlurred = nsfw;
 
 	let prettyDate = '';
-	let censoredImages: string[] = [];
-	let uncensoredImages: string[] = [];
 
 	$: {
 		prettyDate = prettifyDate(date);
 		isBlurred = nsfw;
-
-		censoredImages = images.map((image) => image.censored);
-		uncensoredImages = images.map((image) => image.uncensored);
 	}
 	const postUrl = `/posts/view/${postId}`;
+	const authorUrl = `/profile/${authorName}`;
 
 	const toggleBlur = () => {
 		isBlurred = !isBlurred;
@@ -43,11 +28,14 @@
 	class="max-w-sm bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700"
 >
 	<a href={postUrl}>
-		<img class="rounded-t-lg" src={censoredImages[0]} alt="" />
+		<img class="rounded-t-lg" src={images[0]} alt="" />
 	</a>
 	<div class="p-5">
 		<h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-			{authorName} @ {prettyDate}
+			<a href={authorUrl} class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+				>{authorName}</a
+			>
+			@ {prettyDate}
 		</h5>
 
 		<p class="mb-3 font-normal text-gray-700 dark:text-gray-400">
@@ -67,4 +55,3 @@
 		>
 	</div>
 </div>
-

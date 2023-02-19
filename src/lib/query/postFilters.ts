@@ -54,7 +54,7 @@ function compareViews(postOne: Post, postTwo: Post) {
 	return 1;
 }
 
-export function generateFilteredPosts(posts: Post[]): PostFilters {
+export function generatePostArrangements(posts: Post[]): PostFilters {
 	const dateIncreasing = Array.from(posts.sort(compareDates));
 	const dateDecreasing = Array.from(dateIncreasing).reverse();
 

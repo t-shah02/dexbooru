@@ -1,59 +1,34 @@
 <script lang="ts">
+	import InfoCard from '$lib/components/profile/InfoCard.svelte';
+	import ProfilePictureReset from '$lib/components/profile/forms/ProfilePictureReset.svelte';
+	import UsernameReset from '$lib/components/profile/forms/UsernameReset.svelte';
+	import PasswordReset from '$lib/components/profile/forms/PasswordReset.svelte';
 	import type { PageData } from './$types';
-	import ProfileBar from '$lib/components/ProfileBar.svelte';
+	import { authenticatedUser } from '$lib/stores/userStores';
+	import Tabs from '$lib/components/profile/Tabs.svelte';
 
 	export let data: PageData;
+	export let form: FormData;
 
 	const { targetUser, sameUser } = data;
-	
-
 </script>
 
 <svelte:head>
 	<title>Profile - {targetUser.username}</title>
 </svelte:head>
 
-<h3 class="profile-card-title center-align">Profile card</h3>
-<article class="no-padding">
-	<div class="grid no-space">
-		<div class="s6">
-			<img
-				class="profile-card-img responsive"
-				src={targetUser.profilePictureUrl}
-				alt="full view for {targetUser.username}"
-			/>
-		</div>
-		<div class="s6">
-			<div class="padding">
-				<h5>{targetUser.username}</h5>
-				<p>
-					<span class="bold">Date created:</span>
-					<br />
-					{targetUser.createdAt}
-					
-				</p>
-			</div>
-		</div>
-	</div>
-</article>
+<InfoCard user={targetUser} {sameUser} />
 
-<ProfileBar {sameUser} />
+{#if $authenticatedUser && $authenticatedUser.id === targetUser.id}
+	<div class="settings flex flex-wrap mt-5 mb-20 justify-center">
+		<UsernameReset errorMessage={form ? form.message : ''} />
+		<ProfilePictureReset />
+		<PasswordReset context={form ? form.context : ''} message={form ? form.message : ''} />
+	</div>
+{/if}
 
 <style>
-	.profile-card-title {
-		margin-bottom: 25px;
-	}
-
-	article {
-		display: block;
-		margin-left: auto;
-		margin-right: auto;
-		width: 500px;
-	}
-
-	.profile-card-img {
-		object-fit: contain;
-		border-top-right-radius: 0;
-		border-bottom-right-radius: 0;
+	.settings {
+		width: 100%;
 	}
 </style>

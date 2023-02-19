@@ -7,6 +7,7 @@ interface UserApp {
 	username: string;
 	email: string;
 	profilePictureUrl: string;
+	profilePictureFileID: string;
 	createdAt: Date;
 }
 
