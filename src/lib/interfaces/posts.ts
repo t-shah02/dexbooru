@@ -32,3 +32,11 @@ export interface PostFilters {
 		decreasing: Post[];
 	};
 }
+
+interface HistoryItem {
+	postID: string;
+	historyItemID: string;
+	time: Date;
+}
+
+export type History = HistoryItem[];

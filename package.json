@@ -4,8 +4,9 @@
 	"private": true,
 	"scripts": {
 		"dev": "dotenv -e .env.local -- vite dev",
-		"migratedb:dev" : "dotenv -e .env.local -- npx prisma migrate dev",
+		"migratedb:dev": "dotenv -e .env.local -- npx prisma migrate dev",
 		"deploydb:dev": "dotenv -e .env.local -- npx prisma migrate deploy",
+		"dbstudio:dev": "dotenv -e .env.local -- npx prisma studio",
 		"build": "vite build",
 		"preview": "vite preview",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",

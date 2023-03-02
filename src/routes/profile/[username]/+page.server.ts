@@ -167,6 +167,8 @@ const username: Action = async ({ request, locals }) => {
 			});
 		}
 
+		let newProfileRoute: string | null = null;
+
 		try {
 			// update the database
 			const updatedUser = await dbClient.user.update({
@@ -181,7 +183,7 @@ const username: Action = async ({ request, locals }) => {
 				}
 			});
 
-			throw redirect(302, `/profile/${updatedUser.username}`);
+			newProfileRoute = `/profile/${updatedUser.username}`;
 		} catch (error) {
 			if (error instanceof PrismaClientKnownRequestError) {
 				return fail(400, { context: 'fail', message: 'Username is already taken' });
@@ -189,6 +191,12 @@ const username: Action = async ({ request, locals }) => {
 
 			return fail(400, { context: 'fail', message: JSON.stringify(error) });
 		}
+
+		if (typeof newProfileRoute === 'string') {
+			throw redirect(302, newProfileRoute);
+		}
+
+		return fail(400, { context: 'fail', message: 'Redirect error' });
 	}
 };
 

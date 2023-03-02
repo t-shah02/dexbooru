@@ -1,19 +1,33 @@
 export interface TagResponse {
-    results: string[];
+	results: string[];
 }
 
 export interface TagMapValue {
-    tags: string[];
-    pageNumber: number;
+	tags: string[];
+	pageNumber: number;
 }
 
-export interface UserQueryResponse {
-    username: string;
-    profilePictureUrl: string;
+export interface TagResult {
+	name: string;
 }
 
-export interface AutoCompleteResponse {
-    tags: string[];
-    artists: string[];
-    users: UserQueryResponse[];
+export interface ArtistResult {
+	name: string;
 }
+
+export interface UserResult {
+	username: string;
+	profilePictureUrl: string;
+}
+
+export interface GeneralAutocomplete {
+	tags: TagResult[];
+	artists: ArtistResult[];
+	users: UserResult[];
+}
+
+export type FinalAutocompleteResult =
+	| TagResult[]
+	| ArtistResult[]
+	| UserResult[]
+	| GeneralAutocomplete;

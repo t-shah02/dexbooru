@@ -30,6 +30,10 @@
 			} else {
 				document.documentElement.classList.remove('dark');
 			}
+
+			if (!('history' in localStorage)) {
+				localStorage.setItem('history', JSON.stringify([]));
+			}
 		</script>
 
 		%sveltekit.head%

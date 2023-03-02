@@ -4,6 +4,7 @@
 
 	let artists: string[] = [];
 	let tags: string[] = [];
+	let nsfw = false;
 
 	let tagInput: HTMLInputElement;
 	let artistInput: HTMLInputElement;
@@ -11,10 +12,12 @@
 	let currentTag: string = '';
 	let currentArtist: string = '';
 
-	const updatePost = (tags: string[], artists: string[]) => {
+	const updatePost = (tags: string[], artists: string[], nsfw: boolean) => {
 		const postData = { ...$uploadPost };
 		postData.tags = tags;
 		postData.artists = artists;
+		postData.nsfw = nsfw;
+
 		uploadPost.set(postData);
 	};
 
@@ -26,7 +29,7 @@
 		tagInput.value = '';
 		currentTag = '';
 
-		updatePost(tags, artists);
+		updatePost(tags, artists, nsfw);
 	};
 
 	const addArtist = () => {
@@ -37,7 +40,7 @@
 		artistInput.value = '';
 		currentArtist = '';
 
-		updatePost(tags, artists);
+		updatePost(tags, artists, nsfw);
 	};
 
 	const deleteTag = (event: FormEventHandler<HTMLButtonElement>) => {
@@ -52,7 +55,7 @@
 		const tagValue = target.dataset.value;
 		tags = tags.filter((tag) => tag !== tagValue);
 
-		updatePost(tags, artists);
+		updatePost(tags, artists, nsfw);
 	};
 
 	const deleteArtist = (event: FormEventHandler<HTMLButtonElement>) => {
@@ -67,7 +70,15 @@
 		const artistValue = target.dataset.value;
 		artists = artists.filter((artist) => artist !== artistValue);
 
-		updatePost(tags, artists);
+		updatePost(tags, artists, nsfw);
+	};
+
+	const onNSFWChange = (event: FormEventHandler<HTMLInputElement>) => {
+		const target = event.target as HTMLInputElement;
+		const checked = target.checked;
+
+		nsfw = checked;
+		updatePost(tags, artists, nsfw);
 	};
 </script>
 
@@ -114,6 +125,20 @@
 			>Add artist</button
 		>
 	</div>
+</div>
+
+<div class="flex justify-center items-center">
+	<input
+		on:change={onNSFWChange}
+		id="nsfw-checkbox"
+		name="nsfw"
+		type="checkbox"
+		checked={$uploadPost.nsfw}
+		class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+	/>
+	<label for="nsfw" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+		>Mark this post as NSFW</label
+	>
 </div>
 
 <div class="added-items flex flex-col">
