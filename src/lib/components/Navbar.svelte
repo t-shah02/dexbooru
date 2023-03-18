@@ -2,9 +2,11 @@
 	import appLogo from '$lib/assets/logo.ico';
 	import DarkmodeToggle from './DarkmodeToggle.svelte';
 	import { authenticatedUser } from '$lib/stores/userStores';
+	import SearchToggle from './search/SearchToggle.svelte';
 </script>
 
 <nav
+	id="dexbooru-navbar"
 	class="bg-white px-2 sm:px-4 py-2.5 dark:bg-gray-900 fixed w-full z-20 top-0 left-0 border-b border-gray-200 dark:border-gray-600"
 >
 	<div class="container flex flex-wrap items-center justify-between mx-auto">
@@ -82,6 +84,7 @@
 				</div>
 			{/if}
 			<DarkmodeToggle />
+			<SearchToggle />
 
 			<button
 				data-collapse-toggle="navbar-sticky"
@@ -117,14 +120,6 @@
 						href="/"
 						class="block py-2 pl-3 pr-4 text-gray-700 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 md:dark:hover:text-white dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700"
 						>Home</a
-					>
-				</li>
-
-				<li>
-					<a
-						href="/search"
-						class="block py-2 pl-3 pr-4 text-gray-700 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 md:dark:hover:text-white dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700"
-						>Search</a
 					>
 				</li>
 

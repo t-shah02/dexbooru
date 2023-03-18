@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { prettifyDate } from '$lib/dates/helpers';
+	import { fade } from 'svelte/transition';
 
 	export let postId: string;
 	export let date: Date;
@@ -8,6 +9,7 @@
 	export let authorName: string;
 	export let nsfw: boolean;
 	export let tags: string[];
+	export let artists: string[];
 
 	$: {
 		prettyDate = prettifyDate(date);
@@ -15,6 +17,7 @@
 	}
 
 	let isBlurred = nsfw;
+
 	let prettyDate = '';
 	let imageIndex = 0;
 
@@ -33,11 +36,33 @@
 <div
 	class="max-w-sm bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700"
 >
-	<a href={postUrl}>
+	<a class="relative" href={postUrl}>
+		{#if isBlurred}
+			<div
+				class="nsfw-blocker block bg-black text-red-800  border-red-300 rounded-t-lg  dark:text-red-400 dark:border-red-800"
+			>
+				<div class="flex items-center">
+					<svg
+						aria-hidden="true"
+						class="w-5 h-5 mr-2"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+						xmlns="http://www.w3.org/2000/svg"
+						><path
+							fill-rule="evenodd"
+							d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+							clip-rule="evenodd"
+						/></svg
+					>
+					<span class="sr-only">Info</span>
+					<h3 class="text-lg font-medium">Post is NSFW, press Unblur</h3>
+				</div>
+			</div>
+		{/if}
 		<img
 			class="rounded-t-lg w-full current-image"
 			src={images[imageIndex]}
-			alt={tags.join(',') + `image #${imageIndex + 1}`}
+			alt={tags.join(',') + artists.join(',') + ` image #${imageIndex + 1}`}
 		/>
 	</a>
 
@@ -74,16 +99,42 @@
 			Total images: {images.length}
 		</p>
 
-		<button
-			type="button"
-			class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
-			>Save post</button
-		>
+		<div class="flex flex-wrap">
+			{#if nsfw}
+				<button
+					on:click={() => (isBlurred = !isBlurred)}
+					type="button"
+					class="focus:outline-none text-white bg-yellow-400 hover:bg-yellow-500 focus:ring-4 focus:ring-yellow-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:focus:ring-yellow-900"
+					>{isBlurred ? 'Unblur' : 'Blur'}</button
+				>
+			{/if}
+			<button
+				type="button"
+				class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
+				>Save post</button
+			>
 
-		<button
-			type="button"
-			class="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900"
-			>Report post</button
-		>
+			<button
+				type="button"
+				class="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900"
+				>Report post</button
+			>
+		</div>
 	</div>
 </div>
+
+<style>
+	.nsfw-blocker {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background-color: black;
+		opacity: 0.97;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		font-size: 1.5rem;
+	}
+</style>

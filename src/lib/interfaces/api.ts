@@ -8,3 +8,4 @@ export interface NewPostData {
 	postID: string;
 	postURL: string;
 }
+

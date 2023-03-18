@@ -3,7 +3,7 @@
 	import type { Comment } from '$lib/interfaces/comments';
 	import type { FormEventHandler } from '$lib/interfaces/inputs';
 	import { commentTree } from '$lib/stores/commentStores';
-	import {  slide } from 'svelte/transition';
+	import { slide } from 'svelte/transition';
 	import CommentBox from './CommentBox.svelte';
 
 	export let comment: Comment;
@@ -11,7 +11,6 @@
 
 	let showCommentBox = false;
 	let showReplies = false;
-
 
 	const replies = $commentTree.get(comment.id) || [];
 
@@ -74,13 +73,13 @@
 		>
 	</div>
 	{#if showCommentBox}
-		<div in:slide out:slide>
+		<div in:slide out:slide class="w-full">
 			<CommentBox {postID} parentCommentID={comment.id} />
 		</div>
 	{/if}
 
 	{#if showReplies}
-		<ul>
+		<ul in:slide out:slide>
 			<li class="border-l-2">
 				{#each replies as reply}
 					<svelte:self comment={reply} {postID} />

@@ -22,17 +22,13 @@ export const load: PageServerLoad = async ({ url }) => {
 	const postCache: Post[] | null = await cacheClient.get(postCacheQuery);
 
 	if (postCache) {
-		console.log('hit cache');
 		postCache.forEach((post) => {
 			post.date = new Date(post.date);
 		});
 
-		const postCacheCopy = [...postCache];
-		const arrangements = generatePostArrangements(postCache);
 		return {
 			foundPosts: postCache.length ? true : false,
-			posts: postCacheCopy,
-			arrangements,
+			posts: postCache,
 			pageNumber
 		};
 	}
@@ -69,13 +65,7 @@ export const load: PageServerLoad = async ({ url }) => {
 			date: postData.createdAt,
 			views: postData.views,
 			nsfw: postData.nsfw,
-			images: postData.images.map((imageURL) => {
-				if (imageURL.startsWith('https://')) {
-					return imageURL;
-				}
-
-				return urlFormer(imageURL);
-			}),
+			images: postData.images.map((imageURL) => urlFormer(imageURL)),
 			authorName: postData.author.username,
 			authorProfileUrl: urlFormer(postData.author.profilePictureUrl),
 			tags: postData.tags.map((data) => data.name),
@@ -85,13 +75,9 @@ export const load: PageServerLoad = async ({ url }) => {
 
 	await cacheClient.set(postCacheQuery, JSON.stringify(cleanedPosts), { ex: 50 });
 
-	const cleanedPostsCopy = [...cleanedPosts];
-	const arrangements = generatePostArrangements(cleanedPosts);
-
 	return {
 		foundPosts: cleanedPosts.length ? true : false,
-		posts: cleanedPostsCopy,
-		arrangements,
+		posts: cleanedPosts,
 		pageNumber
 	};
 };

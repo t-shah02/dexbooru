@@ -7,27 +7,25 @@ export interface TagMapValue {
 	pageNumber: number;
 }
 
-export interface TagResult {
-	name: string;
-}
-
-export interface ArtistResult {
-	name: string;
-}
-
 export interface UserResult {
 	username: string;
 	profilePictureUrl: string;
 }
 
-export interface GeneralAutocomplete {
-	tags: TagResult[];
-	artists: ArtistResult[];
+export interface AutocompleteResults {
+	tags: string[];
+	artists: string[];
 	users: UserResult[];
 }
 
-export type FinalAutocompleteResult =
-	| TagResult[]
-	| ArtistResult[]
-	| UserResult[]
-	| GeneralAutocomplete;
+export interface SearchQuery {
+	tags?: string[];
+	artists?: string[];
+	uploader?: string;
+	views?: number;
+	startDate?: string;
+	endDate?: string;
+	exactDate?: string;
+}
+
+export type AutocompleteSearchType = 'tags' | 'artists' | 'uploader';
