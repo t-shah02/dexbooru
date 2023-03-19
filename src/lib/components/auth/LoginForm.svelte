@@ -1,10 +1,15 @@
 <script lang="ts">
+	import MessageToast from '../MessageToast.svelte';
 
+	export let errorMessage: string;
 </script>
 
 <div
 	class="auth-form w-full max-w-sm p-4 bg-white border border-gray-200 rounded-lg shadow sm:p-6 md:p-8 dark:bg-gray-800 dark:border-gray-700"
 >
+	{#if errorMessage.length}
+		<MessageToast marginTop={5} type="error" message={errorMessage} />
+	{/if}
 	<form class="space-y-6" method="POST">
 		<h5 class="text-xl font-medium text-gray-900 dark:text-white">Log in to Dexbooru</h5>
 		<div>

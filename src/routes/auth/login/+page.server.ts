@@ -18,7 +18,7 @@ const login: Action = async ({ request, cookies }) => {
 	const passwordData = data.get('password');
 
 	if (!usernameData || !passwordData) {
-		return fail(400, { error: loginErrors.missingFields });
+		return fail(400, { message: loginErrors.missingFields });
 	}
 
 	const username = usernameData.toString();
@@ -31,14 +31,14 @@ const login: Action = async ({ request, cookies }) => {
 	});
 
 	if (!user) {
-		return fail(404, { error: loginErrors.userDoesNotExist });
+		return fail(404, { message: loginErrors.userDoesNotExist });
 	}
 
 	const hashedPassword = user.password;
 	const match = await passwordsMatch(testingPassword, hashedPassword);
 
 	if (!match) {
-		return fail(403, { error: loginErrors.userDoesNotExist });
+		return fail(403, { message: loginErrors.userDoesNotExist });
 	}
 
 	cookies.set('sessionID', user.sessionToken, {
