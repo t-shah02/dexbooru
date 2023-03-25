@@ -1,6 +1,9 @@
 <script lang="ts">
 	import { prettifyDate } from '$lib/dates/helpers';
-	import { fade } from 'svelte/transition';
+	import type { FormEventHandler } from '$lib/interfaces/inputs';
+	import { authenticatedUser } from '$lib/stores/userStores';
+	import MessageToast from '../MessageToast.svelte';
+	import LoadingSpinner from '../svgs/LoadingSpinner.svelte';
 
 	export let postId: string;
 	export let date: Date;
@@ -10,6 +13,7 @@
 	export let nsfw: boolean;
 	export let tags: string[];
 	export let artists: string[];
+	export let isSaved: boolean;
 
 	$: {
 		prettyDate = prettifyDate(date);
@@ -17,9 +21,14 @@
 	}
 
 	let isBlurred = nsfw;
-
 	let prettyDate = '';
 	let imageIndex = 0;
+	let saving = false;
+	let canSave = true;
+	let toggledSave = false;
+	let toggleSaveErrored = false;
+	let currentSaveAction = '';
+	let savedWhileDelayed = false;
 
 	const goLeft = () => {
 		imageIndex = imageIndex - 1 < 0 ? images.length - 1 : imageIndex - 1;
@@ -27,6 +36,42 @@
 
 	const goRight = () => {
 		imageIndex = imageIndex + 1 == images.length ? 0 : imageIndex + 1;
+	};
+
+	const toggleSaveUnsave = async (event: FormEventHandler<HTMLButtonElement>) => {
+		if (!canSave) {
+			savedWhileDelayed = true;
+			return;
+		}
+
+		const target = event.target as HTMLButtonElement;
+		const action = target.dataset.action as 'save' | 'unsave';
+
+		currentSaveAction = action === 'save' ? 'saved' : 'unsaved';
+		saving = true;
+		savedWhileDelayed = false;
+
+		const response = await fetch('/api/posts/save', {
+			method: 'POST',
+			body: JSON.stringify({ action, postId })
+		});
+
+		saving = false;
+
+		if (response.ok) {
+			isSaved = !isSaved;
+			toggledSave = true;
+			toggleSaveErrored = false;
+		} else {
+			toggledSave = false;
+			toggleSaveErrored = true;
+		}
+
+		canSave = false;
+
+		setTimeout(() => {
+			canSave = true;
+		}, 6500);
 	};
 
 	const postUrl = `/posts/view/${postId}`;
@@ -108,11 +153,16 @@
 					>{isBlurred ? 'Unblur' : 'Blur'}</button
 				>
 			{/if}
-			<button
-				type="button"
-				class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
-				>Save post</button
-			>
+
+			{#if $authenticatedUser}
+				<button
+					type="button"
+					data-action={isSaved ? 'unsave' : 'save'}
+					on:click={toggleSaveUnsave}
+					class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
+					>{isSaved ? 'Unsave Post' : 'Save Post'}
+				</button>
+			{/if}
 
 			<button
 				type="button"
@@ -120,6 +170,24 @@
 				>Report post</button
 			>
 		</div>
+	</div>
+
+	<div class="flex flex-col w-full items-center">
+		{#if savedWhileDelayed}
+			<MessageToast type="error" message="Please wait for a little bit, before doing this!" />
+		{/if}
+
+		{#if toggledSave}
+			<MessageToast type="success" message="This post was {currentSaveAction} successfully!" />
+		{/if}
+
+		{#if toggleSaveErrored}
+			<MessageToast type="error" message="An error occured while saving/unsaving this post!" />
+		{/if}
+
+		{#if saving}
+			<LoadingSpinner />
+		{/if}
 	</div>
 </div>
 
@@ -131,7 +199,6 @@
 		width: 100%;
 		height: 100%;
 		background-color: black;
-		opacity: 0.97;
 		display: flex;
 		justify-content: center;
 		align-items: center;

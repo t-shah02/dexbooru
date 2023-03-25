@@ -2,6 +2,19 @@
 // for information about these interfaces
 // and what to do when importing types
 
+interface FriendRequestInformation {
+	username: string;
+	id: string;
+	profilePictureUrl: string;
+	sentOn: Date;
+}
+
+interface FriendInformation {
+	username: string;
+	id: string;
+	profilePictureUrl: string;
+}
+
 interface UserApp {
 	id: string;
 	username: string;
@@ -9,6 +22,10 @@ interface UserApp {
 	profilePictureUrl: string;
 	profilePictureFileID: string;
 	createdAt: Date;
+	savedPosts: import('$lib/interfaces/posts').Post[];
+	friends: FriendInformation[];
+	friendRequestsReceived: FriendRequestInformation[];
+	friendRequestsSent: FriendRequestInformation[];
 }
 
 declare namespace App {

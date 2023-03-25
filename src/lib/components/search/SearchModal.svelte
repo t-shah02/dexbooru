@@ -61,7 +61,7 @@
 			<!-- Modal body -->
 			<div class="p-6 space-y-6">
 				<form class="flex flex-col space-y-2" method="GET" action="/search" data-sveltekit-reload>
-					<section class="flex space-x-2">
+					<section class="flex flex-wrap gap-2">
 						<AutocompleteSearchbar searchType="tags" />
 						<AutocompleteSearchbar searchType="artists" />
 						<AutocompleteSearchbar searchType="uploader" />

@@ -10,6 +10,8 @@
 	export let data: PageData;
 	export let form: ActionData = {};
 
+	const friendData = data.friendData;
+
 	// form variables
 	const type = form?.type;
 	const message = form?.message;
@@ -21,7 +23,7 @@
 	<title>Profile - {targetUser.username}</title>
 </svelte:head>
 
-<InfoCard user={targetUser} {sameUser} />
+<InfoCard friendStatus={friendData} user={targetUser} {sameUser} />
 
 {#if $authenticatedUser && $authenticatedUser.id === targetUser.id}
 	{#if type && message}

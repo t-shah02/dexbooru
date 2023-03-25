@@ -10,6 +10,8 @@ import {
 import { hashPassword, isStrongPassword, isValidUsername, passwordsMatch } from '$lib/auth/helpers';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import { validateImage } from '$lib/images/imageServer';
+import { routeFriendshipAction } from '$lib/friends/serverHelpers';
+import { getUpdatedFriendState } from '$lib/friends/clientHelpers';
 
 export const load: PageServerLoad = async ({ locals, params }) => {
 	const username = params.username;
@@ -32,7 +34,20 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 
 	if (targetUser) {
 		targetUser.profilePictureUrl = urlFormer(targetUser?.profilePictureUrl);
-		return { targetUser, sameUser: false };
+
+		let friendData: {
+			isFriend: boolean | null;
+			hasRequestedFriendship: boolean | null;
+		} = {
+			isFriend: null,
+			hasRequestedFriendship: null
+		};
+
+		if (locals.user) {
+			friendData = getUpdatedFriendState(locals.user, targetUser);
+		}
+
+		return { targetUser, sameUser: false, friendData };
 	}
 
 	throw error(404, { message: `A username called ${username} does not exist!` });
@@ -73,8 +88,6 @@ const profile: Action = async ({ request, locals }) => {
 				profilePictureFileID: uploadResponse.cloudFileID
 			}
 		});
-
-		
 
 		return { newProfilePictureURL: uploadResponse.cloudFilePath, type: 'success' };
 	}

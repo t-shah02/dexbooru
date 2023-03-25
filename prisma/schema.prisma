@@ -8,18 +8,55 @@ datasource db {
 }
 
 model User {
-  id                   String    @id @default(uuid())
-  username             String    @unique() @db.VarChar(15)
-  email                String    @unique()
-  password             String
-  createdAt            DateTime  @default(now())
-  profilePictureUrl    String
-  profilePictureFileID String
-  posts                Post[]
-  sessionToken         String    @unique()
-  comments             Comment[]
+  id                     String          @id @default(uuid())
+  username               String          @unique() @db.VarChar(15)
+  email                  String          @unique()
+  password               String
+  createdAt              DateTime        @default(now())
+  profilePictureUrl      String
+  profilePictureFileID   String
+  posts                  Post[]          @relation("createdPosts")
+  savedPosts             Post[]          @relation("savedPosts")
+  sessionToken           String          @unique()
+  comments               Comment[]
+  sentMessages           Message[]       @relation("sent_messages")
+  receivedMessages       Message[]       @relation("received_messages")
+  directMessages         DirectMessage[]
+  friendRequestsSent     FriendRequest[] @relation("sent_friend_requests")
+  friendRequestsReceived FriendRequest[] @relation("received_friend_requests")
+  friends User[] @relation("friends")
+  symmetricFriends User[] @relation("friends")
 
   @@index([id])
+}
+
+model FriendRequest {
+  sender     User     @relation("sent_friend_requests", fields: [senderId], references: [id])
+  senderId   String
+  receiver   User     @relation("received_friend_requests", fields: [receiverId], references: [id])
+  receiverId String
+  sentOn     DateTime @default(now())
+
+  @@id([senderId, receiverId])
+}
+
+
+model Message {
+  id              String        @id @default(uuid())
+  content         String
+  sent            DateTime      @default(now())
+  sender          User          @relation("sent_messages", fields: [senderId], references: [id])
+  senderId        String
+  receiver        User          @relation("received_messages", fields: [receiverId], references: [id])
+  receiverId      String
+  DirectMessage   DirectMessage @relation(fields: [directMessageId], references: [id])
+  directMessageId String
+}
+
+model DirectMessage {
+  id           String    @id @default(uuid())
+  messages     Message[]
+  participants User[]
 }
 
 model Tag {
@@ -37,11 +74,13 @@ model Artist {
 model Post {
   id        String    @id @default(uuid())
   images    String[]
+  imageIDs  String[]
   tags      Tag[]
   views     Int       @default(0)
   nsfw      Boolean   @default(false)
   createdAt DateTime  @default(now())
-  author    User      @relation(fields: [authorId], references: [id])
+  author    User      @relation("createdPosts", fields: [authorId], references: [id])
+  savedBy   User[]    @relation("savedPosts")
   authorId  String
   artists   Artist[]
   comments  Comment[]

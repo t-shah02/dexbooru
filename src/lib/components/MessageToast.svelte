@@ -13,10 +13,20 @@
 		'text-green-500 bg-green-100 rounded-lg dark:bg-green-800 dark:text-green-200';
 	const errorClass = 'text-red-500 bg-red-100 rounded-lg dark:bg-red-800 dark:text-red-200';
 
+	const toastContentId = crypto.randomUUID();
+	const toastCloseButtonId = crypto.randomUUID();
+
 	let dismiss: DismissInterface;
+
 	onMount(() => {
-		const profileToastContent = document.querySelector('#profile-toast-content') as HTMLElement;
-		const toastCloseContent = document.querySelector('#close-toast-btn') as HTMLElement;
+		console.log('running');
+
+		const profileToastContent = document.querySelector(
+			`#toast-content-${toastContentId}`
+		) as HTMLElement;
+		const toastCloseContent = document.querySelector(
+			`#close-toast-btn-${toastCloseButtonId}`
+		) as HTMLElement;
 
 		if (profileToastContent && toastCloseContent) {
 			const options: DismissOptions = {
@@ -32,7 +42,7 @@
 
 <div
 	style="margin-top: {marginTop}px"
-	id="profile-toast-content"
+	id="toast-content-{toastContentId}"
 	class="mb-2 flex items-center w-full max-w-xs p-4 text-gray-500 bg-white rounded-lg shadow-lg border-2 dark:text-gray-400 dark:bg-gray-800"
 	role="alert"
 >
@@ -75,7 +85,7 @@
 	</div>
 	<div class="ml-3 text-sm font-normal">{message}</div>
 	<button
-		id="close-toast-btn"
+		id="close-toast-btn-{toastCloseButtonId}"
 		type="button"
 		class="ml-auto -mx-1.5 -my-1.5 bg-white text-gray-400 hover:text-gray-900 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-gray-100 inline-flex h-8 w-8 dark:text-gray-500 dark:hover:text-white dark:bg-gray-800 dark:hover:bg-gray-700"
 		aria-label="Close"

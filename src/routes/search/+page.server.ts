@@ -3,8 +3,9 @@ import type { PageServerLoad } from '../$types';
 import dbClient from '$lib/database/dbClient';
 import { urlFormer } from '$lib/images/uploader';
 import type { Post } from '$lib/interfaces/posts';
+import { getSavedPostIds } from '$lib/posts/helpers';
 
-export const load = (async ({ url }) => {
+export const load = (async ({ url, locals }) => {
 	const tags: string[] = JSON.parse(url.searchParams.get('tags') || '[]');
 	const artists: string[] = JSON.parse(url.searchParams.get('artists') || '[]');
 	const uploader = url.searchParams.get('uploader') || '';
@@ -110,8 +111,11 @@ export const load = (async ({ url }) => {
 		};
 	});
 
+	const savedPostsOnPage = getSavedPostIds(cleanedPosts, locals.user ? locals.user.savedPosts : []);
+
 	return {
 		posts: cleanedPosts,
+		savedPostsOnPage,
 		userQuery: queryComponents.join(' | ').trim()
 	};
 }) satisfies PageServerLoad;
