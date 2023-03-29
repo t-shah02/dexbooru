@@ -19,13 +19,10 @@ model User {
   savedPosts             Post[]          @relation("savedPosts")
   sessionToken           String          @unique()
   comments               Comment[]
-  sentMessages           Message[]       @relation("sent_messages")
-  receivedMessages       Message[]       @relation("received_messages")
-  directMessages         DirectMessage[]
   friendRequestsSent     FriendRequest[] @relation("sent_friend_requests")
   friendRequestsReceived FriendRequest[] @relation("received_friend_requests")
-  friends User[] @relation("friends")
-  symmetricFriends User[] @relation("friends")
+  friends                User[]          @relation("friends")
+  symmetricFriends       User[]          @relation("friends")
 
   @@index([id])
 }
@@ -38,25 +35,6 @@ model FriendRequest {
   sentOn     DateTime @default(now())
 
   @@id([senderId, receiverId])
-}
-
-
-model Message {
-  id              String        @id @default(uuid())
-  content         String
-  sent            DateTime      @default(now())
-  sender          User          @relation("sent_messages", fields: [senderId], references: [id])
-  senderId        String
-  receiver        User          @relation("received_messages", fields: [receiverId], references: [id])
-  receiverId      String
-  DirectMessage   DirectMessage @relation(fields: [directMessageId], references: [id])
-  directMessageId String
-}
-
-model DirectMessage {
-  id           String    @id @default(uuid())
-  messages     Message[]
-  participants User[]
 }
 
 model Tag {

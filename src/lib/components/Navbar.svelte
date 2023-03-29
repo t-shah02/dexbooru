@@ -3,10 +3,11 @@
 	import DarkmodeToggle from './DarkmodeToggle.svelte';
 	import { authenticatedUser } from '$lib/stores/userStores';
 	import SearchToggle from './search/SearchToggle.svelte';
-	import FriendRequests from './notifications/friends/ReceivedFriendRequests.svelte';
 	import ProfileDropdown from './navigation/ProfileDropdown.svelte';
 	import NavItems from './navigation/NavItems.svelte';
 	import FriendDropdown from './notifications/friends/FriendDropdown.svelte';
+	import { onMount } from 'svelte';
+	import { navbarData } from '$lib/stores/components';
 </script>
 
 <nav
@@ -19,7 +20,6 @@
 			<span class="self-center text-xl font-semibold whitespace-nowrap dark:text-white"
 				>Dexbooru</span
 			>
-			<DarkmodeToggle />
 		</a>
 		<div class="flex md:order-2">
 			<div class="flex flex-wrap space-x-3">
@@ -29,6 +29,7 @@
 				{/if}
 
 				<SearchToggle />
+				<DarkmodeToggle />
 			</div>
 
 			<button

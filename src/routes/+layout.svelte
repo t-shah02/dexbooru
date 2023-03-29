@@ -12,6 +12,7 @@
 	import { searchModalController } from '$lib/stores/globalStores';
 
 	import { page } from '$app/stores';
+	import { footerData, navbarData } from '$lib/stores/components';
 
 	if ($page.data.user) {
 		authenticatedUser.set($page.data.user);
@@ -36,6 +37,36 @@
 			if (event.ctrlKey && event.key === 'k' && $searchModalController) {
 				$searchModalController.show();
 			}
+		});
+
+		const getDimensionsAndSetStore = () => {
+			const navbar = document.querySelector('#dexbooru-navbar') as HTMLElement;
+			const footer = document.querySelector('#dexbooru-footer') as HTMLElement;
+
+			if (navbar && footer) {
+				const wN = navbar.offsetWidth;
+				const hN = navbar.offsetHeight;
+				const wF = footer.offsetWidth;
+				const hF = footer.offsetHeight;
+
+				if (wN > 0 && hN > 0 && wF > 0 && hF > 0) {
+					navbarData.set({
+						width: wN,
+						height: hN
+					});
+
+					footerData.set({
+						width: wF,
+						height: hF
+					});
+				}
+			}
+		};
+
+		getDimensionsAndSetStore();
+
+		window.addEventListener('resize', () => {
+			getDimensionsAndSetStore();
 		});
 	});
 </script>

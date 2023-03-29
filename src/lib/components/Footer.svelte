@@ -4,36 +4,6 @@
 
 	const today = new Date();
 	const year = today.getFullYear();
-
-	const getFooterDimensions = () => {
-		const footerElement = document.querySelector('#dexbooru-footer') as HTMLElement;
-
-		if (footerElement) {
-			const width = footerElement.offsetWidth;
-			const height = footerElement.offsetHeight;
-
-			return [width, height];
-		}
-
-		return [-1, -1];
-	};
-
-	onMount(() => {
-		const updateFooterStore = () => {
-			const [width, height] = getFooterDimensions();
-
-			if (width > 0 && height > 0) {
-				footerData.set({
-					width,
-					height
-				});
-			}
-		};
-
-		updateFooterStore();
-
-		window.addEventListener('resize', updateFooterStore);
-	});
 </script>
 
 <footer

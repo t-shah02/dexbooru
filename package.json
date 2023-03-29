@@ -49,6 +49,7 @@
 		"@upstash/redis": "^1.19.1",
 		"bcryptjs": "^2.4.3",
 		"dotenv": "^16.0.3",
+		"firebase": "^9.18.0",
 		"flowbite": "^1.6.3",
 		"flowbite-typography": "^1.0.3",
 		"imagekit": "^4.1.2",
