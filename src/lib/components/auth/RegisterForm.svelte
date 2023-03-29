@@ -1,8 +1,11 @@
 <script lang="ts">
 	import type { FormEventHandler } from '$lib/interfaces/inputs';
 	import { fade, slide } from 'svelte/transition';
+	import MessageToast from '../MessageToast.svelte';
 	import ProfileUpload from './ProfileUpload.svelte';
 	import Requirements from './Requirements.svelte';
+
+	export let errorMessage: string = '';
 
 	let username = '';
 	let password = '';
@@ -27,6 +30,9 @@
 <div
 	class="auth-form w-full max-w-sm p-4 bg-white border border-gray-200 rounded-lg shadow sm:p-6 md:p-8 dark:bg-gray-800 dark:border-gray-700"
 >
+	{#if errorMessage.length}
+		<MessageToast marginTop={5} type="error" message={errorMessage} />
+	{/if}
 	<form class="space-y-6" method="POST" enctype="multipart/form-data" autocomplete="off">
 		<h5 class="text-xl font-medium text-gray-900 dark:text-white">Sign up for Dexbooru</h5>
 		<div>

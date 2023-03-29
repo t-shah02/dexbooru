@@ -1,10 +1,13 @@
 <script lang="ts">
+	import { footerData } from '$lib/stores/components';
+	import { onMount } from 'svelte';
+
 	const today = new Date();
 	const year = today.getFullYear();
-
 </script>
 
 <footer
+	id="dexbooru-footer"
 	class="p-4 bg-white shadow md:flex md:items-center md:justify-between md:p-6 dark:bg-gray-800"
 >
 	<span class="text-sm text-gray-500 sm:text-center dark:text-gray-400">

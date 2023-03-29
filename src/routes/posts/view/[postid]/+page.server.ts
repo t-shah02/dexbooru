@@ -40,6 +40,8 @@ const newComment: Action = async ({ request, locals }) => {
 			}
 		});
 
+		await cacheClient.del(`post-${postID}`);
+
 		return {
 			message: `Created a new comment on ${postID}, with the parent id of ${parentCommentID}`
 		};

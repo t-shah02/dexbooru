@@ -10,6 +10,8 @@ import {
 import { hashPassword, isStrongPassword, isValidUsername, passwordsMatch } from '$lib/auth/helpers';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import { validateImage } from '$lib/images/imageServer';
+import { routeFriendshipAction } from '$lib/friends/serverHelpers';
+import { getUpdatedFriendState } from '$lib/friends/clientHelpers';
 
 export const load: PageServerLoad = async ({ locals, params }) => {
 	const username = params.username;
@@ -32,7 +34,20 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 
 	if (targetUser) {
 		targetUser.profilePictureUrl = urlFormer(targetUser?.profilePictureUrl);
-		return { targetUser, sameUser: false };
+
+		let friendData: {
+			isFriend: boolean | null;
+			hasRequestedFriendship: boolean | null;
+		} = {
+			isFriend: null,
+			hasRequestedFriendship: null
+		};
+
+		if (locals.user) {
+			friendData = getUpdatedFriendState(locals.user, targetUser);
+		}
+
+		return { targetUser, sameUser: false, friendData };
 	}
 
 	throw error(404, { message: `A username called ${username} does not exist!` });
@@ -44,14 +59,15 @@ const profile: Action = async ({ request, locals }) => {
 		const profilePictureFile = data.get('profilePicture') as File;
 
 		if (!profilePictureFile) {
-			return fail(400, { message: 'At least one of the fields was missing!' });
+			return fail(400, { message: 'At least one of the fields was missing!', type: 'error' });
 		}
 
 		const profilePictureImageData = await validateImage(profilePictureFile);
 
 		if (typeof profilePictureImageData === 'string') {
 			return fail(400, {
-				message: 'The profile image that you uploaded does not meet the requirements!'
+				message: 'The profile image that you uploaded does not meet the requirements!',
+				type: 'error'
 			});
 		}
 
@@ -73,7 +89,7 @@ const profile: Action = async ({ request, locals }) => {
 			}
 		});
 
-		return { newProfilePictureURL: uploadResponse.cloudFilePath };
+		return { newProfilePictureURL: uploadResponse.cloudFilePath, type: 'success' };
 	}
 };
 
@@ -85,12 +101,12 @@ const password: Action = async ({ request, locals }) => {
 		const newPasswordConfirm = data.get('newPasswordConfirm');
 
 		if (!oldPassword || !newPassword || !newPasswordConfirm) {
-			return fail(400, { context: 'fail', message: 'At least one of the fields was missing!' });
+			return fail(400, { type: 'error', message: 'At least one of the fields was missing!' });
 		}
 
 		if (newPassword !== newPasswordConfirm) {
 			return fail(400, {
-				context: 'fail',
+				type: 'error',
 				message: 'The new password that was re-entered does not match!'
 			});
 		}
@@ -107,7 +123,7 @@ const password: Action = async ({ request, locals }) => {
 
 			if (!passwordsDoMatch) {
 				return fail(400, {
-					context: 'fail',
+					type: 'error',
 					message: 'The old password that was entered is incorrect!'
 				});
 			}
@@ -129,7 +145,7 @@ const password: Action = async ({ request, locals }) => {
 				}
 			});
 
-			return { context: 'pass', message: 'Your password has been updated successfully!' };
+			return { type: 'success', message: 'Your password has been updated successfully!' };
 		}
 	}
 };
@@ -141,19 +157,19 @@ const username: Action = async ({ request, locals }) => {
 		const usernameConfirm = data.get('usernameConfirm');
 
 		if (!username || !usernameConfirm) {
-			return fail(400, { context: 'fail', message: 'At least one of the fields was missing!' });
+			return fail(400, { type: 'error', message: 'At least one of the fields was missing!' });
 		}
 
 		if (username.toString() !== usernameConfirm.toString()) {
 			return fail(400, {
-				context: 'fail',
+				type: 'error',
 				message: 'The username that was re-entered does not match!'
 			});
 		}
 
 		if (username.toString() === locals.user.username) {
 			return fail(400, {
-				context: 'fail',
+				type: 'error',
 				message: 'The new username is the same as your current username!'
 			});
 		}
@@ -162,7 +178,7 @@ const username: Action = async ({ request, locals }) => {
 
 		if (typeof validUserNameTest !== 'boolean') {
 			return fail(400, {
-				context: 'fail',
+				type: 'error',
 				message: 'The new username does not meet the username requirements!'
 			});
 		}
@@ -186,17 +202,17 @@ const username: Action = async ({ request, locals }) => {
 			newProfileRoute = `/profile/${updatedUser.username}`;
 		} catch (error) {
 			if (error instanceof PrismaClientKnownRequestError) {
-				return fail(400, { context: 'fail', message: 'Username is already taken' });
+				return fail(400, { type: 'error', message: 'Username is already taken' });
 			}
 
-			return fail(400, { context: 'fail', message: JSON.stringify(error) });
+			return fail(400, { type: 'error', message: JSON.stringify(error) });
 		}
 
 		if (typeof newProfileRoute === 'string') {
 			throw redirect(302, newProfileRoute);
 		}
 
-		return fail(400, { context: 'fail', message: 'Redirect error' });
+		return fail(400, { error: 'error', message: 'Redirect error' });
 	}
 };
 

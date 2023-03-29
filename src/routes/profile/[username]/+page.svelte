@@ -3,12 +3,18 @@
 	import ProfilePictureReset from '$lib/components/profile/forms/ProfilePictureReset.svelte';
 	import UsernameReset from '$lib/components/profile/forms/UsernameReset.svelte';
 	import PasswordReset from '$lib/components/profile/forms/PasswordReset.svelte';
-	import type { PageData } from './$types';
+	import type { PageData, ActionData } from './$types';
 	import { authenticatedUser } from '$lib/stores/userStores';
-	import Tabs from '$lib/components/profile/Tabs.svelte';
+	import ProfileChangeToast from '$lib/components/MessageToast.svelte';
 
 	export let data: PageData;
-	export let form: FormData;
+	export let form: ActionData = {};
+
+	const friendData = data.friendData;
+
+	// form variables
+	const type = form?.type;
+	const message = form?.message;
 
 	const { targetUser, sameUser } = data;
 </script>
@@ -17,13 +23,16 @@
 	<title>Profile - {targetUser.username}</title>
 </svelte:head>
 
-<InfoCard user={targetUser} {sameUser} />
+<InfoCard friendStatus={friendData} user={targetUser} {sameUser} />
 
 {#if $authenticatedUser && $authenticatedUser.id === targetUser.id}
+	{#if type && message}
+		<ProfileChangeToast {type} {message} />
+	{/if}
 	<div class="settings flex flex-wrap mt-5 mb-20 justify-center">
-		<UsernameReset errorMessage={form ? form.message : ''} />
+		<UsernameReset />
 		<ProfilePictureReset />
-		<PasswordReset context={form ? form.context : ''} message={form ? form.message : ''} />
+		<PasswordReset />
 	</div>
 {/if}
 

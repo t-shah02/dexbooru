@@ -2,8 +2,7 @@
 	import LoginForm from '$lib/components/auth/LoginForm.svelte';
 	import type { ActionData } from './$types';
 
-	export let form: ActionData;
-
+	export let form: ActionData = {};
 </script>
 
-<LoginForm />
+<LoginForm errorMessage={form ? form.message : ''} />

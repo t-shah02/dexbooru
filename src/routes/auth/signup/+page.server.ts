@@ -24,7 +24,7 @@ const signup: Action = async ({ request }) => {
 	const profilePictureData = data.get('profilePicture');
 
 	if (!emailData || !usernameData || !passwordData || !confirmedPasswordData) {
-		return fail(400, { error: registrationErrors.missingFields });
+		return fail(400, { message: registrationErrors.missingFields });
 	}
 
 	const email = emailData.toString();
@@ -32,16 +32,16 @@ const signup: Action = async ({ request }) => {
 	const password = passwordData.toString();
 	const confirmedPassword = confirmedPasswordData.toString();
 
-	if (!isValidUsername(username)) {
-		return fail(403, { error: registrationErrors.invalidUsername });
+	if (typeof isValidUsername(username) === 'object') {
+		return fail(403, { message: registrationErrors.invalidUsername });
 	}
 
-	if (!isStrongPassword(password)) {
-		return fail(403, { error: registrationErrors.weakPassword });
+	if (typeof isStrongPassword(password) === 'object') {
+		return fail(403, { message: registrationErrors.weakPassword });
 	}
 
 	if (password !== confirmedPassword) {
-		return fail(400, { error: registrationErrors.noPasswordMatch });
+		return fail(400, { message: registrationErrors.noPasswordMatch });
 	}
 
 	const user = await dbClient.user.findFirst({
@@ -51,7 +51,7 @@ const signup: Action = async ({ request }) => {
 	});
 
 	if (user) {
-		return fail(409, { error: registrationErrors.userExists });
+		return fail(409, { message: registrationErrors.userExists });
 	}
 
 	let finalCloudURL: string | null = null;
@@ -64,7 +64,7 @@ const signup: Action = async ({ request }) => {
 			const imageData = await validateImage(profilePictureFile);
 
 			if (typeof imageData === 'string') {
-				return fail(409, { error: registrationErrors.profileImageTooLarge });
+				return fail(409, { message: registrationErrors.profileImageTooLarge });
 			}
 
 			const uploadResponse = await uploadImageToCloud(PROFILE_FOLDER, imageData);
