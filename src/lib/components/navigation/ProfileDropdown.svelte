@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { authenticatedUser } from '$lib/stores/userStores';
+	import { page } from '$app/stores';
 </script>
 
 {#if $authenticatedUser}
@@ -36,7 +37,7 @@
 		class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700 dark:divide-gray-600"
 	>
 		<div class="px-4 py-3 text-sm text-gray-900 dark:text-white">
-			<div class="font-medium ">Basic User</div>
+			<div class="font-medium">Basic User</div>
 			<div class="truncate">{$authenticatedUser.email}</div>
 		</div>
 		<ul
@@ -53,9 +54,23 @@
 			</li>
 			<li>
 				<a
-					href="/history"
+					href="/auth/posts/created"
 					class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-					>History</a
+					>Your posts</a
+				>
+			</li>
+			<li>
+				<a
+					href="/auth/posts/saved"
+					class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+					>Saved posts</a
+				>
+			</li>
+			<li>
+				<a
+					href="/auth/settings"
+					class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+					>Settings</a
 				>
 			</li>
 		</ul>

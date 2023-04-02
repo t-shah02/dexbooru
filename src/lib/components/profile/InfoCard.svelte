@@ -18,7 +18,6 @@
 	let loading = false;
 
 	const userDestroy = authenticatedUser.subscribe((authUser) => {
-		console.log('did this');
 		if (authUser) {
 			friendStatus = getUpdatedFriendState(authUser, user);
 		}

@@ -9,7 +9,7 @@ const md = new MarkdownIt();
 md.use(MarkdownEmoji);
 md.use(MarkdownNamedCodeBlocks, { isEnableInlineCss: true });
 
-const ACCEPTED_HTML_TAGS = ['strong', 'em', 'span', 'code', 'pre'];
+const ACCEPTED_HTML_TAGS = ['strong', 'em', 'span', 'code', 'pre', 'a'];
 
 export function convertAndCleanRawMD(rawMarkdown: string) {
 	return sanitizeHTML(md.render(rawMarkdown), {

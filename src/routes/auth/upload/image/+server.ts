@@ -1,4 +1,4 @@
-import type { RequestHandler } from "../$types";
+import type { RequestHandler } from "./$types"
 import { error } from '@sveltejs/kit';
 import { uploadImageToCloud } from "$lib/images/uploader";
 import { validateImage } from "$lib/images/imageServer";

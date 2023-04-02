@@ -3,7 +3,7 @@ import type { PageServerLoad } from '../$types';
 import dbClient from '$lib/database/dbClient';
 import { urlFormer } from '$lib/images/uploader';
 import type { Post } from '$lib/interfaces/posts';
-import { getSavedPostIds } from '$lib/posts/helpers';
+import { getSavedPostIds } from '$lib/posts/saved';
 
 export const load = (async ({ url, locals }) => {
 	const tags: string[] = JSON.parse(url.searchParams.get('tags') || '[]');

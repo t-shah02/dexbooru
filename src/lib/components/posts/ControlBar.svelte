@@ -6,14 +6,12 @@
 	import type { DropdownOptions, DropdownInterface } from 'flowbite';
 	import type { FormEventHandler } from '$lib/interfaces/inputs';
 	import { generatePostArrangements } from '$lib/query/postFilters';
-	import PostPaginator from '../pages/PostPaginator.svelte';
 
 	type SortOption = 'uploader' | 'date' | 'views' | '';
 	type SortDirection = 'increasing' | 'decreasing' | '';
 
 	export let posts: Post[] = [];
 
-	let unblurAll = false;
 	let sortOption: SortOption = '';
 	let sortDirection: SortDirection = '';
 

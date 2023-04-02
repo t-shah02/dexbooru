@@ -1,9 +1,11 @@
 <script lang="ts">
 	import { prettifyDate } from '$lib/dates/helpers';
 	import type { FormEventHandler } from '$lib/interfaces/inputs';
+	import type { Post } from '$lib/interfaces/posts';
 	import { authenticatedUser } from '$lib/stores/userStores';
 	import MessageToast from '../MessageToast.svelte';
 	import LoadingSpinner from '../svgs/LoadingSpinner.svelte';
+	import DeletePostModal from './DeletePostModal.svelte';
 
 	export let postId: string;
 	export let date: Date;
@@ -14,6 +16,8 @@
 	export let tags: string[];
 	export let artists: string[];
 	export let isSaved: boolean;
+	export let postRef: Post;
+	export let editMode: boolean = false;
 
 	$: {
 		prettyDate = prettifyDate(date);
@@ -62,6 +66,18 @@
 			isSaved = !isSaved;
 			toggledSave = true;
 			toggleSaveErrored = false;
+
+			if ($authenticatedUser) {
+				if (action === 'save') {
+					$authenticatedUser?.savedPosts.push(postRef);
+				} else {
+					$authenticatedUser.savedPosts = $authenticatedUser?.savedPosts.filter(
+						(post) => post.postId !== postId
+					);
+				}
+
+				authenticatedUser.set($authenticatedUser);
+			}
 		} else {
 			toggledSave = false;
 			toggleSaveErrored = true;
@@ -84,7 +100,7 @@
 	<a class="relative" href={postUrl}>
 		{#if isBlurred}
 			<div
-				class="nsfw-blocker block bg-black text-red-800  border-red-300 rounded-t-lg  dark:text-red-400 dark:border-red-800"
+				class="nsfw-blocker block bg-black text-red-800 border-red-300 rounded-t-lg dark:text-red-400 dark:border-red-800"
 			>
 				<div class="flex items-center">
 					<svg
@@ -162,6 +178,9 @@
 					class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
 					>{isSaved ? 'Unsave Post' : 'Save Post'}
 				</button>
+				{#if editMode}
+					<DeletePostModal {postId} />
+				{/if}
 			{/if}
 
 			<button

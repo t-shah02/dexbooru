@@ -45,7 +45,6 @@
 	"type": "module",
 	"dependencies": {
 		"@prisma/client": "^4.11.0",
-		"@smui/layout-grid": "^7.0.0-beta.0",
 		"@upstash/redis": "^1.19.1",
 		"bcryptjs": "^2.4.3",
 		"dotenv": "^16.0.3",
@@ -56,11 +55,11 @@
 		"markdown-it": "^13.0.1",
 		"markdown-it-emoji": "^2.0.2",
 		"markdown-it-named-code-blocks": "^0.1.0",
-		"sagiri": "^3.2.4",
 		"sanitize-html": "^2.8.1",
 		"sharp": "^0.31.3",
 		"socket.io-client": "^4.6.1",
+		"svelte-emoji-picker": "^1.1.2",
 		"svelte-flatpickr": "^3.3.2",
-		"swiper": "^8.4.5"
+		"typesense": "^1.5.3"
 	}
 }

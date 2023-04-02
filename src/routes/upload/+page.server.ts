@@ -74,8 +74,7 @@ const upload: Action = async ({ request, locals }) => {
 		});
 
 		return {
-			postID: newPost.id,
-			postURL: `/posts/view/${newPost.id}`
+			newPost: JSON.stringify(newPost)
 		};
 	}
 };

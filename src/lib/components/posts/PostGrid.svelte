@@ -6,9 +6,9 @@
 
 	export let posts: Post[] = [];
 	export let savedPosts: string[];
-
 	export let marginTop: number = 150;
 	export let marginBottom: number = 100;
+	export let editMode: boolean = false;
 
 	const POST_CARD_TRANSITION_DURATION = 500;
 </script>
@@ -20,7 +20,7 @@
 >
 	{#each posts as post (post)}
 		<div animate:flip={{ duration: POST_CARD_TRANSITION_DURATION }} class="break-inside-avoid m-2">
-			<PostCard {...post} isSaved={savedPosts.includes(post.postId)} />
+			<PostCard {editMode} postRef={post} {...post} isSaved={savedPosts.includes(post.postId)} />
 		</div>
 	{/each}
 </div>

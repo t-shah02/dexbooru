@@ -5,7 +5,11 @@
 	import TextualData from '$lib/components/upload/TextualData.svelte';
 	import type { NewPostData, UploadFormResponse } from '$lib/interfaces/api';
 	import { uploadPost } from '$lib/stores/uploadStores';
+	import { authenticatedUser, authenticatedUserPosts } from '$lib/stores/userStores';
+	import type { Post } from '@prisma/client';
 	import { onMount } from 'svelte';
+
+	export let form: FormData;
 
 	// form submission state variables
 	let serverError = false;
@@ -53,11 +57,12 @@
 
 		const formResponse: UploadFormResponse = await response.json();
 		const data = JSON.parse(formResponse.data);
+		const newPost: Post = JSON.parse(data[1]);
 
 		if (formResponse.status === 200) {
 			newPostData = {
-				postID: data[1] as string,
-				postURL: data[2] as string
+				postID: newPost.id,
+				postURL: `/posts/view/${newPost.id}`
 			};
 
 			uploadPost.set({
@@ -66,6 +71,24 @@
 				artists: [],
 				files: [],
 				imageMetadata: []
+			});
+
+			authenticatedUserPosts.update((posts) => {
+				if ($authenticatedUser) {
+					posts.push({
+						postId: newPost.id,
+						images: newPost.images,
+						authorName: $authenticatedUser.username,
+						authorProfileUrl: $authenticatedUser.profilePictureUrl,
+						views: newPost.views,
+						nsfw: newPost.nsfw,
+						date: new Date(newPost.createdAt),
+						tags,
+						artists
+					});
+				}
+
+				return posts;
 			});
 		} else {
 			errorMessage = data[1] as string;

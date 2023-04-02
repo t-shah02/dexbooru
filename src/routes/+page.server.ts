@@ -3,7 +3,8 @@ import type { Post } from '$lib/interfaces/posts';
 import dbClient from '$lib/database/dbClient';
 import cacheClient from '$lib/database/cacheClient';
 import { redirect } from '@sveltejs/kit';
-import { transformPosts, getSavedPostIds } from '$lib/posts/helpers';
+import { transformPosts } from '$lib/posts/helpers';
+import { getSavedPostIds } from '$lib/posts/saved';
 
 const POSTS_PER_PAGE = 30;
 
