@@ -1,9 +1,13 @@
 <script lang="ts">
-	import CommentBox from '$lib/components/CommentBox.svelte';
-	import CommentList from '$lib/components/CommentList.svelte';
 	import { prettifyDate } from '$lib/dates/helpers';
 	import type { PageData } from './$types';
-	import { allComments } from '$lib/stores/commentStores';
+	import { addPost } from '$lib/posts/history';
+	import { onMount } from 'svelte';
+	import InfoCard from '$lib/components/posts/InfoCard.svelte';
+	import Chips from '$lib/components/posts/Chips.svelte';
+	import Comments from '$lib/components/comments/Comments.svelte';
+
+	export let form: FormData;
 
 	export let data: PageData;
 	const post = data.post;
@@ -13,90 +17,24 @@
 	const artists = post.artists;
 	const images = post.images;
 	const authorName = post.authorName;
+	const authorProfilePictureURL = post.authorProfileUrl;
 	const date = prettifyDate(post.date);
 	const views = post.views;
 	const comments = post.comments;
-	allComments.set(comments);
 
-	let isBlurred = true;
-	let censoredImages: string[] = images.map((image) => image.censored);
-	let uncensoredImages: string[] = images.map((image) => image.uncensored);
-
-	const generateRandomColor = () => {
-		const r = Math.floor(Math.random() * 255);
-		const g = Math.floor(Math.random() * 255);
-		const b = Math.floor(Math.random() * 255);
-
-		return `${r},${g},${b}`;
-	};
+	onMount(() => {
+		addPost(postId);
+	});
 </script>
 
-<main>
-	<div class="post-info">
-		<section>
-			<h5>Post id:</h5>
-			<h6>{postId}</h6>
-			<h5>Uploader:</h5>
-			<a href="/profile/{authorName}" class="underline uploader-link">
-				<h6>{authorName}</h6>
-			</a>
-			<h5>Date uploaded:</h5>
-			<h6>{date}</h6>
-			<h5>Views:</h5>
-			<h6>{views}</h6>
-		</section>
-		<section>
-			<h5>Artist(s)</h5>
-			<ul>
-				{#each artists as artist}
-					<a class="chip border">
-						{artist}
-					</a>
-				{/each}
-			</ul>
-		</section>
-		<section>
-			<h5>Tags</h5>
-			<ul>
-				{#each tags as tag}
-					<a class="chip border">
-						{tag}
-					</a>
-				{/each}
-			</ul>
-		</section>
+<div class="flex flex-col space-y-5 mt-20 mb-20 post-container">
+	<InfoCard {views} {date} {authorName} {authorProfilePictureURL} {postId} />
+	<div class="flex flex-wrap justify-center space-x-5">
+		{#each images as image}
+			<img class="h-auto" src={image} alt={tags.join(',')} />
+		{/each}
 	</div>
+	<Chips {tags} {artists} />
 
-	<img class="post-image" src={uncensoredImages[0]} />
-
-	<CommentBox postID={postId} />
-	<CommentList postID={postId} />
-</main>
-
-<style>
-	main {
-		margin: 10px 20px 100px 20px;
-	}
-
-	.post-image {
-		display: block;
-		margin-left: auto;
-		margin-right: auto;
-	}
-
-	.uploader-link {
-		color: blue;
-	}
-
-	h6 {
-		margin-left: 5px;
-	}
-
-	section {
-		margin: 10px;
-	}
-
-	.chip {
-		margin: 5px;
-	}
-</style>
+	<Comments postID={postId} comments={comments || []} />
+</div>

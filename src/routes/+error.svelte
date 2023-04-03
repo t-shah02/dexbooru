@@ -5,39 +5,32 @@
 	const pathName = $page.url.pathname;
 </script>
 
-<div class="no-posts-container">
-	<h1 class="page-not-found-message center-align">
-		Broke the magnifying glass.... Nothing found at {pathName}
-	</h1>
-	<a data-sveltekit-reload class="button transparent border" href="/"> Go Home </a>
-	<img src={notFoundMascot} alt="no posts found mascot" />
-</div>
+<section class="bg-white dark:bg-gray-900">
+	<div class="py-8 px-4 mx-auto max-w-screen-xl lg:py-16 lg:px-6">
+		<div class="mx-auto max-w-screen-sm text-center">
+			<h1
+				class="mb-4 text-7xl tracking-tight font-extrabold lg:text-9xl text-gray-900 text-primary-600 dark:text-primary-500 dark:text-white"
+			>
+				404
+			</h1>
+			<img
+				class="rounded-full h-32 m-auto"
+				src={notFoundMascot}
+				alt="not found mascot for dexbooru"
+			/>
 
-<style>
-	.page-not-found-message {
-		font-size: 20px;
-	}
-
-	img {
-		width: 350px;
-		height: 350px;
-		display: block;
-		margin-left: auto;
-		margin-right: auto;
-	}
-
-
-    a {
-        margin-left : auto;
-        margin-right : auto;
-        margin-bottom : 20px;
-    }
-
-	.no-posts-container {
-        margin-top : 65px;
-        display: flex;
-        flex-direction : column;
-        align-items: center;
-        justify-content: center;
-	}
-</style>
+			<p class="mb-4 text-3xl tracking-tight font-bold text-gray-900 md:text-4xl dark:text-white">
+				We broke the magnifiying glass
+			</p>
+			<p class="mb-4 text-lg font-light text-gray-500 dark:text-gray-400">
+				Nothing found at: {pathName}
+			</p>
+			<a
+				data-sveltekit-reload
+				href="/"
+				class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+				>Back to Homepage</a
+			>
+		</div>
+	</div>
+</section>

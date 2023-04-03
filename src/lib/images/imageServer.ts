@@ -1,6 +1,14 @@
 import { error, type HttpError } from '@sveltejs/kit';
-import { MAXIMUM_IMAGE_AREA, MAXIMUM_IMAGE_SIZE_MB } from './imageConstants';
-import sharp from 'sharp';
+import {
+	MAXIMUM_IMAGE_AREA,
+	MAXIMUM_IMAGE_HEIGHT,
+	MAXIMUM_IMAGE_SIZE_MB,
+	MAXIMUM_IMAGE_WIDTH
+} from './imageConstants';
+import sharp, { type Sharp } from 'sharp';
+import { getFileSizeInMB } from './imageGeneral';
+import type { ProcessedImageServer } from '$lib/interfaces/uploads';
+import { uploadImageToCloud } from './uploader';
 
 const formatCompressionOptions: { [key: string]: object } = {
 	jpeg: { quality: 90 },
@@ -33,23 +41,49 @@ export const compressImage = async (imageBuffer: Buffer): Promise<Buffer> => {
 	return imageBuffer;
 };
 
-export async function validateImage(
-	imageBuffer: Buffer,
-	fileSize: number
-): Promise<HttpError | boolean> {
-	if (fileSize > MAXIMUM_IMAGE_SIZE_MB) {
-		return error(406, `The maximum image size is ${MAXIMUM_IMAGE_SIZE_MB}MB`);
+const optimizeImage = async (image: Sharp) => {
+	return await image.webp({ quality: 90 }).toBuffer();
+};
+
+export async function validateImage(file: File): Promise<Buffer | string> {
+	const imageSizeMB = getFileSizeInMB(file);
+
+	if (imageSizeMB > MAXIMUM_IMAGE_SIZE_MB) {
+		return `${file.name} exceeds the maximum image upload size of ${MAXIMUM_IMAGE_SIZE_MB} MB!`;
 	}
 
-	const image = sharp(imageBuffer);
-	const { width, height } = await image.metadata();
+	const imageArrayBuffer = await file.arrayBuffer();
+	const imageBuffer = Buffer.from(imageArrayBuffer);
 
-	if (width && height) {
-		const imageArea = width * height;
-		if (imageArea > MAXIMUM_IMAGE_AREA) {
-			return error(406, `The maximum image area is ${MAXIMUM_IMAGE_AREA}px^2`);
-		}
+	// check whether the image meets the area requirements
+	const parsedImage = sharp(imageBuffer);
+	const { width, height } = await parsedImage.metadata();
+
+	if (!width || !height) {
+		return `${file.name} had a parsing error!`;
 	}
 
-	return true;
+	const area = width * height;
+	if (area > MAXIMUM_IMAGE_AREA) {
+		return `${file.name} exceeds the maximum image area of ${MAXIMUM_IMAGE_AREA} (${MAXIMUM_IMAGE_WIDTH}px by ${MAXIMUM_IMAGE_HEIGHT}px)`;
+	}
+
+	return await optimizeImage(parsedImage);
+}
+
+export async function runUploadPipeline(files: File[]): Promise<string[] | ProcessedImageServer[]> {
+	const imageValidationResults = await Promise.all(files.map((file) => validateImage(file)));
+
+	const unacceptableImages = imageValidationResults.filter(
+		(result) => typeof result === 'string'
+	) as string[];
+	if (unacceptableImages.length) {
+		return unacceptableImages;
+	}
+
+	const cloudImages = await Promise.all(
+		imageValidationResults.map((imageBuffer) => uploadImageToCloud('posts', imageBuffer as Buffer))
+	);
+
+	return cloudImages;
 }
