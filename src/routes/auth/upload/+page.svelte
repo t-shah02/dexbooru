@@ -39,7 +39,7 @@
 
 		formData.set('nsfw', JSON.stringify(nsfw));
 
-		const uploadRequest = new Request('/upload', {
+		const uploadRequest = new Request('/auth/upload', {
 			method: 'POST',
 			body: formData
 		});

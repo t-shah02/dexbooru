@@ -3,7 +3,7 @@ import { MAXIMUM_NUMBER_OF_IMAGES_FREE } from '$lib/images/imageConstants';
 import { runUploadPipeline } from '$lib/images/imageServer';
 import type { ProcessedImageServer } from '$lib/interfaces/uploads';
 import { fail, redirect } from '@sveltejs/kit';
-import type { PageServerLoad } from '../$types';
+import type { PageServerLoad } from '../../$types';
 import type { Actions, Action } from './$types';
 
 const upload: Action = async ({ request, locals }) => {
@@ -69,6 +69,9 @@ const upload: Action = async ({ request, locals }) => {
 				nsfw: JSON.parse(nsfw.toString()) as boolean,
 				images: processedImagesInCloud.map(
 					(processedImage) => (processedImage as ProcessedImageServer).cloudFilePath
+				),
+				imageIDs: processedImagesInCloud.map(
+					(processedImage) => (processedImage as ProcessedImageServer).cloudFileID
 				)
 			}
 		});

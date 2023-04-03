@@ -6,9 +6,10 @@
 		"dev": "dotenv -e .env.local -- vite dev",
 		"migratedb:dev": "dotenv -e .env.local -- npx prisma migrate dev",
 		"deploydb:dev": "dotenv -e .env.local -- npx prisma migrate deploy",
+		"deploydb:prod": "dotenv -e .env.prod -- npx prisma migrate deploy",
 		"dbstudio:dev": "dotenv -e .env.local -- npx prisma studio",
-		"build": "vite build",
-		"preview": "vite preview",
+		"build": "dotenv -e .env.prod -- vite build",
+		"preview": "dotenv -e .env.prod -- vite preview",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"test:unit": "vitest",
@@ -57,9 +58,7 @@
 		"markdown-it-named-code-blocks": "^0.1.0",
 		"sanitize-html": "^2.8.1",
 		"sharp": "^0.31.3",
-		"socket.io-client": "^4.6.1",
 		"svelte-emoji-picker": "^1.1.2",
-		"svelte-flatpickr": "^3.3.2",
-		"typesense": "^1.5.3"
+		"svelte-flatpickr": "^3.3.2"
 	}
 }

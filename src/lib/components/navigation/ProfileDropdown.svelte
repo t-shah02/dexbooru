@@ -1,12 +1,36 @@
 <script lang="ts">
 	import { authenticatedUser } from '$lib/stores/userStores';
-	import { page } from '$app/stores';
+	import { Dropdown } from 'flowbite';
+	import type { DropdownOptions, DropdownInterface } from 'flowbite';
+	import { onMount } from 'svelte';
+
+	let userDropdown: DropdownInterface | null = null;
+
+	onMount(() => {
+		const authUserDropdownButton = document.querySelector(
+			'#authenticated-user-dropdown-button'
+		) as HTMLElement;
+		const authUserDropdownMenu = document.querySelector(
+			'#authenticated-user-dropdown-menu'
+		) as HTMLElement;
+
+		if (authUserDropdownButton && authUserDropdownMenu) {
+			const options: DropdownOptions = {
+				placement: 'bottom',
+				triggerType: 'click',
+				offsetSkidding: 0,
+				offsetDistance: 10,
+				delay: 300
+			};
+
+			userDropdown = new Dropdown(authUserDropdownMenu, authUserDropdownButton, options);
+		}
+	});
 </script>
 
 {#if $authenticatedUser}
 	<button
-		id="dropdownAvatarNameButton"
-		data-dropdown-toggle="dropdownAvatarName"
+		id="authenticated-user-dropdown-button"
 		class="flex items-center text-sm font-medium text-gray-900 rounded-full hover:text-blue-600 dark:hover:text-blue-500 md:mr-0 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:text-white"
 		type="button"
 	>
@@ -33,7 +57,7 @@
 
 	<!-- Dropdown menu -->
 	<div
-		id="dropdownAvatarName"
+		id="authenticated-user-dropdown-menu"
 		class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700 dark:divide-gray-600"
 	>
 		<div class="px-4 py-3 text-sm text-gray-900 dark:text-white">
