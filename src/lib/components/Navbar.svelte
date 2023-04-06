@@ -6,8 +6,6 @@
 	import ProfileDropdown from './navigation/ProfileDropdown.svelte';
 	import NavItems from './navigation/NavItems.svelte';
 	import FriendDropdown from './notifications/friends/FriendDropdown.svelte';
-	import { onMount } from 'svelte';
-	import { navbarData } from '$lib/stores/components';
 </script>
 
 <nav

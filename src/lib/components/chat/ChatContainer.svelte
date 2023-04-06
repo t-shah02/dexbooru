@@ -1,41 +1,29 @@
 <script lang="ts">
-	import { onMount, onDestroy } from 'svelte';
-	import { navbarData, footerData } from '$lib/stores/components';
 	import { authenticatedUser } from '$lib/stores/userStores';
-	import MessageManager, {
-		EmptyMessageError,
-		MessageTooLongError,
-		MESSAGE_RATE_LIMIT_TIME_MS,
-		RateLimitError
-	} from '$lib/chat/manager';
-	import type { Message } from '$lib/chat/manager';
-	import { writable } from 'svelte/store';
-	import Emoji from '../svgs/Emoji.svelte';
+	import { EmptyMessageError, MessageTooLongError, RateLimitError } from '$lib/chat/manager';
 	import Lens from '../svgs/Lens.svelte';
 	import SendArrow from '../svgs/SendArrow.svelte';
 	import ChatMessage from './ChatMessage.svelte';
 	import LoadingSpinner from '../svgs/LoadingSpinner.svelte';
-	import { fade, slide } from 'svelte/transition';
-	import Warning from '../svgs/Warning.svelte';
+	import { fade } from 'svelte/transition';
 	import { shakeFrames, shakeSettings } from '$lib/animations/shake';
-	import { Modal } from 'flowbite';
-	import type { ModalOptions, ModalInterface } from 'flowbite';
-	import RateLimitModal from './RateLimitModal.svelte';
+	import type { ModalInterface } from 'flowbite';
 	import EmojiPickerWrapper from './EmojiPickerWrapper.svelte';
+	import {
+		chatManager,
+		messages,
+		messageContainer,
+		messageInput,
+		rateLimitModal
+	} from '$lib/stores/chatStores';
 
 	export let partner: FriendInformation;
 	export let roomId: string;
+	export let loadingMessages: boolean = false;
+	export let noMoreMessagesToLoad: boolean = false;
+	export let jumpToBottomOfChat: boolean = false;
 
-	const messages = writable<Message[]>([]);
-
-	let messageContainer: HTMLDivElement | null = null;
-	let messageInput: HTMLInputElement | null = null;
-	let chatManager: MessageManager;
-	let rateLimitModal: ModalInterface | null = null;
 	let message = '';
-	let loading = false;
-	let noMoreMessagesToLoad = false;
-	let jumpToBottomOfChat = false;
 
 	const getSenderProfilePictureUrl = (senderId: string) => {
 		return $authenticatedUser?.id === senderId
@@ -45,20 +33,22 @@
 
 	const sendMessage = async () => {
 		try {
-			await chatManager.sendMessage(message);
+			if ($chatManager) {
+				await $chatManager.sendMessage(message);
 
-			if (messageContainer) {
-				messageContainer.scrollTop = messageContainer.scrollHeight;
+				if ($messageContainer) {
+					$messageContainer.scrollTop = $messageContainer.scrollHeight;
+				}
 			}
 		} catch (error) {
 			if (error instanceof RateLimitError) {
-				rateLimitModal?.show();
-				messageInput?.blur();
+				$rateLimitModal?.show();
+				$messageInput?.blur();
 			} else if (error instanceof EmptyMessageError) {
 			} else if (error instanceof MessageTooLongError) {
 			}
 
-			messageInput?.animate(shakeFrames, shakeSettings);
+			$messageInput?.animate(shakeFrames, shakeSettings);
 			message = '';
 		}
 	};
@@ -70,85 +60,9 @@
 			await sendMessage();
 		}
 	};
-
-	onMount(async () => {
-		messageContainer = document.querySelector('#all-messages') as HTMLDivElement;
-		messageInput = document.querySelector('#chat-input') as HTMLInputElement;
-
-		const rateLimitModalContainer = document.querySelector('#rate-limiter-modal') as HTMLElement;
-
-		if (rateLimitModalContainer) {
-			const modalOptions: ModalOptions = {
-				placement: 'center',
-				backdrop: 'dynamic',
-				backdropClasses: 'bg-gray-900 bg-opacity-50 dark:bg-opacity-80 fixed inset-0 z-40',
-				closable: true
-			};
-
-			rateLimitModal = new Modal(rateLimitModalContainer, modalOptions);
-		}
-
-		if ($authenticatedUser && partner) {
-			chatManager = new MessageManager(
-				roomId,
-				messages,
-				{
-					id: $authenticatedUser.id,
-					name: $authenticatedUser.username
-				},
-				{
-					id: partner.id,
-					name: partner.username
-				}
-			);
-
-			loading = true;
-			await chatManager.setup();
-			loading = false;
-
-			messageContainer.scrollTop = messageContainer.scrollHeight;
-		}
-
-		messageContainer.addEventListener('scroll', async () => {
-			if (!noMoreMessagesToLoad && messageContainer) {
-				if (messageContainer?.scrollTop === 0) {
-					const oldScrollHeight = messageContainer.scrollHeight;
-
-					loading = true;
-					const moreToLoad = await chatManager.fetchMessages();
-
-					if (!moreToLoad) {
-						noMoreMessagesToLoad = true;
-					}
-
-					loading = false;
-
-					const newScrollHeight = messageContainer.scrollHeight - oldScrollHeight;
-					messageContainer.scrollTop += newScrollHeight;
-
-					jumpToBottomOfChat = true;
-				}
-			}
-
-			if (messageContainer) {
-				const scrollHeightDifference = messageContainer.scrollTop - messageContainer.scrollHeight;
-				jumpToBottomOfChat = scrollHeightDifference >= -500 ? false : true;
-			}
-		});
-	});
-
-	onDestroy(() => {
-		if (chatManager) {
-			chatManager.destroy();
-		}
-	});
 </script>
 
-<RateLimitModal onClose={() => rateLimitModal?.hide()} />
-<div
-	style="top: {$navbarData.height}px; bottom: {$footerData.height}px"
-	class="w-full flex flex-col fixed bg-gray-100 border-gray-200 dark:border-gray-600 dark:bg-gray-900"
->
+<div class="w-3/4 flex flex-col bg-gray-100 border-gray-200 dark:border-gray-600 dark:bg-gray-900">
 	<div
 		class="flex items-center px-3 py-2 bg-gray-100 border-b border-gray-200 dark:border-gray-600 dark:bg-gray-700"
 	>
@@ -164,16 +78,15 @@
 		{#if jumpToBottomOfChat}
 			<button
 				in:fade
-				out:fade
 				on:click={() => {
-					if (messageContainer) {
-						messageContainer.classList.add('scroll-smooth');
-						messageContainer.scrollTop = messageContainer.scrollHeight;
-						messageContainer.classList.remove('scroll-smooth');
+					if ($messageContainer) {
+						$messageContainer.classList.add('scroll-smooth');
+						$messageContainer.scrollTop = $messageContainer.scrollHeight;
+						$messageContainer.classList.remove('scroll-smooth');
 					}
 				}}
 				type="button"
-				class="ml-2 focus:outline-none text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5  dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900"
+				class="ml-2 focus:outline-none text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900"
 			>
 				Jump to present
 				<i class="ml-1 fa-solid fa-arrow-down" />
@@ -193,7 +106,7 @@
 
 	{#if $messages}
 		<div id="all-messages" class="flex-grow overflow-y-auto">
-			{#if loading}
+			{#if loadingMessages}
 				<div in:fade class="grid mt-5 place-content-center">
 					<LoadingSpinner />
 				</div>

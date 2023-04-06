@@ -7,21 +7,21 @@ export const load = (async ({ locals, params }) => {
 		throw redirect(302, '/');
 	}
 
+
 	const roomId = params.roomid;
 	const idParts = roomId.split(' ');
 	const authUserId = idParts[0];
 	const partnerId = idParts[1];
 
 	if (locals.user.id !== authUserId && locals.user.id !== partnerId) {
-		throw redirect(302, '/chat');
+		throw redirect(302, '/auth/chat');
 	}
 
 	const partner = locals.user.friends.find((friend) => friend.id === partnerId);
 
 	if (!partner) {
-		throw redirect(302, '/chat');
+		throw redirect(302, '/auth/chat');
 	}
-
 
 	idParts.sort();
 

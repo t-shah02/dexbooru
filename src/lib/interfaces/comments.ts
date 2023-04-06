@@ -2,7 +2,7 @@ export interface Comment {
 	id: string;
 	content: string;
 	createdAt: Date;
-	parentCommentID?: string | null;
+	parentCommentID: string | null;
 	author: {
 		profilePictureUrl: string;
 		username: string;
@@ -12,5 +12,5 @@ export interface Comment {
 export interface CommentBody {
 	content: string;
 	postID: string;
-	parentCommentID?: string;
+	parentCommentID: string;
 }

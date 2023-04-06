@@ -1,22 +1,28 @@
 <script lang="ts">
 	import EmptyContainerAlert from '$lib/components/EmptyContainerAlert.svelte';
 	import PostGrid from '$lib/components/posts/PostGrid.svelte';
-	import { authenticatedUserPosts } from '$lib/stores/userStores';
-	import { onMount } from 'svelte';
+	import { getSavedPostIds } from '$lib/posts/saved';
+	import { authenticatedUser } from '$lib/stores/userStores';
+	import { onDestroy } from 'svelte';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
 
-	authenticatedUserPosts.set(data.posts);
+	let posts = data.posts;
+	let savedPostIds = data.savedPostIds;
+
+	const userDestroy = authenticatedUser.subscribe((user) => {
+		if (user) {
+			posts = user.posts;
+			savedPostIds = getSavedPostIds(posts, user.savedPosts);
+		}
+	});
+
+	onDestroy(userDestroy);
 </script>
 
-{#if $authenticatedUserPosts.length}
-	<PostGrid
-		posts={$authenticatedUserPosts}
-		savedPosts={data.savedPostIds}
-		marginBottom={150}
-		editMode={true}
-	/>
+{#if posts.length}
+	<PostGrid {posts} savedPosts={savedPostIds} marginBottom={150} editMode={true} />
 {:else}
 	<EmptyContainerAlert
 		heading={'No uploaded posts :\\'}

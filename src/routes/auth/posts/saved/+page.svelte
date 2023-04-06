@@ -17,9 +17,7 @@
 		}
 	});
 
-	onDestroy(() => {
-		userDestroy();
-	});
+	onDestroy(userDestroy);
 </script>
 
 {#if posts.length}

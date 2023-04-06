@@ -1,56 +1,9 @@
-import type { Action, Actions, PageServerLoad } from './$types';
+import type { PageServerLoad } from './$types';
 import dbClient from '$lib/database/dbClient';
 import cacheClient from '$lib/database/cacheClient';
-import { fail, redirect } from '@sveltejs/kit';
+import { redirect } from '@sveltejs/kit';
 import { urlFormer } from '$lib/images/uploader';
 import type { Post } from '$lib/interfaces/posts';
-import type { Comment } from '$lib/interfaces/comments';
-import { MAXIMUM_COMMENT_LENGTH } from '$lib/comments/commentConstants';
-import { convertAndCleanRawMD } from '$lib/comments/markdownHelpers';
-
-const newComment: Action = async ({ request, locals }) => {
-	if (locals.user) {
-		const data = await request.formData();
-		const commentData = data.get('comment');
-		const postIDData = data.get('postID');
-		const parentCommentIDData = data.get('parentCommentID');
-
-		if (!commentData || !postIDData || parentCommentIDData === null) {
-			return fail(400, { message: 'At least one of the required fields was missing!' });
-		}
-
-		const comment = commentData.toString();
-		const postID = postIDData.toString();
-		const parentCommentID = parentCommentIDData.toString();
-
-		if (comment.length < 0 || comment.length > MAXIMUM_COMMENT_LENGTH) {
-			return fail(400, {
-				message: `The comment needs to be between 1 and ${MAXIMUM_COMMENT_LENGTH} characters long!`
-			});
-		}
-
-		const markdownComment = convertAndCleanRawMD(comment);
-
-		const newComment = await dbClient.comment.create({
-			data: {
-				content: markdownComment,
-				parentCommentID: parentCommentID.length === 0 ? null : parentCommentID,
-				authorId: locals.user.id,
-				postId: postID
-			}
-		});
-
-		await cacheClient.del(`post-${postID}`);
-
-		return {
-			message: `Created a new comment on ${postID}, with the parent id of ${parentCommentID}`
-		};
-	}
-};
-
-export const actions: Actions = {
-	comment: newComment
-};
 
 export const load: PageServerLoad = async ({ params }) => {
 	const { postid } = params;

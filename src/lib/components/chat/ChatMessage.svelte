@@ -10,7 +10,7 @@
 
 <div
 	in:slide
-	class="mt-2 mb-2 p-1 border-gray-200  hover:bg-gray-200 dark:border-gray-700 dark:hover:bg-gray-800"
+	class="mt-2 mb-2 p-1 border-gray-200  hover:bg-gray-200 dark:border-gray-700 dark:hover:bg-gray-700"
 	role="alert"
 >
 	<div class="flex mt-2 ml-5">

@@ -13,8 +13,6 @@ const firebaseConfig = {
 };
 
 const firebaseApp = initializeApp(firebaseConfig);
-
 const fireDb = getFirestore(firebaseApp);
-//connectFirestoreEmulator(fireDb, 'localhost', 7999);
 
 export default fireDb;

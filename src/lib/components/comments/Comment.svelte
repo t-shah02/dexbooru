@@ -12,8 +12,6 @@
 	let showCommentBox = false;
 	let showReplies = false;
 
-	const replies = $commentTree.get(comment.id) || [];
-
 	const prettyDate = prettifyDate(comment.createdAt);
 
 	const onReplyButtonClick = (event: FormEventHandler<HTMLButtonElement>) => {
@@ -31,7 +29,7 @@
 		const target = event.target as HTMLButtonElement;
 		const btnValue = target.innerText;
 
-		if (btnValue === 'Show replies') {
+		if (btnValue.includes('Show replies')) {
 			showReplies = true;
 		} else {
 			showReplies = false;
@@ -39,7 +37,7 @@
 	};
 </script>
 
-<div class="max-w-sm p-6">
+<div class="p-6">
 	<a href="/profile/{comment.author.username}" class="flex space-x-3">
 		<img
 			class="w-10 h-10 rounded-full"
@@ -57,12 +55,14 @@
 		{prettyDate}
 	</p>
 	<div class="flex">
-		{#if replies.length > 0}
+		{#if ($commentTree.get(comment.id) || []).length > 0}
 			<button
 				on:click={onShowRepliesClick}
 				type="button"
 				class="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-				>{showReplies ? 'Hide replies' : 'Show replies'}</button
+				>{showReplies
+					? 'Hide replies'
+					: `Show replies (${($commentTree.get(comment.id) || []).length})`}</button
 			>
 		{/if}
 		<button
@@ -74,14 +74,19 @@
 	</div>
 	{#if showCommentBox}
 		<div in:slide out:slide class="w-full">
-			<CommentBox {postID} parentCommentID={comment.id} />
+			<CommentBox
+				{postID}
+				parentCommentID={comment.id}
+				bind:showCommentBox
+				boxPlaceholder="Reply to {comment.author.username}"
+			/>
 		</div>
 	{/if}
 
 	{#if showReplies}
 		<ul in:slide out:slide>
 			<li class="border-l-2">
-				{#each replies as reply}
+				{#each $commentTree.get(comment.id) || [] as reply}
 					<svelte:self comment={reply} {postID} />
 				{/each}
 			</li>

@@ -18,6 +18,8 @@
 		authenticatedUser.set($page.data.user);
 	}
 
+	
+
 	let modal: ModalInterface;
 
 	onMount(() => {

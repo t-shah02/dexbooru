@@ -16,6 +16,7 @@
 	let errorMessage = '';
 	let filesError: string[];
 	let newPostData: NewPostData;
+	let loading = false;
 
 	const submitPost = async (event: Event) => {
 		event.preventDefault();
@@ -39,7 +40,7 @@
 
 		formData.set('nsfw', JSON.stringify(nsfw));
 
-		const uploadRequest = new Request('/auth/upload', {
+		const uploadRequest = new Request('/auth/upload?/newPost', {
 			method: 'POST',
 			body: formData
 		});
@@ -56,6 +57,7 @@
 		errorMessage = '';
 
 		const formResponse: UploadFormResponse = await response.json();
+		console.log(formResponse);
 		const data = JSON.parse(formResponse.data);
 		const newPost: Post = JSON.parse(data[1]);
 
@@ -73,13 +75,13 @@
 				imageMetadata: []
 			});
 
-			authenticatedUserPosts.update((posts) => {
-				if ($authenticatedUser) {
-					posts.push({
+			authenticatedUser.update((authUser) => {
+				if (authUser) {
+					authUser.posts.push({
 						postId: newPost.id,
 						images: newPost.images,
-						authorName: $authenticatedUser.username,
-						authorProfileUrl: $authenticatedUser.profilePictureUrl,
+						authorName: authUser.username,
+						authorProfileUrl: authUser.profilePictureUrl,
 						views: newPost.views,
 						nsfw: newPost.nsfw,
 						date: new Date(newPost.createdAt),
@@ -88,8 +90,9 @@
 					});
 				}
 
-				return posts;
+				return authUser;
 			});
+
 		} else {
 			errorMessage = data[1] as string;
 		}
