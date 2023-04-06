@@ -4,7 +4,7 @@
 	import { Modal } from 'flowbite';
 	import type { ModalOptions, ModalInterface } from 'flowbite';
 	import LoadingSpinner from '../svgs/LoadingSpinner.svelte';
-	import { authenticatedUser, authenticatedUserPosts } from '$lib/stores/userStores';
+	import { authenticatedUser } from '$lib/stores/userStores';
 
 	export let postId: string;
 
@@ -40,10 +40,10 @@
 							$authenticatedUser.savedPosts = $authenticatedUser.savedPosts.filter(
 								(post) => post.postId !== postId
 							);
+							$authenticatedUser.posts = $authenticatedUser.posts.filter(
+								(post) => post.postId !== postId
+							);
 
-							authenticatedUserPosts.update((posts) => {
-								return posts.filter((post) => post.postId !== postId);
-							});
 							authenticatedUser.set($authenticatedUser);
 						}
 					}

@@ -28,17 +28,17 @@
 	commentTree.set(emptyTree);
 </script>
 
-<div class="mx-auto w-full">
+<div class="mx-auto w-1/2">
 	<CommentBox {postID} />
 </div>
 
 <h1
-	class="mb-4 ml-4 text-4xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl  dark:text-white text-center"
+	class="mb-4 ml-4 text-4xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl dark:text-white text-center"
 >
-	Comments
+	Comments ({($commentTree.get("/") || []).length})
 </h1>
 
-<div class="space-y-5 comment-container w-full mt-10 mb-20">
+<div class="space-y-5 comment-container mt-10 mb-20">
 	<ul>
 		<li>
 			{#each $commentTree.get('/') || [] as comment}
@@ -47,10 +47,3 @@
 		</li>
 	</ul>
 </div>
-
-<style>
-	.comment-container {
-		margin-left: auto;
-		margin-right: auto;
-	}
-</style>

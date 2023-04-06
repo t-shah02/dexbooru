@@ -3,7 +3,7 @@
 	import type { PageData } from './$types';
 	import { addPost } from '$lib/posts/history';
 	import { onMount } from 'svelte';
-	import InfoCard from '$lib/components/posts/InfoCard.svelte';
+	import PostInfoCard from '$lib/components/posts/InfoCard.svelte';
 	import Chips from '$lib/components/posts/Chips.svelte';
 	import Comments from '$lib/components/comments/Comments.svelte';
 
@@ -28,7 +28,7 @@
 </script>
 
 <div class="flex flex-col space-y-5 mt-20 mb-20 post-container">
-	<InfoCard {views} {date} {authorName} {authorProfilePictureURL} {postId} />
+	<PostInfoCard {views} {date} {authorName} {authorProfilePictureURL} {postId} />
 	<div class="flex flex-wrap justify-center space-x-5">
 		{#each images as image}
 			<img class="h-auto" src={image} alt={tags.join(',')} />
@@ -38,3 +38,9 @@
 
 	<Comments postID={postId} comments={comments || []} />
 </div>
+
+<style>
+	.post-container {
+		width: 100%;
+	}
+</style>

@@ -4,10 +4,16 @@
 	import PostGrid from '$lib/components/posts/PostGrid.svelte';
 	import PostPaginator from '$lib/components/pages/PostPaginator.svelte';
 	import EmptyContainerAlert from '$lib/components/EmptyContainerAlert.svelte';
+	import { getSavedPostIds } from '$lib/posts/saved';
+	import { authenticatedUser } from '$lib/stores/userStores';
 
 	export let data: PageData;
 
-	const { posts, foundPosts, pageNumber, savedPostsOnPage } = data;
+	const { posts, foundPosts, pageNumber } = data;
+
+	const savedPosts = $authenticatedUser
+		? getSavedPostIds(posts, $authenticatedUser.savedPosts)
+		: [];
 </script>
 
 <svelte:head>
@@ -17,7 +23,7 @@
 {#if foundPosts}
 	<div class="mt-20">
 		<PostPaginator {pageNumber} />
-		<PostGrid marginTop={50} marginBottom={150} {posts} savedPosts={savedPostsOnPage} />
+		<PostGrid marginTop={50} marginBottom={150} {posts} {savedPosts} />
 	</div>
 {:else}
 	<EmptyContainerAlert
@@ -27,4 +33,3 @@
 		redirectLinkText={'Go home'}
 	/>
 {/if}
-

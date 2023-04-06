@@ -79,13 +79,11 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 	});
 
 	const cleanedPosts = transformPosts(posts);
-	const savedPostsOnPage = getSavedPostIds(cleanedPosts, locals.user ? locals.user.savedPosts : []);
 
 	await setPostsOnPage(pageNumber, cleanedPosts, 50);
 
 	return {
 		foundPosts: cleanedPosts.length ? true : false,
-		savedPostsOnPage,
 		posts: cleanedPosts,
 		pageNumber
 	};

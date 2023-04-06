@@ -3,14 +3,7 @@ import dbClient from '$lib/database/dbClient';
 import { validateImage } from '$lib/images/imageServer';
 import { uploadImageToCloud, PROFILE_FOLDER, deleteImageFromCloud } from '$lib/images/uploader';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
-import type { PageServerLoad } from './$types';
 import { fail, redirect, type Action, type Actions } from '@sveltejs/kit';
-
-export const load = (async ({ locals }) => {
-	if (!locals.user) {
-		throw redirect(302, '/');
-	}
-}) satisfies PageServerLoad;
 
 const profile: Action = async ({ request, locals }) => {
 	if (locals.user) {

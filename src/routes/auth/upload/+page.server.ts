@@ -2,12 +2,13 @@ import dbClient from '$lib/database/dbClient';
 import { MAXIMUM_NUMBER_OF_IMAGES_FREE } from '$lib/images/imageConstants';
 import { runUploadPipeline } from '$lib/images/imageServer';
 import type { ProcessedImageServer } from '$lib/interfaces/uploads';
-import { fail, redirect } from '@sveltejs/kit';
-import type { PageServerLoad } from '../../$types';
+import { fail } from '@sveltejs/kit';
 import type { Actions, Action } from './$types';
+import { urlFormer } from '$lib/images/uploader';
 
 const upload: Action = async ({ request, locals }) => {
 	if (locals.user) {
+		console.log(locals.user);
 		const data = await request.formData();
 
 		const files = data.getAll('files');
@@ -76,18 +77,16 @@ const upload: Action = async ({ request, locals }) => {
 			}
 		});
 
+		newPost.images = newPost.images.map(imageUrl => urlFormer(imageUrl));
+
 		return {
 			newPost: JSON.stringify(newPost)
 		};
 	}
+
+	console.log('ran this');
 };
 
 export const actions: Actions = {
-	default: upload
-};
-
-export const load: PageServerLoad = async ({ locals }) => {
-	if (!locals.user) {
-		throw redirect(302, '/');
-	}
+	newPost: upload
 };
