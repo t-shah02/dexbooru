@@ -1,4 +1,5 @@
 <script lang="ts">
+	import LoadingSpinner from '$lib/components/svgs/LoadingSpinner.svelte';
 	import FailureAlert from '$lib/components/upload/FailureAlert.svelte';
 	import ImageUploads from '$lib/components/upload/ImageUploads.svelte';
 	import SuccessAlert from '$lib/components/upload/SuccessAlert.svelte';
@@ -45,7 +46,9 @@
 			body: formData
 		});
 
+		loading = true;
 		const response = await fetch(uploadRequest);
+		loading = false;
 
 		if (!response.ok) {
 			serverError = true;
@@ -92,7 +95,6 @@
 
 				return authUser;
 			});
-
 		} else {
 			errorMessage = data[1] as string;
 		}
@@ -107,7 +109,16 @@
 	});
 </script>
 
-<form class="mt-20 mb-20" on:submit={submitPost} method="POST" enctype="multipart/form-data">
+<svelte:head>
+	<title>Upload</title>
+</svelte:head>
+
+<form
+	class="mt-20 mb-20 flex flex-col"
+	on:submit={submitPost}
+	method="POST"
+	enctype="multipart/form-data"
+>
 	<h1 class="upload-title format text-center">Upload a post</h1>
 
 	<ImageUploads />
@@ -121,11 +132,17 @@
 		<FailureAlert message={errorMessage} />
 	{/if}
 
-	<button
-		type="submit"
-		class="text-white block m-auto bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-		>Upload</button
-	>
+	{#if loading}
+		<div class="flex justify-center">
+			<LoadingSpinner />
+		</div>
+	{:else}
+		<button
+			type="submit"
+			class="text-white block m-auto bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+			>Upload</button
+		>
+	{/if}
 </form>
 
 <style>

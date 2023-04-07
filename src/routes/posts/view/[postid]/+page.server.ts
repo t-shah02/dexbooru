@@ -71,6 +71,7 @@ export const load: PageServerLoad = async ({ params }) => {
 
 		const cleanedData = {
 			postId: post.id,
+			title: post.title,
 			date: post.createdAt,
 			views: post.views,
 			nsfw: post.nsfw,

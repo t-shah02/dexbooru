@@ -20,6 +20,10 @@
 	onDestroy(userDestroy);
 </script>
 
+<svelte:head>
+	<title>Saved posts</title>
+</svelte:head>
+
 {#if posts.length}
 	<PostGrid {posts} savedPosts={postIds} />
 {:else}

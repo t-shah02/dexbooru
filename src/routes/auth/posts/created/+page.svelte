@@ -21,6 +21,10 @@
 	onDestroy(userDestroy);
 </script>
 
+<svelte:head>
+	<title>Your posts</title>
+</svelte:head>
+
 {#if posts.length}
 	<PostGrid {posts} savedPosts={savedPostIds} marginBottom={150} editMode={true} />
 {:else}

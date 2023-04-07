@@ -1,3 +1,7 @@
+<svelte:head>
+	<title>Chat room</title>
+</svelte:head>
+
 <div class="w-3/4 grid place-items-center">
 	<div class="flex flex-col space-y-2">
 		<h1

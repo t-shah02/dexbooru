@@ -14,10 +14,25 @@
 	const savedPosts = $authenticatedUser
 		? getSavedPostIds(posts, $authenticatedUser.savedPosts)
 		: [];
+
+	const uniqueTags = new Set<string>();
+	const uniqueArtists = new Set<string>();
+	posts.forEach((post) => {
+		post.tags.forEach((tag) => uniqueTags.add(tag));
+		post.artists.forEach((artist) => uniqueArtists.add(artist));
+	});
+
+	const allTags = Array.from(uniqueTags).join(', ');
+	const allArtists = Array.from(uniqueArtists).join(', ');
 </script>
 
 <svelte:head>
-	<title>Home - Page {pageNumber + 1}</title>
+	<title>Recent posts - Page {pageNumber + 1}</title>
+	<meta name="description" content="Page # {pageNumber + 1}, with {posts.length} on this page." />
+	<meta property="og:title" content="Dexbooru - Recent Posts on page {pageNumber + 1}" />
+	<meta property="og:description" content={`Tags: ${allTags} \n Artists: ${allArtists}`} />
+	<meta property="og:type" content="website" />
+	<meta property="og:url" content="/" />
 </svelte:head>
 
 {#if foundPosts}

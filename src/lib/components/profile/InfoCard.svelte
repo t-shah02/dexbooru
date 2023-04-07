@@ -74,7 +74,7 @@
 		</span>
 		{#if !sameUser && $authenticatedUser !== null}
 			<div class="flex mt-4 space-x-3 md:mt-6">
-				{#if friendStatus && friendStatus.isFriend !== null && friendStatus.hasRequestedFriendship !== null}
+				{#if friendStatus && friendStatus.isFriend !== null && friendStatus.hasRequestedFriendship !== null && !loading}
 					{#if friendStatus.hasRequestedFriendship}
 						<button
 							disabled
