@@ -23,6 +23,7 @@ interface UserApp {
 	profilePictureFileID: string;
 	createdAt: Date;
 	posts: import('$lib/interfaces/posts').Post[];
+	postPage: number;
 	savedPosts: import('$lib/interfaces/posts').Post[];
 	friends: FriendInformation[];
 	friendRequestsReceived: FriendRequestInformation[];

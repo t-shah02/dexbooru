@@ -1,10 +1,13 @@
 import type { RequestHandler } from './$types';
 import dbClient from '$lib/database/dbClient';
-import { fail } from '@sveltejs/kit';
+import { error } from '@sveltejs/kit';
 import { transformPosts } from '$lib/posts/helpers';
 
-export const GET = (async ({ params }) => {
+const POSTS_PER_PAGE = 25;
+
+export const GET = (async ({ params, url }) => {
 	const username = params.username;
+	const pageNumber = parseInt(url.searchParams.get('page') || '0');
 
 	const postsData = await dbClient.user.findUnique({
 		where: {
@@ -29,13 +32,15 @@ export const GET = (async ({ params }) => {
 							name: true
 						}
 					}
-				}
+				},
+				skip: pageNumber * POSTS_PER_PAGE,
+				take: POSTS_PER_PAGE
 			}
 		}
 	});
 
 	if (!postsData) {
-		throw fail(404, { message: `No such user called ${username}` });
+		throw error(404, { message: `No such user called ${username}` });
 	}
 
 	const transformedPosts = transformPosts(postsData.posts);

@@ -6,7 +6,6 @@ export const handle: Handle = async ({ event, resolve }) => {
 	const routePath = event.url.pathname;
 	const params = event.url.searchParams;
 
-
 	if (isSecureRoute(routePath, params)) {
 		const sessionUser = await getSessionUser(sessionToken);
 		if (sessionUser) {

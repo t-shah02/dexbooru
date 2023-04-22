@@ -1,111 +1,114 @@
 import type { RequestHandler } from './$types';
 import dbClient from '$lib/database/dbClient';
-import { cleanQueryResult } from '$lib/query/queryHelpers';
-import { urlFormer } from '$lib/images/uploader';
-import type {
-	AutocompleteResults,
-	AutocompleteSearchType,
-	UserResult
-} from '$lib/interfaces/queries';
+import { transformPosts } from '$lib/posts/helpers';
+import { error } from '@sveltejs/kit';
+import cacheClient from '$lib/database/cacheClient';
 
-const MAX_SERVER_QUERY_CACHE_SIZE = 15;
-const serverQueryCache = new Map<string, string>();
-const MAXIMUM_NUMBER_OF_SEARCH_RESULTS = 10;
+const CACHE_CONTROL_TIME = 60;
+const CACHE_REDIS_TIME = 60;
+const MAXIMUM_NUMBER_OF_SEARCH_RESULTS = 24;
 
-async function getTags(query: string): Promise<string[]> {
-	const matches = await dbClient.tag.findMany({
-		where: {
-			OR: [
-				{ name: { startsWith: query } },
-				{ name: { contains: query } },
-				{ name: { endsWith: query } }
-			]
-		},
-		select: {
-			name: true
-		},
-		take: MAXIMUM_NUMBER_OF_SEARCH_RESULTS
+const tsquerySpecialChars = /[()|&:*!]/g;
+
+const cleanQuery = (query: string) => {
+	const cleanedForTSQuery = query
+		.toLocaleLowerCase()
+		.replaceAll(tsquerySpecialChars, ' ')
+		.replaceAll('\\', '')
+		.trim();
+	const queryParts = cleanedForTSQuery.split(' ');
+	queryParts.forEach((part, index) => {
+		queryParts[index] = `${part.trim()}`;
 	});
 
-	return matches.map((match) => match.name);
-}
+	return queryParts.join(' | ');
+};
 
-async function getArtists(query: string): Promise<string[]> {
-	const matches = await dbClient.artist.findMany({
-		where: {
-			OR: [
-				{ name: { startsWith: query } },
-				{ name: { contains: query } },
-				{ name: { endsWith: query } }
-			]
-		},
-		select: {
-			name: true
-		},
-		take: MAXIMUM_NUMBER_OF_SEARCH_RESULTS
-	});
-
-	return matches.map((match) => match.name);
-}
-
-async function getUsers(query: string): Promise<string[]> {
-	const matches = await dbClient.user.findMany({
-		where: {
-			OR: [
-				{ username: { startsWith: query } },
-				{ username: { contains: query } },
-				{ username: { endsWith: query } }
-			]
-		},
-		select: {
-			username: true
-		},
-		take: MAXIMUM_NUMBER_OF_SEARCH_RESULTS
-	});
-
-	return matches.map((match) => match.username);
-}
-
-export const GET = (async ({ url }) => {
-	const query = url.searchParams.get('q');
-	const searchType = url.searchParams.get('type');
+export const GET = (async ({ url, setHeaders }) => {
+	const query = url.searchParams.get('query');
+	const pageNumber = parseInt(url.searchParams.get('page') || '0');
 
 	if (query === null) {
-		const errorResponse = new Response(
-			'q (query) is a required url parameter for the autocomplete to work',
-			{ status: 400 }
+		throw error(400, { message: 'query is a required url parameter for the autocomplete to work' });
+	}
+
+	if (isNaN(pageNumber)) {
+		throw error(400, {
+			message: `page didn't get a valid positive whole number, and got ${pageNumber}`
+		});
+	}
+
+	const cleanedQuery = cleanQuery(query);
+
+	if (!cleanedQuery.length) {
+		throw error(400, { message: 'query must contain at least one query for a full text search' });
+	}
+
+	const startTime = performance.now();
+
+	const queryCacheKey = `search?query=${cleanedQuery}`;
+	const cachedResults = await cacheClient.get(queryCacheKey);
+
+	if (cachedResults) {
+		const endTime = performance.now();
+
+		return new Response(
+			JSON.stringify({
+				results: cachedResults as string,
+				timeTaken: endTime - startTime
+			})
 		);
-
-		return errorResponse;
 	}
 
-	if (searchType === null) {
-		const errorResponse = new Response(
-			'type (search type) is a required url parameter for the autocomplete to work',
-			{ status: 400 }
-		);
+	const posts = await dbClient.post.findMany({
+		orderBy: {
+			createdAt: 'desc'
+		},
+		where: {
+			OR: [
+				{
+					title: {
+						search: cleanedQuery
+					}
+				},
+				{
+					title: {
+						contains: cleanedQuery
+					}
+				}
+			]
+		},
+		include: {
+			tags: true,
+			artists: true,
+			author: {
+				select: {
+					username: true,
+					profilePictureUrl: true
+				}
+			}
+		},
+		skip: MAXIMUM_NUMBER_OF_SEARCH_RESULTS * pageNumber,
+		take: MAXIMUM_NUMBER_OF_SEARCH_RESULTS
+	});
 
-		return errorResponse;
-	}
+	const endTime = performance.now();
 
-	const castedSearchType = searchType as AutocompleteSearchType;
-	const processedQuery = cleanQueryResult(query);
+	const transformedPosts = transformPosts(posts);
+	const stringifiedPosts = JSON.stringify(transformedPosts);
 
-	let finalResults: string[] = [];
+	await cacheClient.set(`search?query=${cleanedQuery}`, stringifiedPosts, {
+		ex: CACHE_REDIS_TIME
+	});
 
-	switch (castedSearchType) {
-		case 'artists':
-			finalResults = await getArtists(processedQuery);
-			break;
-		case 'tags':
-			finalResults = await getTags(processedQuery);
-			break;
-		case 'uploader':
-			finalResults = await getUsers(processedQuery);
-			break;
-		default:
-			break;
-	}
+	setHeaders({
+		'cache-control': `max-age=${CACHE_CONTROL_TIME}`
+	});
 
-	return new Response(JSON.stringify(finalResults));
+	return new Response(
+		JSON.stringify({
+			results: transformedPosts,
+			timeTaken: endTime - startTime
+		})
+	);
 }) satisfies RequestHandler;

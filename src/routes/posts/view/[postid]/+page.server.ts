@@ -52,6 +52,7 @@ export const load: PageServerLoad = async ({ params }) => {
 			}
 		}
 	});
+		
 
 	if (post) {
 		await dbClient.post.update({

@@ -3,6 +3,7 @@
 	import type { FormEventHandler } from '$lib/interfaces/inputs';
 	import type { Post } from '$lib/interfaces/posts';
 	import { authenticatedUser } from '$lib/stores/userStores';
+	import { fade } from 'svelte/transition';
 	import MessageToast from '../MessageToast.svelte';
 	import LoadingSpinner from '../svgs/LoadingSpinner.svelte';
 	import DeletePostModal from './DeletePostModal.svelte';
@@ -43,8 +44,13 @@
 	};
 
 	const toggleSaveUnsave = async (event: FormEventHandler<HTMLButtonElement>) => {
-		if (!canSave) {
+		if (!canSave || saving) {
 			savedWhileDelayed = true;
+
+			setTimeout(() => {
+				savedWhileDelayed = false;
+			}, 3500);
+
 			return;
 		}
 
@@ -86,6 +92,11 @@
 		canSave = false;
 
 		setTimeout(() => {
+			toggleSaveErrored = false;
+			toggledSave = false;
+		}, 3500);
+
+		setTimeout(() => {
 			canSave = true;
 		}, 6500);
 	};
@@ -121,6 +132,7 @@
 			</div>
 		{/if}
 		<img
+			loading="lazy"
 			class="rounded-t-lg w-full current-image"
 			src={images[imageIndex]}
 			alt={tags.join(',') + artists.join(',') + ` image #${imageIndex + 1}`}
@@ -150,7 +162,7 @@
 			<a href={authorUrl} class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
 				>{authorName}</a
 			>
-			@ {prettyDate}
+			· {prettyDate}
 		</h5>
 
 		<p class="mb-3 font-normal text-gray-700 dark:text-gray-400">
@@ -171,15 +183,19 @@
 			{/if}
 
 			{#if $authenticatedUser}
-				<button
-					type="button"
-					data-action={isSaved ? 'unsave' : 'save'}
-					on:click={toggleSaveUnsave}
-					class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
-					>{isSaved ? 'Unsave Post' : 'Save Post'}
-				</button>
-				{#if editMode}
-					<DeletePostModal {postId} />
+				{#if saving}
+					<LoadingSpinner />
+				{:else}
+					<button
+						type="button"
+						data-action={isSaved ? 'unsave' : 'save'}
+						on:click={toggleSaveUnsave}
+						class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
+						>{isSaved ? 'Unsave Post' : 'Save Post'}
+					</button>
+					{#if editMode}
+						<DeletePostModal {postId} />
+					{/if}
 				{/if}
 			{/if}
 
@@ -193,19 +209,33 @@
 
 	<div class="flex flex-col w-full items-center">
 		{#if savedWhileDelayed}
-			<MessageToast type="error" message="Please wait for a little bit, before doing this!" />
+			<div out:fade>
+				<MessageToast
+					type="error"
+					message="Please wait for a little bit, before doing this!"
+					showCloseButton={false}
+				/>
+			</div>
 		{/if}
 
 		{#if toggledSave}
-			<MessageToast type="success" message="This post was {currentSaveAction} successfully!" />
+			<div out:fade>
+				<MessageToast
+					type="success"
+					message="This post was {currentSaveAction} successfully!"
+					showCloseButton={false}
+				/>
+			</div>
 		{/if}
 
 		{#if toggleSaveErrored}
-			<MessageToast type="error" message="An error occured while saving/unsaving this post!" />
-		{/if}
-
-		{#if saving}
-			<LoadingSpinner />
+			<div out:fade>
+				<MessageToast
+					type="error"
+					message="An error occured while saving/unsaving this post!"
+					showCloseButton={false}
+				/>
+			</div>
 		{/if}
 	</div>
 </div>

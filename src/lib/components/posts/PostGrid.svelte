@@ -9,11 +9,15 @@
 	export let marginTop: number = 150;
 	export let marginBottom: number = 100;
 	export let editMode: boolean = false;
+	export let sortBarPosition: 'bottom' | 'top' = 'bottom';
+	export let showSortbar: boolean = true;
 
 	const POST_CARD_TRANSITION_DURATION = 500;
 </script>
 
-<ControlBar bind:posts />
+{#if showSortbar}
+	<ControlBar {sortBarPosition} bind:posts />
+{/if}
 <div
 	style="margin-top: {marginTop}px; margin-bottom: {marginBottom}px"
 	class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 mx-auto post-grid"

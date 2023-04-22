@@ -25,7 +25,7 @@
 </svelte:head>
 
 {#if posts.length}
-	<PostGrid {posts} savedPosts={postIds} />
+	<PostGrid {posts} savedPosts={postIds} showSortbar={false} />
 {:else}
 	<EmptyContainerAlert
 		heading={'No saved posts :\\'}
