@@ -6,7 +6,8 @@ const SERVER_FORM_AUTH_ROUTES = ['/auth/settings', '/auth/upload'];
 const AUTH_ROUTES = [
 	'/auth/chat',
 	'/api/friends',
-	'/api/posts',
+	'/api/posts/delete',
+	'/api/posts/save',
 	'/api/comments',
 	'/auth/signout',
 	'/profile'
@@ -39,26 +40,6 @@ export async function getSessionUser(sessionToken: string | undefined): Promise<
 			id: true,
 			profilePictureUrl: true,
 			profilePictureFileID: true,
-			posts: {
-				include: {
-					author: {
-						select: {
-							username: true,
-							profilePictureUrl: true
-						}
-					},
-					tags: {
-						select: {
-							name: true
-						}
-					},
-					artists: {
-						select: {
-							name: true
-						}
-					}
-				}
-			},
 			savedPosts: {
 				include: {
 					author: {
@@ -122,14 +103,12 @@ export async function getSessionUser(sessionToken: string | undefined): Promise<
 		profilePictureUrl,
 		profilePictureFileID,
 		createdAt,
-		posts,
 		savedPosts,
 		friendRequestsReceived,
 		friendRequestsSent,
 		friends
 	} = user;
 
-	const transformedUploadedPosts = transformPosts(posts);
 	const transformedSavedPosts = transformPosts(savedPosts);
 
 	return {
@@ -139,7 +118,8 @@ export async function getSessionUser(sessionToken: string | undefined): Promise<
 		profilePictureUrl: urlFormer(profilePictureUrl),
 		profilePictureFileID,
 		createdAt,
-		posts: transformedUploadedPosts,
+		posts: [],
+		postPage: 0,
 		savedPosts: transformedSavedPosts,
 		friendRequestsReceived: friendRequestsReceived.map((request) => {
 			return {

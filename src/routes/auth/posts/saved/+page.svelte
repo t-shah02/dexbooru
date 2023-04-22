@@ -20,8 +20,12 @@
 	onDestroy(userDestroy);
 </script>
 
+<svelte:head>
+	<title>Saved posts</title>
+</svelte:head>
+
 {#if posts.length}
-	<PostGrid {posts} savedPosts={postIds} />
+	<PostGrid {posts} savedPosts={postIds} showSortbar={false} />
 {:else}
 	<EmptyContainerAlert
 		heading={'No saved posts :\\'}

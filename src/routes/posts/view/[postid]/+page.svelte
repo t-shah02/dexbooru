@@ -21,11 +21,24 @@
 	const date = prettifyDate(post.date);
 	const views = post.views;
 	const comments = post.comments;
+	const title = post.title || '';
 
 	onMount(() => {
 		addPost(postId);
 	});
 </script>
+
+<svelte:head>
+	<title>{title}</title>
+	<meta property="og:title" content={title} />
+	<meta property="og:type" content="website" />
+	<meta
+		property="og:description"
+		content="Uploaded by {authorName} at {date}, with {views} view(s)"
+	/>
+	<meta property="og:url" content="/posts/view/{postId}" />
+	<meta property="og:image" content={images[0]} />
+</svelte:head>
 
 <div class="flex flex-col space-y-5 mt-20 mb-20 post-container">
 	<PostInfoCard {views} {date} {authorName} {authorProfilePictureURL} {postId} />

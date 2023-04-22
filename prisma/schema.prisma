@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch"]
 }
 
 datasource db {
@@ -54,13 +55,14 @@ model Post {
   images    String[]
   imageIDs  String[]
   tags      Tag[]
+  artists   Artist[]
+  title     String
   views     Int       @default(0)
   nsfw      Boolean   @default(false)
   createdAt DateTime  @default(now())
   author    User      @relation("createdPosts", fields: [authorId], references: [id])
   savedBy   User[]    @relation("savedPosts")
   authorId  String
-  artists   Artist[]
   comments  Comment[]
 
   @@index([id])

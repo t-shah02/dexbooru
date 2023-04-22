@@ -2,7 +2,6 @@
 	import appLogo from '$lib/assets/logo.ico';
 	import DarkmodeToggle from './DarkmodeToggle.svelte';
 	import { authenticatedUser } from '$lib/stores/userStores';
-	import SearchToggle from './search/SearchToggle.svelte';
 	import ProfileDropdown from './navigation/ProfileDropdown.svelte';
 	import NavItems from './navigation/NavItems.svelte';
 	import FriendDropdown from './notifications/friends/FriendDropdown.svelte';
@@ -26,7 +25,6 @@
 					<FriendDropdown />
 				{/if}
 
-				<SearchToggle />
 				<DarkmodeToggle />
 			</div>
 

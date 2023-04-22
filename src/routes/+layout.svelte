@@ -5,7 +5,6 @@
 	import { onMount } from 'svelte';
 	import { Modal } from 'flowbite';
 	import type { ModalOptions, ModalInterface } from 'flowbite';
-	import SearchModal from '$lib/components/search/SearchModal.svelte';
 	import Footer from '$lib/components/Footer.svelte';
 	import Navbar from '$lib/components/Navbar.svelte';
 	import { authenticatedUser } from '$lib/stores/userStores';
@@ -15,10 +14,8 @@
 	import { footerData, navbarData } from '$lib/stores/components';
 
 	if ($page.data.user) {
-		authenticatedUser.set($page.data.user);
+		authenticatedUser.set({ ...$page.data.user, postPage: 0 });
 	}
-
-	
 
 	let modal: ModalInterface;
 
@@ -76,4 +73,3 @@
 <Navbar />
 <slot />
 <Footer />
-<SearchModal />

@@ -5,6 +5,7 @@
 	"scripts": {
 		"dev": "dotenv -e .env.local -- vite dev",
 		"migratedb:dev": "dotenv -e .env.local -- npx prisma migrate dev",
+		"resetdb:dev": "dotenv -e .env.local -- npx prisma migrate reset",
 		"deploydb:dev": "dotenv -e .env.local -- npx prisma migrate deploy",
 		"deploydb:prod": "dotenv -e .env.prod -- npx prisma migrate deploy",
 		"dbstudio:dev": "dotenv -e .env.local -- npx prisma studio",

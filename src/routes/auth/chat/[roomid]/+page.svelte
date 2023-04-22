@@ -50,7 +50,6 @@
 
 	const setupMessageContainer = () => {
 		if ($messageContainer) {
-			
 			$messageContainer.scrollTop = $messageContainer.scrollHeight;
 
 			$messageContainer.addEventListener('scroll', async () => {
@@ -120,6 +119,10 @@
 		refreshChatManager();
 	}
 </script>
+
+<svelte:head>
+	<title>Chat with {partner.username}</title>
+</svelte:head>
 
 <RateLimitModal onClose={() => $rateLimitModal?.hide()} />
 <ChatContainer {partner} {roomId} {loadingMessages} {noMoreMessagesToLoad} {jumpToBottomOfChat} />

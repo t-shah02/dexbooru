@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Post } from '$lib/interfaces/posts';
-	import { footerData } from '$lib/stores/components';
+	import { footerData, navbarData } from '$lib/stores/components';
 	import { onMount } from 'svelte';
 	import { Dropdown } from 'flowbite';
 	import type { DropdownOptions, DropdownInterface } from 'flowbite';
@@ -11,6 +11,7 @@
 	type SortDirection = 'increasing' | 'decreasing' | '';
 
 	export let posts: Post[] = [];
+	export let sortBarPosition: 'bottom' | 'top';
 
 	let sortOption: SortOption = '';
 	let sortDirection: SortDirection = '';
@@ -84,7 +85,7 @@
 
 <div
 	id="sort-floater"
-	style={$footerData.height > 0 ? `bottom: ${$footerData.height + 7}px` : ''}
+	style={sortBarPosition === 'bottom' ? `bottom: ${$footerData.height + 7}px` : `top: ${$navbarData.height + 7}px`}
 	class="flex justify-center align-middle space-x-2 fixed opacity-0 z-50 w-full h-16 max-w-lg -translate-x-1/2 bg-white border border-gray-200 rounded-full bottom-4 left-1/2 dark:bg-gray-700 dark:border-gray-600"
 >
 	<div>

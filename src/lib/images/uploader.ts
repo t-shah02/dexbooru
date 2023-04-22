@@ -5,7 +5,8 @@ import type { ProcessedImageServer } from '$lib/interfaces/uploads';
 export const PROFILE_FOLDER = 'profile_pictures';
 export const POSTS_FOLDER = 'posts';
 export const DEFAULT_PROFILE_URL = '/assets/default_profile_k1tJoKFet.png';
-export const urlFormer = (filePath: string): string => `${ENDPOINT}/${filePath}`;
+export const urlFormer = (filePath: string): string =>
+	filePath.startsWith('http') ? filePath : `${ENDPOINT}/${filePath}`;
 
 export async function uploadImageToCloud(
 	folder: string,

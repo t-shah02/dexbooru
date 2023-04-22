@@ -7,6 +7,7 @@ export interface LikeData {
 
 export interface Post {
 	postId: string;
+	title?: string;
 	date: Date;
 	views: number;
 	nsfw: boolean;
@@ -17,8 +18,6 @@ export interface Post {
 	artists: string[];
 	comments?: Comment[];
 }
-
-
 
 export interface PostFilters {
 	views: {

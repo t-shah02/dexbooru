@@ -160,7 +160,7 @@
 	</ul>
 
 	<ul
-		class="added-items  flex flex-wrap items-center justify-center mb-6 text-gray-900 dark:text-white"
+		class="added-items flex flex-wrap items-center justify-center mb-6 text-gray-900 dark:text-white"
 	>
 		{#each $uploadPost.artists as artist}
 			<li>

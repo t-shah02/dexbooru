@@ -35,28 +35,31 @@ const upload: Action = async ({ request, locals }) => {
 			return fail(400, { message: processedImagesInCloud.join('\n') });
 		}
 
-		const finalTags = tags.valueOf() as string[];
-		const finalArtists = artists.valueOf() as string[];
+		const finalTags = (tags.valueOf() as string[]).map((tag) => tag.toLocaleLowerCase().trim());
+		const finalArtists = (artists.valueOf() as string[]).map((artist) =>
+			artist.toLocaleLowerCase().trim()
+		);
 
 		const tagUpsertions = finalTags.map((tag) => {
-			const tagLowered = tag.toLocaleLowerCase();
 			return {
 				where: {
-					name: tagLowered
+					name: tag
 				},
-				create: { name: tagLowered }
+				create: { name: tag }
 			};
 		});
 
 		const artistUpsertions = finalArtists.map((artist) => {
-			const artistLowered = artist.toLocaleLowerCase();
 			return {
 				where: {
-					name: artistLowered
+					name: artist
 				},
-				create: { name: artistLowered }
+				create: { name: artist }
 			};
 		});
+
+		const titleParts = [...finalTags, ...finalArtists, locals.user.username];
+		const postTitle = titleParts.join(' ');
 
 		const newPost = await dbClient.post.create({
 			data: {
@@ -66,6 +69,7 @@ const upload: Action = async ({ request, locals }) => {
 				artists: {
 					connectOrCreate: artistUpsertions
 				},
+				title: postTitle,
 				authorId: locals.user.id,
 				nsfw: JSON.parse(nsfw.toString()) as boolean,
 				images: processedImagesInCloud.map(
@@ -77,14 +81,12 @@ const upload: Action = async ({ request, locals }) => {
 			}
 		});
 
-		newPost.images = newPost.images.map(imageUrl => urlFormer(imageUrl));
+		newPost.images = newPost.images.map((imageUrl) => urlFormer(imageUrl));
 
 		return {
 			newPost: JSON.stringify(newPost)
 		};
 	}
-
-	console.log('ran this');
 };
 
 export const actions: Actions = {

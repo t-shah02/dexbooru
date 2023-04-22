@@ -1,13 +1,11 @@
-import type { SearchQuery } from '$lib/interfaces/queries';
+import type { QueryData } from '$lib/query/autocomplete';
 import { writable } from 'svelte/store';
 
-const emptySearchQuery: SearchQuery = {
-	tags: [],
-	artists: [],
-	uploader: undefined,
-	startDate: undefined,
-	endDate: undefined,
-	exactDate: undefined
-};
+const queryResults = writable<QueryData>({
+	currentPage: 0,
+	averageTimeTaken: 0,
+	allTimesTaken: [],
+	results: []
+});
 
-export const search = writable<SearchQuery>(emptySearchQuery);
+export default queryResults;
